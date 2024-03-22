@@ -1,0 +1,76 @@
+#******************************************************************************
+# testlines.list (potext)
+#------------------------------------------------------------------------------
+##
+# \file           testlines.sh
+# \library        potext
+# \author         Chris Ahlstrom
+# \date           2024-02-14
+# \update         2024-02-15
+# \version        $Revision$
+#
+#   Provides a list of tests for the potext library.
+#
+#   We cannot use quoted phrases in this list of test files because the
+#   shell will not handle them correctly. So these are all one-word tests.
+#
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# Test [0] [a] Simple translation of a word
+#------------------------------------------------------------------------------
+
+translate ./library/tests/de.po Retry
+
+#------------------------------------------------------------------------------
+# Tests [1-3] [b] Singular translations of a word, with context
+#------------------------------------------------------------------------------
+
+translate ./library/tests/helloworld/de.po Retry
+translate ./library/tests/helloworld/de.po console Retry
+translate ./library/tests/helloworld/de.po gui Retry
+
+#------------------------------------------------------------------------------
+# Tests [4-5] [c] Plural translations of a word; requires a selection number
+#------------------------------------------------------------------------------
+
+translate ./library/tests/helloworld/de.po Retry Retries 1
+translate ./library/tests/helloworld/de.po Retry Retries 2
+
+#------------------------------------------------------------------------------
+# Tests [6-7] [d] Plural translations of a word with context and selection number.
+#------------------------------------------------------------------------------
+
+translate ./library/tests/helloworld/de.po console Retry Retries 1
+translate ./library/tests/helloworld/de.po gui Retry Retries 1
+
+#------------------------------------------------------------------------------
+# [e] Create a language object from 'lang' and show stuff
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# [f] Get the language by its name (e.g. fr_FR) and show its attributes
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# [g] Set a dictionary manager using 'dir', get the languages, and list them
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# [h] Create a dictionary from 'file' and print the messages and contexts
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# Tests [8-11] The original tests from tinygettext; the last three fail.
+#------------------------------------------------------------------------------
+
+translate ./library/tests/po/fr.po invalid
+directory ./library/tests/po/ umlaut Deutsch
+directory ./library/tests/po/ umlaut deutsch
+directory ./library/tests/po/ umlaut de
+
+#******************************************************************************
+# testlines.list (potext)
+#------------------------------------------------------------------------------
+# vim: ts=3 sw=3 wm=4 et ft=sh
+#------------------------------------------------------------------------------

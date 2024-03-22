@@ -1,0 +1,45 @@
+#*****************************************************************************
+# meson.options (potext)
+#-----------------------------------------------------------------------------
+##
+# \file        meson.options
+# \library     potext
+# \author      Chris Ahlstrom
+# \date        2024-02-06
+# \updates     2024-03-20
+# \license     $XPC_SUITE_GPL_LICENSE$
+#
+#  This file is part of the "potext" library. Note that, as of version 1.1,
+#  Meson uses "meson.options" in preference to "meson_options.txt".
+#  Hurray!
+#
+#  Options for potext.  Still very tentative.
+#
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+#  We do not need to append version numbers to the documents directory.
+#-----------------------------------------------------------------------------
+
+option('docdir',
+   type : 'string',
+   value : 'share/doc/potext',
+   description : 'Directory where Potext documentation is installed.',
+   yield : true
+)
+
+#-----------------------------------------------------------------------------
+# This option is checked only if potext is not a subproject.
+#-----------------------------------------------------------------------------
+
+option('enable_tests',
+   type : 'boolean',
+   value : true,
+   description : 'Build the test program(s)'
+)
+
+#****************************************************************************
+# meson.options (potext)
+#----------------------------------------------------------------------------
+# vim: ts=3 sw=3 ft=meson
+#----------------------------------------------------------------------------

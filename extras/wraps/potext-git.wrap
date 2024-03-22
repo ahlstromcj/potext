@@ -1,0 +1,26 @@
+#----------------------------------------------------------------------------
+#
+# Potext Library Wrapper
+# Chris Ahlstrom
+# 2024-03-21 to 2024-03-22
+#
+#   Potext wrapper for the GitHub Potext git repository.
+#
+#----------------------------------------------------------------------------
+
+[wrap-git]
+
+url = https://github.com/ahlstromcj/potext.git
+revision = head
+depth = 1
+
+[provide]
+
+#----------------------------------------------------------------------------
+# These dependencies are declared in potext/library/meson.build.
+#----------------------------------------------------------------------------
+
+libpotext_include = libpotext_include_dep
+libpotext_library = libpotext_library_dep
+
+# vim: ft=dosini

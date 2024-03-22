@@ -1,0 +1,15 @@
+# Not used.  See library/src/meson.build.
+#
+prefix=@INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/@LIB_SUBDIR@
+includedir=${prefix}/include
+
+Name: @PROJECT_NAME@
+Description: tiny, minimal gettext replacement
+Version: @VERSION@
+URL: https://github.com/ahlstromcj/potext
+Requires:
+Libs: -L${libdir} -lpotext
+Libs.private:
+Cflags: -I${includedir}

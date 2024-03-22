@@ -1,0 +1,50 @@
+Installation of icons in Linux
+Chris Ahlstrom
+2024-03-18 to 2024-03-18
+
+Typical Installed locations of icons:
+
+    /usr/local/share/icons/hicolor
+    /usr/local/share/seq66-0.99/icons/hicolor
+
+    /usr/share/icons/hicolor
+    /usr/share/brasero/icons/hicolor
+
+The hicolor subdirectories:
+
+    16x16
+    22x22
+    24x24
+    32x32
+    48x48
+    64x64
+    128x128
+    256x256
+    512x512
+    scalable
+        'apps' is common to all the above. Also possible:
+        actions, animation, categorie, device, emblem, emote, filesystem,
+        int, mimetype, place, statu, stock
+
+Installing icons:
+
+    Note that datadir by default is ${prefix}/share.
+
+    meson.build:
+
+        datadir = get_option('datadir')
+        icondir = datadir / 'icons' / 'hicolor'
+        install_subdir('pixmaps/16x16', install_dir: icondir)
+        install_subdir('pixmaps/32x32', install_dir: icondir)
+        . . . etc.
+
+Aside:
+
+    pkgdatadir = datadir / appname
+    pkglibdir = get_option('libdir') / appname
+    pkglibexecdir = get_option('libexecdir') / appname
+    pkgdocsdir = datadir / 'doc' / appname
+
+    see inform7-ide-main/meson.build for more inspiration.
+
+# vim: sw=4 ts=4 wm=8 et ft=sh

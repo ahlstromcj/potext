@@ -1,0 +1,12 @@
+# .gitignore for Potex
+#
+# Chris Ahlstrom
+# Updates: 2024-03-21 to 2024-03-21
+
+build/
+core
+*.t
+tags
+TAGS
+*.tmp
+tmp/

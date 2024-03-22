@@ -1,0 +1,384 @@
+%-------------------------------------------------------------------------------
+% tests
+%-------------------------------------------------------------------------------
+%
+% \file        tests.tex
+% \library     Documents
+% \author      Chris Ahlstrom
+% \date        2024-02-09
+% \update      2024-03-15
+% \version     $Revision$
+% \license     $XPC_GPL_LICENSE$
+%
+%     Provides a pointed description of some tests, which also helps understand
+%     usage of the potext library, a replacement for the tinygettext library..
+%
+%-------------------------------------------------------------------------------
+
+\section{Potext Tests}
+\label{sec:potext_tests}
+
+   This section provides a useful walkthrough of the testing
+   of the \textsl{potext} library.
+   They illustrate the various way in which the \textsl{Potext} library
+   can be used by a develper.
+
+   These tests are not installed; they are in the transitory
+   directory \texttt{potext/build/library/tests}.
+   The test \texttt{*.po} files are in the 
+   directory \texttt{potext/library/tests} and its subdirectories.
+   The shell script
+   \texttt{library/tests/tests.sh} runs all of the
+   \texttt{potext\_test} tests listed in the following file,
+   plus a couple more.
+
+   \begin{verbatim}
+      library/tests/testlines.list
+   \end{verbatim}
+
+   It specifies the tests
+   described here, but using only single-word phrases.
+   The reason is that we have not yet figured out how to deal
+   with phrases enclosed in double-quotes in a shell script.
+
+   Let us survey the main features of all of the test \texttt{po}
+   files:
+
+   \begin{itemize}
+      \item \texttt{po} directory.
+         This directory contains a small sampling of \texttt{.po}
+         files from the \textsl{GNU Gettext} project.
+         They have been pared down a bit just to save a few bytes,
+         and a few extra translations have bee added for testing.
+         They are used in the new
+         \texttt{hellopotext} test program to
+         test the functions in the \texttt{gettext} C++ module.
+      \item \texttt{library/tests/de.po}.
+         A basic \texttt{po} file with just
+         \texttt{msgid} keys and
+         \texttt{msgstr} translations in Deutsche (German, Alemania).
+      \item \texttt{library/tests/broken.po}.
+         This file has an entry \texttt{msgstr[10]}, obviously bad.
+      \item \texttt{library/tests/helloworld/de.po}.
+         It has some \texttt{msgctxt} sections with
+         \texttt{msgid\_plural},
+         \texttt{msgstr[0]} for a singular translation and
+         \texttt{msgstr[1]} for a plural translation 
+         for each context (none, "gui", and "console").
+      \item \texttt{library/tests/level/de.po}.
+         Contains basic entries plus a number of entries with a blank
+         message-ID followed by a long description and a message-string
+         with a blank value followed by a long translation.
+         NEED TO FIGURE THAT OUT.
+         Also includes a couple of \texttt{printf()} format statements.
+      \item \texttt{library/tests/po/de.po}.
+         Another basic file with a number of translations and a
+         weird message-ID called "umlaut".
+      \item \texttt{library/tests/po/de\_AT.po}.
+         A short file with "umlaut" and a couple of plurals.
+      \item \texttt{library/tests/po/fr.po}.
+         Contains one German translation. Wtf?
+   \end{itemize}
+
+   One thing to watch for in running the tests.
+   The test programs write output to \texttt{std::cout} or
+   \texttt{std::cerr}, while the \textsl{Potext} library
+   internals use the \texttt{po::logstream} class functions.
+   What happen is the all of the application output comes first,
+   while the log-stream message are not emitted until
+   test program exit.
+   Not sure why the latter aren't "flushed" immediately.
+
+\subsection{Hello Potext}
+\label{subsec:potext_hello_potext}
+
+   This test is a work in progress.
+   Without arguments, it runs through basic tests of the following
+   functions.
+   The main domain is provided to \texttt{po::init\_app\_locale()}
+   which should normally be called in the applications's
+   \texttt{main()} entry point function.
+
+   \begin{itemize}
+      \item \texttt{\_()} and \texttt{gettext()}.
+         This function does a message translation lookup using
+         the current domain, which is logged in the
+         \texttt{init\_app\_locale()} function.
+         This smoke test illustrates the most common case we want to
+         cover, which is the translation of a phrase according to
+         the main (or only) domain and locale directory loaded.
+         Also included is a test where the original message is not
+         present in the \texttt{.po} file.
+      \item \texttt{dgettext}.
+         This function looks up a domain's dictionary and uses it
+         for the translation.
+         This test runs through all of the domains (i.e. \texttt{.po}
+         files) in the \texttt{po} project directory.
+         Currently tested are the \textsl{es}, \textsl{fr}, \textsl{de},
+         and a bogus domain named \textsl{xx}, which should just return
+         the input message ID.
+      \item \texttt{dcgettext}.
+         This test does not do anything.
+         Currently \textsl{Potext} does not handle locale categories.
+         The reasons? First, the most common use case is looking up
+         message translations in the \texttt{LC\_MESSAGES} locale category.
+         Second, this translation would require loading additional locale
+         directories and their dictionaries.
+         With this complication, we will sit on this problem for awhile.
+      \item \texttt{ngettext}.
+         This test handles plural forms in the current domain.
+         It deals only the the main domain, \texttt{es},
+         It tests translating the plurals of the following singulars:
+         "File" and "Person". 
+         The translations are likely not accurate, as they were provided
+         by \textsl{Google Translate}.
+         But they adequately test the process.
+      \item \texttt{dngettext}.
+         This test handles plural forms in a specified domain.
+         Currently tested are the \textsl{es}, \textsl{fr}, \textsl{de},
+         and a bogus domain named \textsl{xx}, which should just return
+         the input message ID.
+      \item \texttt{dcngettext}.
+         This function is not yet implemented, due to difficulties
+         with selecting the category directory, as discussed above.
+      \item \texttt{pgettext}.
+         This test applies only to the domain specified in the
+         \texttt{init\_app\_locale()} function.
+   \end{itemize}
+
+   Some functions not yet tested because of the implmentation difficulties
+   noted above.
+
+   \begin{itemize}
+      \item \texttt{dcgettext()}.
+      \item \texttt{dcngettext()}.
+   \end{itemize}
+
+   Additional arguments can change the default domain.
+   We will document these real soon now.
+
+\subsection{Potext Test Program}
+\label{subsec:potext_test_program}
+
+   This small application is the best test of \textsl{potext} from the
+   perspective of a developer wanting to use it in an application.
+   Running it without any arguments shows a list of 8 tests.
+   These are reflected in the following sections.
+
+\subsubsection{Potext Test 'Translate'}
+\label{subsubsec:potext_test_translate}
+
+   These tests are run using a command like the following:
+
+   \begin{verbatim}
+      $ ./build/library/tests/potext_test translate <...options...>
+   \end{verbatim}
+
+   By running \texttt{potext\_test} without any options, one sees
+   four "translate" commands.
+   The four variations on the "translate"
+   test are described in the following sub-sections.
+
+\paragraph{Translate Basic: Po File and Sample Message}
+\label{paragraph:potext_test_translate_po_message}
+
+   This test is a simple translation of a word.
+   The basic "translate" test is run by the following form, which has an
+   argument count of 4.
+
+   \begin{verbatim}
+      $ ./build/library/tests/potext_test translate <file> <msg>
+   \end{verbatim}
+
+   The file is a test \texttt{.po} file in the
+   \texttt{tests} directory.
+   The message is a phrase present in that file, such as
+   \textsl{"F1 - show/hide this help screen"}, translated in
+   \texttt{de.po} as
+   \textsl{"F1 - Hilfe anzeigen/verstecken"}.
+
+   Here is the run:
+
+   \begin{verbatim}
+      $ ./build/library/tests/potext_test translate \
+         library/tests/de.po "F1 - show/hide this help screen"
+   \end{verbatim}
+
+   The output is
+
+   \begin{verbatim}
+      Translation: "F1 - Hilfe anzeigen/verstecken"
+   \end{verbatim}
+
+   If only a part of the message is provided, of course there is no
+   match, and the message is
+
+   \begin{verbatim}
+      Translation: "F1 - Hilfe"
+      [potext] Couldn't translate: "F1 - Hilfe"
+   \end{verbatim}
+
+   This second test shows that any deviation from a supported message causes an
+   warning, and returns the original message.
+   These deviations include missing letters, missing punctuation,
+   additional spaces.
+   \textsl{We wonder if we can work around such issues in this library.
+   We shall see.}
+
+\paragraph{Translate: Po File, Context, and Sample Message}
+\label{paragraph:potext_test_translate_po_context_message}
+
+   This test is run by the following form, which has an argument count
+   of 5.
+
+   \begin{verbatim}
+      $ ./build/library/tests/potext_test translate <file> <context> <msg>
+   \end{verbatim}
+
+   This test requires a \texttt{po} file with message-context
+   entries such as these three different entries found in
+   \texttt{library/test/helloworld/de.po} for the phrase
+   "Hello World":
+
+   \begin{verbatim}
+      msgctxt ""
+      msgid "Hello World"
+      msgctxt "console"
+      msgid "Hello World"
+      msgctxt "gui"
+      msgid "Hello World"
+   \end{verbatim}
+
+   Please note that the \textsl{GNU} \texttt{gettext()} documentation says
+   that an empty message context (\texttt{msgctxt ""}) is \textsl{not}
+   the same as a missing message context.
+   In the "helloworld" test program, these contexts are provided by the
+   following lines:
+
+   \begin{verbatim}
+      pgettext("", "Hello World")
+      pgettext("console", "Hello World")
+      pgettext("gui", "Hello World")
+   \end{verbatim}
+
+   The macros \texttt{ngettext} and \texttt{npgettext} are also used to provide
+   access to the various plural forms in that \texttt{po} file.
+   In any case, we need to use 
+   \texttt{library/test/helloworld/de.po} for this test.
+   An actual test run:
+
+   \begin{verbatim}
+      $ ./build/library/tests/potext_test translate \
+            library/tests/helloworld/de.po "console" "Hello World"
+   \end{verbatim}
+
+   The output is
+
+   \begin{verbatim}
+      Context 'console' translation: "Hallo Welt (singular) in der Console"
+   \end{verbatim}
+
+   If the \texttt{<context>} parameter is not found in the \texttt{po}
+   file, a message is emitted to indicate the error.
+
+\paragraph{Translate: Po File with Singular and Plurals}
+\label{paragraph:potext_test_translate_po_singular_plural}
+
+   This test is run by the following form, which has an argument count
+   of 6.
+
+   \begin{verbatim}
+      $ ./build/library/tests/potext_test translate <file> <singular>
+            <plural> <N>
+   \end{verbatim}
+
+   The singular and plural parameters are message IDs, such as "Hello World".
+   This command is a bit tricky; the N value is not a C index, but an
+   index that starts at 1.
+   The N parameter ranges from 1 to the last array value in
+   the \texttt{po} file.
+   The number of singular/plural translations depends on the language and
+   is specified in the specific \texttt{.po} file using
+   a header declaration such as
+   \texttt{"Plural-Forms: nplurals=2; plural=(n != 1);"}.
+   Look at \texttt{pluralforms.cpp} to see all the plural-forms settings and
+   "callbacks" that are support.
+   Some of these forms support Slavic and Arabic languages, and we are not able
+   to test them.
+
+   An actual test run:
+
+   \begin{verbatim}
+      $ ./build/library/tests/potext_test translate \
+            library/tests/helloworld/de.po "Hello World" "Hello Worlds" 1
+   \end{verbatim}
+
+   The output is
+
+   \begin{verbatim}
+      TODO
+   \end{verbatim}
+
+\paragraph{Translate: Po File with Context, Singular, and Plurals}
+\label{paragraph:potext_test_translate_po_context_singular_plural}
+
+   This test is run by the following form, which has an argument count
+   of 7.
+
+   \begin{verbatim}
+      $ ./build/library/tests/potext_test translate <file> <context> \
+         <singular> <plural> <N>
+   \end{verbatim}
+
+   An actual test run:
+
+   \begin{verbatim}
+      $ ./build/library/tests/potext_test translate \
+            library/tests/helloworld/de.po "gui" "Hello World" "Hello Worlds" 0
+   \end{verbatim}
+
+   The output is
+
+   \begin{verbatim}
+      TODO
+   \end{verbatim}
+
+\subsubsection{Potext Test 'Directory'}
+\label{subsubsec:potext_test_directory}
+
+   These tests are run using a command like the following:
+
+   \begin{verbatim}
+      $ ./build/library/tests/potext_test directory <dir> <msg> [<lang>]
+   \end{verbatim}
+
+\subsubsection{Potext Test 'Language'}
+\label{subsubsec:potext_test_language}
+
+   These tests are run using a command like the following:
+
+   \begin{verbatim}
+      $ ./build/library/tests/potext_test language <lang>
+   \end{verbatim}
+
+\subsubsection{Potext Test 'Language Directory'}
+\label{subsubsec:potext_test_language_directory}
+
+   These tests are run using a command like the following:
+
+   \begin{verbatim}
+      $ ./build/library/tests/potext_test language-dir <dir>
+   \end{verbatim}
+
+\subsubsection{Potext Test 'List Message Strings'}
+\label{subsubsec:potext_test_list_message_strings}
+
+   These tests are run using a command like the following:
+
+   \begin{verbatim}
+      $ ./build/library/tests/potext_test list-msgstrs <file>
+   \end{verbatim}
+
+%-------------------------------------------------------------------------------
+% vim: ts=3 sw=3 et ft=tex
+%-------------------------------------------------------------------------------

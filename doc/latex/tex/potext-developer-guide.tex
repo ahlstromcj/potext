@@ -1,0 +1,353 @@
+%-------------------------------------------------------------------------------
+% potext-reference-guide
+%-------------------------------------------------------------------------------
+%
+% \file        potext-reference-guide.tex
+% \library     Documents
+% \author      Chris Ahlstrom
+% \date        2024-02-08
+% \update      2024-03-22
+% \version     $Revision$
+% \license     $XPC_GPL_LICENSE$
+%
+%     This document provides LaTeX documentation for the potext library.
+%
+%-------------------------------------------------------------------------------
+
+\documentclass[
+ 11pt,
+ twoside,
+ a4paper,
+ final                                 % versus draft
+]{article}
+
+\input{tex/docs-structure}             % specifies document structure and layout
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead{}
+\fancyfoot{}
+\fancyheadoffset{0.005\textwidth}
+\lhead{Potext Library Reference and Usage}
+\chead{}
+\rhead{Developer Guide}
+\lfoot{}
+\cfoot{\thepage}
+\rfoot{}
+
+% Removes the many "headheight is too small" warnings.
+
+\setlength{\headheight}{14.0pt}
+
+\makeindex
+
+\begin{document}
+
+\title{Potext Developer Guide 0.1}
+\author{Chris Ahlstrom \\
+   (\texttt{ahlstromcj@gmail.com})}
+\date{\today}
+\maketitle
+
+\begin{figure}[H]
+   \centering 
+   \includegraphics[scale=0.65]{potext-logo.png}
+   \caption*{Pseudo-Greek Transliteration}
+\end{figure}
+
+\clearpage                             % moves Contents to next page
+
+\tableofcontents
+\listoffigures                         % print the list of figures
+
+% No tables as of now
+%
+% \listoftables                        % print the list of tables
+
+\parindent 0pt
+\parskip 9pt
+
+\rhead{\rightmark}         % shows section number and section name
+
+\section{Introduction}
+\label{sec:introduction}
+
+   The \textsl{potext} libraries adopt, refactor, and greatly extend the
+   \textsl{tinygettext} library (\cite{tinygettext}).
+   The purpose of that library is to provide a lightweight mechanism
+   to do translations using the
+   \textsl{Portable Object} translation files, \texttt{*.po}, directly,
+   rather than \textsl{Machine Object} files, \texttt{*.mo}.
+
+   The purpose of the \textsl{Potext} library is to provide \texttt{C++}
+   functions that mirror the many functions of \textsl{gettext},
+   including 
+   \texttt{textdomain()},
+   \texttt{bindtextdomain()},
+   \texttt{bind\_textdomain\_codeset()},
+   \texttt{gettext()},
+   \texttt{dgettext()},
+   \texttt{ngettext()},
+   and others.
+   In addition, some of the details of \textsl{tinygettext} 
+   are wrapped so that, other than marking the text to be translated,
+   the translation setup is done by calling a single function in
+   \texttt{main()}.
+
+   Our main goal is to make it easy and lightweight to internationalize
+   an application while sticking with \textsl{GNU Gettext}
+   conventions.
+
+   The \textsl{GNU Gettext} manual (\cite{gettextman}) is an important
+   resource used in writing \textsl{Potext}.
+   Also important is the source code at
+   \texttt{savannah.gnu.org} (\cite{gettextcode}).
+
+   Note that \textsl{Potext} requires the usage of \texttt{C++17}
+   and above. It support builds using the \textsl{GNU} and \textsl{Clang}
+   compilers.
+   \textsl{Windows} support will be provided, but it is not ready yet.
+
+\subsection{Additions to Tinygettext}
+\label{subsec:introduction_additions}
+
+   \begin{itemize}
+      \item Re-implementations of \textsl{gettext/libintl}
+         functions as a module
+         (collection of functions) in the \texttt{po} namespace.
+      \item Integration of the functions above with the
+         dictionary-manager class.
+      \item Support for selecting a domain during the run.
+      \item A new class, \texttt{nlsbindings}, to supplement the
+         \texttt{language} class.
+      \item An additional test program, test \texttt{.po} files,
+         and upgrades to existing tests.
+      \item Full documentation of architecture and usage.
+      \item Meson \texttt{.wrap} files to use Meson as a subproject.
+         A sample application project is stored in the tar-file noted
+         below.
+   \end{itemize}
+
+   With these additions, \textsl{Potext} should be relatively straightforward
+   to use in a new \texttt{C++} application.
+
+   \texttt{extras/code/mini-potext-test.tar.xz}
+   contains a simple application.
+   Unpack the tar-file into its own directory
+   and build it by running the
+   \texttt{work.sh} script.
+
+\subsection{Deletions from GNU Gettext}
+\label{subsec:introduction_deletions}
+
+   \begin{itemize}
+      \item Locking has been removed from some \texttt{gettext()}-like
+         functions; locking can be put back once testing reveals
+        it necessary for the use-cases that \textsl{Potext} supports.
+      \item Determining if the binary is running SUID root.
+   \end{itemize}
+
+   Currently \textsl{Potext} is meant to be set up once during
+   the run of an application.
+   It currently does not detect changes to the environment variables
+   related to localization and character conversions.
+   It assumes that once the setup is made, no localization changes
+   will be made. Keeps it simple.
+
+\subsection{Code Changes}
+\label{subsec:introduction_changes}
+
+   \begin{itemize}
+      \item Changed the coding style and naming conventions.
+      \item Use of initializer lists for initializing various containers.
+      \item Use of the \texttt{auto} keyword in declarations and
+         \texttt{for}-loops.
+      \item Many additional \texttt{using} directives.
+   \end{itemize}
+
+   These changes are meant to make the code easier to read and understand.
+
+\subsection{Future Work}
+\label{subsec:introduction_future}
+
+   \begin{itemize}
+      \item Hammer on this code in \textsl{Windows}.
+      \item Work out the installation process; including \texttt{.po} file
+         installation and copying to the user's configuration directory.
+      \item Handle capitals, punctuation, etc. without additional
+         \texttt{.po} entries.
+      \item Add parsing of \texttt{*.mo} files for more complete
+         compatibility with \textsl{GNU Gettext}.
+      \item Get the handling of categories (e.g. \texttt{LC\_TIME}) to
+         work. However, note that the category is almost always
+         \texttt{LC\_MESSAGES}.
+      \item Handle the "C" locale as discussed below.
+      \item Allow for the user to override the character set via the
+         \texttt{OUTPUT\_CHARSET} environment variable.
+      \item Add support to assist a \textsl{Potext}-using project with the
+         installation of the \texttt{.po} files.
+   \end{itemize}
+
+   Ignore \texttt{LANGUAGE} and its system-dependent analog if the locale is
+   set to "C" because:
+
+   \begin{enumber}
+      \item "C" locale uses the ASCII encoding; most international
+         messages use non-ASCII characters, which get displayed
+         as question marks or as invalid 8-bit characters.
+      \item The precise output of some programs in the "C" locale
+         is specified by POSIX and should not depend on environment
+         variables like \texttt{LANGUAGE}.  Such programs can use
+         \texttt{gettext()}.
+   \end{enumber}
+
+   Also ignore \texttt{LANGUAGE} and its system-dependent analog if the
+   locale is \texttt{C.UTF-8} or \texttt{C.<encoding>}; that's
+   the by-design behaviour for \texttt{glibc}, see
+   \url{https://sourceware.org/glibc/wiki/Proposals/C.UTF-8}.
+   Also look in \texttt{/usr/lib/locale/C.utf8}.
+
+\subsection{Naming Conventions}
+\label{subsec:introduction_conventions}
+
+   \textsl{Potext} uses some conventions for naming things in this
+   document.
+
+   \begin{itemize}
+      \item \texttt{\$prefix}. The base location for installation of
+         the application and its ancillary data files on
+         \textsl{UNIX/Linux/BSD}:
+         \begin{itemize}
+            \item \texttt{/usr/}
+            \item \texttt{/usr/local/}
+         \end{itemize}
+      \item \texttt{\$winprefix}. The base location for installation of
+         the application and its ancillary data files on \textsl{Windows}.
+         \begin{itemize}
+            \item \texttt{C:/Program Files/}
+            \item \texttt{C:/Program Files (x86)/}
+         \end{itemize}
+      \item \texttt{\$podir}. The installed location of the \texttt{*.po}
+         files.  The directory \texttt{share} (\textsl{Linux}) or
+         \texttt{data} (\textsl{Windows}),
+         the package-name of the application
+         (\texttt{PACKAGE}), and \texttt{po} are concatenated,
+         and again the conventions differ between operating systems.
+         \begin{itemize}
+            \item \texttt{/usr/share/PACKAGE/po/}
+            \item \texttt{/usr/local/share/PACKAGE/po/}
+            \item \texttt{C:/Program Files/PACKAGE/data/po/}
+            \item \texttt{C:/Program Files (x86)/PACKAGE/data/po/}
+         \end{itemize}
+      \item \texttt{\$home}. The alternate installed
+         location of the \texttt{*.po} files.
+         Not to be confused with \texttt{\$HOME}, this is
+         the standard location for configuration files.
+         On a UNIX-style system, it would be \linebreak
+         \texttt{\$HOME/.config/appname}.
+         The files would be put into a \texttt{po} subdirectory here.
+      \item \texttt{\$localedir}. The installed
+         location of the \texttt{*.mo} files.
+         The directory \texttt{share} (\textsl{Linux})
+         or \texttt{data} (\textsl{Windows}),
+         the package-name of the application
+         (\texttt{PACKAGE}), and \texttt{locale} are concatenated.
+         The conventions for \textsl{Linux} versus \textsl{Windows}
+         differ as a matter of historical interest:
+         \begin{itemize}
+            \item \texttt{/usr/share/PACKAGE/locale/}
+            \item \texttt{/usr/local/share/PACKAGE/locale/}
+            \item \texttt{C:/Program Files/PACKAGE/data/locale/}
+            \item \texttt{C:/Program Files (x86)/PACKAGE/data/locale/}
+         \end{itemize}
+            At present, \textsl{Potext} does not support directories of
+            \texttt{.mo} files. It might, in the future.
+      \item \texttt{LC\_MESSAGES}. A more common convention for
+            \texttt{*.mo} files on \textsl{UNIX} is to put them in
+         \begin{itemize}
+            \item \texttt{/usr/share/locale/<language>/LC\_MESSAGES/PACKAGE.mo}
+            \item \texttt{/usr/local/share/locale/<language>/LC\_MESSAGES/PACKAGE.mo}.
+         \end{itemize}
+   \end{itemize}
+
+   Currently, the \textsl{Potext} library uses only the \texttt{*.po} files.
+   In the future it might also handle \texttt{*.mo} files.
+   Also note that various applications differ in the exact location of their
+   translation files.
+
+\subsection{Home Potext Configuration}
+\label{subsec:introduction_home_potext_configuration}
+
+   The \textsl{Potext} library also supports installing the
+   \texttt{*.po} translation files in the user's configuration area.
+   The conventions we use are:
+
+   \begin{itemize}
+      \item \texttt{\$home}. The location where \texttt{PACKAGE} installs,
+         creates, or copies its configuration files.
+         Do not confuse it with \texttt{\$HOME},
+         although \texttt{\$home} is in
+         \texttt{\$HOME/.config/PACKAGE}.
+         The \texttt{*.po} files are stored in
+         \texttt{\$HOME/.config/PACKAGE/po}.
+      \item \texttt{\$winhome}. This location is different for
+         \textsl{Windows}:
+         \texttt{C:/Users/user/AppData/Local/PACKAGE}.
+         Again, the \texttt{*.po} files are in a
+         subdirectory called \texttt{po}.
+   \end{itemize}
+
+   Also, for reference, we mention some of the files used by
+   \textsl{GNU Gettext}.
+
+   \begin{itemize}
+      \item \texttt{PACKAGE.pot}, created by \texttt{xgettext}.
+      \item \texttt{LANG.po}, created by \texttt{msgmerge},
+         copying \texttt{PACKAGE.pot}, or by editing.
+      \item \texttt{LANG.gmo}, created by \texttt{msgfmt}.
+      \item For installed packages, see
+         \texttt{\$prefix/locale/LANG/PACKAGE.mo}.
+      \item Or see
+         \texttt{\$prefix/locale-langpack}.
+         \texttt{LC\_category} (e.g. \texttt{LC\_NUMERIC}).
+      \item \texttt{LANG/PACKAGE.po}, reverse engineered from
+         \texttt{PACKAGE.mo} by \texttt{msgunfmt}.
+   \end{itemize}
+
+   Also refer to the \textsl{Python} packages \textsl{polib}
+   and \textsl{poedit}.
+
+%----------------------------------------------------------------------------
+% Additional Chapters
+%----------------------------------------------------------------------------
+
+\input{tex/usage}
+\input{tex/architecture}
+\input{tex/gettext}
+\input{tex/tests}
+
+\section{Summary}
+\label{sec:summary}
+
+   Contact: If you have ideas about \textsl{Potext} or a bug report,
+   please email us (at \url{mailto:ahlstromcj@gmail.com}).
+
+   Remaining issues:
+
+   The \texttt{*.po} files "msgid" and "msgstr" entries have punctuation marks
+   and trailing spaces that are significant.
+   CAN WE GET AROUND THIS ISSUE?
+   We need to trim these trailing characters in both specifications,
+   and also when translating, and restore them in the translation.
+
+% References
+
+\input{tex/references}
+
+\printindex
+
+\end{document}
+
+%-------------------------------------------------------------------------------
+% vim: ts=3 sw=3 et ft=tex
+%-------------------------------------------------------------------------------

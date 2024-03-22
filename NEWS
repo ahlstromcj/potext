@@ -1,0 +1,35 @@
+NEWS for Potext 0.1
+Chris Ahlstrom
+2024-03-19 to 2024-03-19
+
+# Changelog
+
+## [0.1.0] - 2024-03-19
+
+### Added
+
+- This is the first release of the Potext library. See the README for
+  more information.
+
+### Fixed
+
+- See the README.
+
+### Changed
+
+- See the README.
+
+### Removed
+
+- See the README.
+
+## [Unreleased]
+
+    To do.
+
+### Added
+### Fixed
+### Changed
+### Removed
+
+# vim: sw=4 ts=4 wm=4 et ft=markdown

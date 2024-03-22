@@ -1,0 +1,273 @@
+%-------------------------------------------------------------------------------
+% usage
+%-------------------------------------------------------------------------------
+%
+% \file        usage.tex
+% \library     Documents
+% \author      Chris Ahlstrom
+% \date        2024-03-19
+% \update      2024-03-22
+% \version     $Revision$
+% \license     $XPC_GPL_LICENSE$
+%
+%     Provides a description of how to use potext in an application.
+%
+%-------------------------------------------------------------------------------
+
+\section{Potext Usage in Applications}
+\label{subsec:potext_usage}
+
+   This section briefly covers the usage of \textsl{Potext} in an
+   application.
+   A real sample is included in \texttt{library/tests/hellopotext.cpp}
+   (see \sectionref{subsec:potext_hello_potext}).
+   A small sample application showing the usage of
+   \textsl{Potext} as a \textsl{Meson} subproject is
+   contained in:
+
+   \begin{verbatim}
+      extras/code/mini-potext-test.tar.xz
+   \end{verbatim}
+
+   Unpack this file in its own directory and check it out.
+
+\subsection{Main Module Using Potext}
+\label{subsubsec:potext_usage_main}
+
+   The first thing is to add the following header file
+   to the module defining the \texttt{main()} function.
+
+   \begin{verbatim}
+      #include "po/potext.hpp"      // includes "po/gettext.hpp"
+   \end{verbatim}
+
+   For clarity, \texttt{potext.hpp} is better, but it does include
+   an extra header file.
+
+   If \textsl{Potext} support is optional for the project, then do
+   something like this; \texttt{PROJECT\_USE\_POTEXT}
+   is a macro optionally defined when configuring the project build.
+
+   \begin{verbatim}
+      #if defined PROJECT_USE_POTEXT
+      #include "po/potext.hpp"   // includes "po/gettext.hpp"
+      else
+      #define _(str)             (str)
+      #define N_(str)            str
+      #endif
+   \end{verbatim}
+
+   An application using "gettext" internationaliztion generally needs
+   to call \texttt{setlocale()},
+   \texttt{textdomain()}, and \texttt{bindtextdomain()}.
+   The following function wraps up these functions in one call.
+
+   \begin{verbatim}
+      std::string init_app_locale
+      (
+          const std::string & arg0,
+          const std::string & pkgname,
+          const std::string & domainname,
+          const std::string & dirname,
+          int category
+      )
+   \end{verbatim}
+
+   \texttt{arg0}.
+   The path-name by which the program was called. This information
+   can determine more precisely where installed \texttt{.po} files might be
+   stored.
+
+   \texttt{pkgname}.
+   The name of the PACKAGE, which can be the short name for
+   the program, such as "helloworld".
+
+   \texttt{domainname}.
+   The base name of a message catalog, such as "en\_US".
+   It must consist of characters legal in filenames.
+%  We might support a value of "0" to reset the domain to
+%  "messages".
+   An application might want to use its
+   package name, such as "helloworld", for the domain name.
+   If empty, then the environment variable \texttt{TEXTDOMAIN} is used.
+   If that's empty, then \texttt{LC\_ALL} is used.
+   If that's empty, then \texttt{LC\_MESSAGE} is used.
+   Lastly, if that's empty, then \texttt{LANG} is used.
+
+   \texttt{dirname}.
+   Provides the name of the \texttt{LOCALEDIR}.
+   The standard search directory is \texttt{/user/share/locale}.
+   If empty, then the environment variable
+   \texttt{TEXTDOMAINDIR} is used.
+   If the name is "user", then the \texttt{.po} files are searched
+   for in \texttt{/home/user/.config/package/} or
+   \texttt{C:/Users/user/AppData/Local}, instead of some
+   place in the system.
+
+   \texttt{category}.
+   The area that is covered, such as
+   \texttt{LC\_ALL}, \texttt{LC\_MONETARY}, and \texttt{LC\_NUMERIC}.
+   The default value selects \texttt{LC\_ALL}.
+
+   The following calls are made for the setup:
+
+   \begin{enumber}
+      \item \texttt{std::setlocale()} sets the application's current
+         category and locale.
+         The category is \texttt{LC\_ALL} by default, and the locale
+         is empty, so that the locale parts are modified according to
+         environment variables.
+      \item \texttt{po::set\_locale\_info()} sets up the domain name
+         and the locale directory name. If empty, the
+         environment variables discussed above are used.
+         In addition, it is determined if the locale directory
+         is a system directory, the user's configuration directory,
+         or some arbitrary directory containing \texttt{.po} files.
+      \item \texttt{po::init\_lib\_locale()} first
+         asks the dictionary-manager (see 
+         \sectionref{sec:potext_architecture})
+         to add all of the dictionaries (po files) in that directory
+         to the list of selectable dictionaries, making one
+         of them the default dictionary.
+         Then the reimplementation of the \texttt{bindtextdomain()}
+         is called to create a new domain-to-directory binding, and
+         it is inserted into a container.
+         This container supports looking up the locale directory
+         associated with a domain.
+% We need to see if we really use nlsbindings!!!!!
+      \item \texttt{po::textdomain()}
+         This function sets the current domain for the dictionary
+         manager to use.
+   \end{enumber}
+
+\subsection{Marking a Module for Translation}
+\label{subsubsec:potext_usage_marking}
+
+   The basic usage to \textsl{Potext} is essentially identical to
+   that of \textsl{GNU Gettext}, except that (currently) only
+   \texttt{.po} files are used directly.
+
+   Add the following header file.
+
+   \begin{verbatim}
+      #include "po/potext.hpp"      // includes "po/gettext.hpp"
+   \end{verbatim}
+
+   Mark each translatable string as usual, using the
+   \texttt{\_()} macro:
+
+   \begin{verbatim}
+      std::string errmsg = _("Unknown system error");
+   \end{verbatim}
+
+   That macro hides a call to \texttt{po::gettext()}.
+   Additional "get-text" functions are listed in the table in the
+   following section:
+   \sectionref{subsec:gettext_module}.
+
+\subsection{Creating the .po Files}
+\label{subsubsec:potext_usage_creating_po_files}
+
+   After marking the files that will provide translations, they must be
+   processed to extract the marked strings for translation.
+   For example:
+   
+   \begin{verbatim}
+      $ xgettext test_helpers.cpp --keyword="_" --output="es.po"
+   \end{verbatim}
+
+   The result is an untranslated template, \texttt{es.po}.
+
+   \begin{verbatim}
+      # SOME DESCRIPTIVE TITLE.
+      # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+      # This file is distributed under the same license as the PACKAGE package.
+      # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+      #
+      #, fuzzy
+      msgid ""
+      msgstr ""
+      "Project-Id-Version: PACKAGE VERSION\n"
+      "Report-Msgid-Bugs-To: \n"
+      "POT-Creation-Date: 2024-03-20 06:53-0400\n"
+      "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+      "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+      "Language-Team: LANGUAGE <LL@li.org>\n"
+      "Language: \n"
+      "MIME-Version: 1.0\n"
+      "Content-Type: text/plain; charset=CHARSET\n"
+      "Content-Transfer-Encoding: 8bit\n"
+
+#: test_helpers.cpp:79
+      msgid "output"
+      msgstr ""
+       . . .
+   \end{verbatim}
+
+   The next step is to edit this file appropriately, as in the following
+   snippet:
+
+   \begin{verbatim}
+      # Mensajes en español para test_helpers.
+      # Copyright (C) 2024 Potext Software Foundation Inc.
+      # This file is distributed under the same license as the test_helpers package.
+      # Chris Ahlstrom <ahlstromcj@gmail.com>, 2024.
+      msgid ""
+      msgstr ""
+      "Project-Id-Version: Potext test_helpers 0.1.0\n"
+      "Report-Msgid-Bugs-To: ahlstromcj@gmail.com\n"
+      "POT-Creation-Date: 2023-09-18 22:55+0200\n"
+      "PO-Revision-Date: 2024-03-20 17:08+0200\n"
+      "Last-Translator: Google Translate <translate.google.com>\n"
+      "Language-Team: Spanish <es@tp.org.es>\n"
+      "Language: es\n"
+      "MIME-Version: 1.0\n"
+      "Content-Type: text/plain; charset=UTF-8\n"
+      "Content-Transfer-Encoding: 8-bit\n"
+      "X-Bugs: Report translation errors to the Language-Team address.\n"
+      "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+      #: test_helpers.cpp:79
+      msgid "output"
+      msgstr "producción"
+       . . .
+   \end{verbatim}
+
+   In the project tree, create a \texttt{po} directory and move the
+   \texttt{.po} file to it.
+
+   Note that the \textsl{GNU Gettext} manual (\cite{gettextman}) (in chapter
+   6) describes many more facets (heh heh) to the creation and manipulation
+   of \texttt{.po} files.
+
+\subsection{Installing the .po Files}
+\label{subsubsec:potext_usage_installing_po_files}
+
+   The installation process for the project should include installing the
+   \texttt{.po} files.
+   Where to install them in the system, if desired?
+   It does not quite make sense to store them in a place like
+
+   \begin{verbatim}
+      /usr/local/share/locale/LL/LC\_MESSAGES}
+   \end{verbatim}
+
+   because that contains \texttt{.mo} files (and some \textsl{Qt}
+   \texttt{.qm} files!).
+
+   We would suggest something like
+   \texttt{/usr/local/share/po/PACKAGE}.
+   We should provide support in \textsl{Potext} for that.
+   Once \textsl{Potext} supports parsing \texttt{.mo} files,
+   the usual processes and location can be used.
+   Future stuff.
+
+   The project, once installed, can also, if desired, copy
+   the relevant language file to the user's configuration directory,
+   \texttt{/home/user/.config/package/} or
+   \texttt{C:/Users/user/AppData/Local} at the first run, and use it
+   there.
+
+%-------------------------------------------------------------------------------
+% vim: ts=3 sw=3 et ft=tex
+%-------------------------------------------------------------------------------

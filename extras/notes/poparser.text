@@ -1,0 +1,211 @@
+Notes On *.po Parsing
+Chris Ahlstrom
+2024-02-12 to 2024-03-07
+
+po::poparser::parse_po_file():
+
+    Parsing skips past the opening comments, processing "#, fuzzy" if
+    encountered.
+
+    The first msgid and msgstr tags it gets are empty. There is no blank
+    line separating them from the header.
+
+    poparser::get_msgstr() is called after 'msgstr ""' is read. Then
+    getstring(6) is called...
+
+    calls parse_header().
+
+po issues:
+
+    -   Cannot locate a universal .po file in any language.
+    -   The separation of translation vs printf formats:
+        -   "This consists of %d items".
+            -   "This consists of"
+            -   "item(s)"
+    -   Translating single words and combining them, versus phrases.
+    -   Ignoring punctuation for translation, then restoring it.
+        -   Space before colon in French!
+    -   Handling --help (see cfg66).
+    -   "Marking keywords"
+        -   _"(str)" vs "gettext (str)"
+        -   xgettext --keyword and gettextize
+    -   C++ std::format and std::vformat, std::make_format_args()
+    -   // xgettext:c-format flag in code
+        -   #.
+        -   #:
+        -   #,
+        -   #, c-format
+        -   proper_name ("Ulrich Drepper"), /* TRANSLATORS: ... */
+    -   gettext_noop ("str") marking for initializers.
+    -   How to enable/disable potext translation in other libraries and
+        applications? Ideas:
+        -   Use platform_macros.h, which is #include'd in every
+            xxx_build_macros.h file.
+        -   Make a new header file "potext.hpp" which can be modified
+            to enable/disable the #include of gettext.hpp, and which
+            must be include in every project.
+        -   Each library should have a translation domain and a POT file.
+            Library code does not call setlocale() etc.; main() does.
+            Library code does call bindtextdomain(), in an initialization
+            function.
+    -   gettextize files, partial list
+        -   po/POTFILES.in with a list of files with translatable strings.
+            The file names are relative to the top level of the project.
+        -   po/LINGUAS, a list of provide translations (e.g. "en@quot
+            en@boldquot de fr").
+        -   More from the po directory of gettext
+    -   Windows:
+        -   wchar_t * wbindtextdomain
+            (
+                const char * domain, const wchar_t *dir
+            )
+
+Initialization of library:
+
+    static volatile bool s_libfoo_initialized = false;
+    static void libfool_initialize (void)
+    {
+        if (! s_libfoo_initalized)
+        {
+            bindtextdomain(PACKAGE, LOCALEDIR)
+            s_libfoo_initialized = true;
+        }
+    }
+
+    versus pthread_once.
+
+Process:
+
+    1.  Building libpotext.
+        a.  Install the meson build system (and ninja).
+        b.  Choose the compiler. Either the native compiler, GNU, or
+            Clang.
+        c.  Simply run ./work.sh (to do: Windows script).
+    2.  Create a project linking to libpotext.
+        a.  Mark strings used in the project judiciously with "_()".
+        b.  Use xgettext to create the initial .po file.
+        c.  Create as many translated .po files as desired.
+        d.  Decide if they are to be used from $prefix or $winprefix (the
+            system share area), or in $home or $winhome (the configuration
+            directory for the user. However, when installed the .po
+            files should always be installed in $prefix or $winprefix.
+    3.  Install the potext-using project.
+        a.  Install the project and .po files for it. At first run,
+            the project has the option to copy them to $home/$winhome.
+        b.  If desired, set the TEXTDOMAIN and TEXTDOMAINDIR variables
+            for the domain and (universal) locale directory.
+        c.
+
+IMPORTANT:
+
+    1.  Do we need a project specific environment variable: PACKAGEDOMAIN and
+        PACKAGEDOMAINDIR.
+    2.  We need to also check LC_ALL, and maybe LC_MESSAGES and LC_CTYPE,
+        LANG, to get the locale and the character set.  Also note the main
+        character sets are UTF-8 and ISO-8859-1. Category priorities:
+        a.  LANGUAGE, a list of languages (e.g. "sv:de:pt"). It is
+            ignored if LANG="C" or LC_ALL="C".
+        b.  LC_ALL, the primary language (but it overrides all of these,
+        apparently).
+        c.  LC_xxxxx
+        d.  LANG, the primary language (e.g. "sv_SE").
+    3.  What about odd cases like KDE_LANG and their storage locations?
+        a.  https://translationproject.org/team/index.html.
+        b.  https://wiki.gnome.org/TranslationProject.
+        c.  https://l10n.kde.org.
+    4.  Update gettext and dictionarymgr to handle just one directory and
+        multiple domains. All data (dictionaries, bindings, directory(ies)
+        should be handled in dictionarymgr, while gettext defines the
+        free functions used by the potext-using application.
+
+Perl hints from texinfo:
+
+sub gettext($)
+    return dcnpgettext ('', undef, $msgid, undef, undef, undef);
+
+sub dgettext($$)
+    return dcnpgettext ($domainname, undef, $msgid, undef, undef, undef);
+
+sub dcgettext($$$)
+    return dcnpgettext ($domainname, undef, $msgid, undef, undef, undef);
+
+sub ngettext($$$)
+    return dcnpgettext ('', undef, $msgid, $msgid_plural, $n, undef);
+
+sub dngettext($$$$)
+    return dcnpgettext ($domainname, undef, $msgid, $msgid_plural, $n, undef);
+
+sub dcngettext($$$$$)
+    return dcnpgettext ($domainname, undef, $msgid, $msgid_plural, $n, , $category);
+
+sub pgettext($$)
+    return dcnpgettext ('', $msgctxt, $msgid, undef, undef, undef);
+
+sub dpgettext($$$)
+    return dcnpgettext ($domainname, $msgctxt, $msgid, undef, undef, undef);
+
+sub dcpgettext($$$$)
+    return dcnpgettext ($domainname, $msgctxt, $msgid, undef, undef, undef);
+
+sub npgettext($$$$)
+    return dcnpgettext ('', $msgctxt, $msgid, $msgid_plural, $n, undef);
+
+sub dnpgettext($$$$$)
+    return dcnpgettext ($domainname, $msgctxt, $msgid, $msgid_plural, $n, undef);
+
+C hints from glibc:
+
+GETTEXT (const char *msgid)
+  return DCGETTEXT (NULL, msgid, LC_MESSAGES);
+
+DGETTEXT (const char *domainname, const char *msgid)
+  return DCGETTEXT (domainname, msgid, LC_MESSAGES);
+
+DCGETTEXT (const char *domainname, const char *msgid, int category)
+  return DCIGETTEXT (domainname, msgid, NULL, 0, 0, category);
+
+NGETTEXT (const char *msgid1, const char *msgid2, unsigned long int n)
+  return DCNGETTEXT (NULL, msgid1, msgid2, n, LC_MESSAGES);
+
+DCNGETTEXT (const char *domainname,
+	    const char *msgid1, const char *msgid2, unsigned long int n,
+	    int category)
+  return DCIGETTEXT (domainname, msgid1, msgid2, 1, n, category);
+
+DNGETTEXT (const char *domainname,
+	   const char *msgid1, const char *msgid2, unsigned long int n)
+  return DCNGETTEXT (domainname, msgid1, msgid2, n, LC_MESSAGES);
+
+Base functions:
+
+char *
+DCIGETTEXT (const char *domainname, const char *msgid1, const char *msgid2,
+	    int plural, unsigned long int n, int category)
+
+char *
+DCNGETTEXT (const char *domainname,
+	    const char *msgid1, const char *msgid2, unsigned long int n,
+	    int category)
+{
+  return DCIGETTEXT (domainname, msgid1, msgid2, 1, n, category);
+}
+
+char *
+DCGETTEXT (const char *domainname, const char *msgid, int category)
+{
+  return DCIGETTEXT (domainname, msgid, NULL, 0, 0, category);
+}
+
+Our gettext modules:
+
+    init_app_locale()
+        std::setlocale()        { set LC_ALL or whatever }
+        set_locale_info()       { set domain and locale directory }
+        init_lib_locale()
+            bindtextdomain()
+                bindings().set_binding_values()
+        textdomain()
+            current_domain()
+        read_dictionary_file()
+
+# vim: sw=4 ts=4 wm=8 et ft=sh
