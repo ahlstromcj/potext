@@ -124,6 +124,7 @@ private:
 
 private:
 
+    poparser () = default;
     poparser
     (
         const std::string & filename,
@@ -202,7 +203,6 @@ public:
 }               // namespace po
 
 #endif          // POTEXT_PO_POPARSER_HPP
-
 
 /*
  * poparser.hpp

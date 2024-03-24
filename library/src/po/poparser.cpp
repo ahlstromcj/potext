@@ -23,7 +23,7 @@
  */
 
 /**
- * \file          poparser.hpp
+ * \file          poparser.cpp
  *
  *      The poparser class is a refactoring of tinygettext::POParser.
  *
@@ -35,7 +35,6 @@
  *
  */
 
-#include <cctype>                       /* std::toupper() etc.              */
 #include <cstring>                      /* std::strlen() etc.               */
 #include <iostream>                     /* std::istream, std::ostream       */
 

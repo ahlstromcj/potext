@@ -6,7 +6,7 @@
 # \library     potext
 # \author      Chris Ahlstrom
 # \date        2024-02-06
-# \updates     2024-03-18
+# \updates     2024-03-24
 # \license     $XPC_SUITE_GPL_LICENSE$
 #
 #  This file is part of the "potext" library. See the top-level meson.build
@@ -25,6 +25,7 @@
 libpotext_sources += files(
    'po/dictionary.cpp',
    'po/dictionarymgr.cpp',
+   'po/extractor.cpp',
    'po/gettext.cpp',
    'po/gettextex.cpp',
    'po/iconvert.cpp',
