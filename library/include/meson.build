@@ -47,6 +47,7 @@ libpotext_headers += files(
    'po/language.hpp',
    'po/languagespecs.hpp',
    'po/logstream.hpp',
+   'po/moparser.hpp',
    'po/nlsbindings.hpp',
    'po/pluralforms.hpp',
    'po/poparser.hpp',

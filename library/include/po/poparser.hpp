@@ -124,7 +124,11 @@ private:
 
 private:
 
-    poparser () = default;
+    /*
+     *  Default constructor deleted because of reference members.
+     */
+
+    poparser () = delete;
     poparser
     (
         const std::string & filename,

@@ -69,7 +69,7 @@ using int32_t = __int32;                /* typedef __int32 int32_t;         */
 class extractor
 {
 
-private:
+public:
 
     using byte = unsigned char;
     using word = int32_t;
@@ -119,6 +119,8 @@ public:
     {
         return m_data_pos;
     }
+
+    word swap (word ui);
 
     void set_swapped_bytes ()
     {
@@ -172,10 +174,11 @@ public:
         std::size_t start = 0
     ) const;
     std::string get (std::size_t start, std::size_t len) const;
-
-private:
-
-    word swap (word ui);
+    std::string get_delimited
+    (
+        std::size_t start,
+        const std::string & delimiters = "\n"
+    ) const;
 
 };              // class extractor
 

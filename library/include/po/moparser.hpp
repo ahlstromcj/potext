@@ -33,7 +33,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-03-24
- * \updates       2024-03-24
+ * \updates       2024-03-25
  * \license       See above.
  *
  */
@@ -42,20 +42,12 @@
 #include <vector>                       /* std::vector<> template           */
 
 #include "platform_macros.h"            /* PLATFORM_WINDOWS macro           */
-#include "po/extractor.hp"              /* po::extractor class              */
+#include "po/extractor.hpp"             /* po::extractor class              */
 
 namespace po
 {
 
 class dictionary;
-
-/*
-struct GettextMessage
-{
-    char* string;
-    int length;
-};
- */
 
 class dictionary;
 
@@ -76,7 +68,7 @@ private:
         std::string translated;
     };
 
-    using translations = std::vector<translation>
+    using translations = std::vector<translation>;
 
     using header = struct
     {
@@ -88,14 +80,6 @@ private:
         word size_hash_table;       // +14:  hash table size
         word offset_hash_table;     // +18:  offset of hash table start
     };
-
-#if 0
-    using offset = struct
-    {
-        word length;    // length of the string
-        word offset;    // pointer to the string
-    };
-#endif
 
 private:
 
@@ -109,7 +93,7 @@ private:                // ORIGINAL
      *  GNU .mo file.
      */
 
-    bool m_swapped_bytes;
+    bool m_swapped_bytes;           /* FIXME */
 
     /**
      *  Holds the data found in the header of the .mo file.
@@ -203,7 +187,7 @@ public:
     }
 
     bool parse_file (const std::string & filename);
-    bool parse (char * moData);
+    bool parse ();
     void clear ();
     std::string translate (const std::string & original);
     std::string charset () const;

@@ -31,6 +31,7 @@ libpotext_sources += files(
    'po/iconvert.cpp',
    'po/language.cpp',
    'po/logstream.cpp',
+   'po/moparser.cpp',
    'po/nlsbindings.cpp',
    'po/pluralforms.cpp',
    'po/poparser.cpp',

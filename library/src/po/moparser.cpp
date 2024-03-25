@@ -21,7 +21,7 @@
  */
 
 /**
- * \file          moparser.hpp
+ * \file          moparser.cpp
  *
  *      The moparser class is a refactoring of simple-gettext::MoParser.
  *
@@ -44,6 +44,7 @@
 #include "po/pluralforms.hpp"           /* po::pluralforms class            */
 #include "po/moparser.hpp"              /* po::moparser class               */
 
+#if 0
 #if defined _MSC_VER
 
 /*
@@ -59,6 +60,7 @@
 
 #pragma warning(disable: 4996)
 #pragma warning(disable: 4345)
+#endif
 #endif
 
 namespace po
@@ -105,13 +107,21 @@ moparser::moparser
 void
 moparser::clear ()
 {
-    m_mo_data.clear;
-    m_charset.clear;
+    m_mo_data.clear();
+    m_charset.clear();
     m_mo_header.magic = 0;                  /* anything better than this?   */
     m_swapped_bytes = false;
     m_charset_parsed = false;
     m_translations.clear();
     m_ready = false;
+}
+
+moparser::word
+moparser::swap (word ui) const
+{
+	return m_swapped_bytes ?
+        (ui << 24) | ((ui & 0xff00) << 8) | ((ui >> 8) & 0xff00) | (ui >> 24) :
+            ui ;
 }
 
 /**
@@ -131,25 +141,24 @@ moparser::parse_mo_file
 }
 
 bool
-moparser::parse_file (const std::string & filename)
+moparser::parse_file (const std::string & /* filename */)
 {
     bool result = false;
-    std::size_t sz = 0;
     try
     {
         (void) m_in.seekg(0, m_in.end);     /* seek to the file's end       */
-        sz = m_in.tellg();                  /* get the end offset           */
-        if (m_file_size > c_file_size_sanity_check)
+
+        std::size_t sz = m_in.tellg();      /* get the end offset           */
+        if (sz > c_file_size_sanity_check)
         {
             m_in.seekg(0, std::ios::beg);   /* seek to the file's start     */
             m_mo_data.resize(sz);           /* allocate the "buffer"        */
-            m_in.read((char *)(&m_data[0]), sz);
+            m_in.read((char *)(&m_mo_data[0]), sz);
 
             /*
              * Let the caller close it.
              */
 
-            result = true;
             result = parse();
         }
     }
@@ -157,8 +166,6 @@ moparser::parse_file (const std::string & filename)
     {
         m_mo_data.clear();
     }
-    if (result)
-
     return result;
 }
 
@@ -204,6 +211,19 @@ moparser::parse ()
 }
 
 /**
+ *  Extracts the character set name for the .mo file. This occurs in a section
+ *  deep in the file:
+ *
+ *      Report-Msgid-Bugs-To:
+ *      PO-Revision-Date: 2019-06-24 07:40+0000
+ *      Last-Translator: Casper casper
+ *      Language-Team: Spanish (http://www.transifex.com/xfce/.../language/es/)
+ *      MIME-Version: 1.0
+ *      Content-Type: text/plain; charset=UTF-8
+ *      Content-Transfer-Encoding: 8bit
+ *      Language: es
+ *      Plural-Forms: nplurals=2; plural=(n != 1);
+ *
  *  The offset structure holds the length of a string and "pointer" to it.
  */
 
@@ -211,51 +231,39 @@ std::string
 moparser::charset () const
 {
     static std::string s_content_type{"Content-Type: text/plain; charset="};
-    static std::size_t s_content_size{s_content_type.length();
-    extractor xtract(m_mo_data);                    /* our access object    */
+    static std::size_t s_content_size{s_content_type.length()};     /* 34   */
+    extractor xtract(m_mo_data);                    /* binary data access   */
     if (m_swapped_bytes)
         xtract.set_swapped_bytes();
 
     std::string result;
     if (m_charset_parsed && ! m_charset.empty())    /* && m_ready           */
-        return m_charset;
-
-    m_charset_parsed = true;
-
-//  offset * dataptr = RECAST_PTR(offset, xxxx) = &m_mo_data[index];// TODO
-//  dataptr + m_mo_header.offset_translated;
-
-    offset * trtable = xtract.offset_ptr(m_mo_header.offset_translated);
-
-    /*
-     *
-     *      trtable->length = swap(trtable->length);
-     *      trtable->offset = swap(trtable->offset);
-     */
-
-    word tlength = swap(trtable->o_length);
-    word toffset = swap(trtable->o_offset);
-    char * infobuffer = xtract.ptr(trtable->o_offset);
-//  std::string info(infobuffer);
-    std::size_t pos = xtract.find_offset(s_content_type);
-    if (xtract.valid_offset(pos))
     {
-        std::size_t start = pos + s_content_size;       /* 34 */
+        return m_charset;
+    }
+    else
+    {
+        m_charset_parsed = true;
+//      extractor::offset * trtable =
+//          xtract.offset_ptr(m_mo_header.offset_translated);
 
-        std::size_t ender = info.find('\n', start);
-        if (ender != info.npos)
+        /*
+         *      trtable->length = swap(trtable->length);
+         *      trtable->offset = swap(trtable->offset);
+         */
+
+//      word tlength = swap(trtable->o_length);
+//      word toffset = swap(trtable->o_offset);
+        std::size_t pos = xtract.find_offset(s_content_type);
+        if (xtract.valid_offset(pos))
         {
-            int chsetlen = ender - start;
-            if (chsetlen > 0)
+            std::string cstemp = xtract.get_delimited(pos + s_content_size);
+            if (! cstemp.empty())
             {
-                m_charset = new char[chsetlen + 1];
-
-                // copies the substring into m_charset; use 
-                // m_charset.assign(info.substr(
-                info.copy(m_charset, chsetlen, start);
-                m_charset[chsetlen] = '\0';
                 if (m_charset == "CHARSET")
                     m_charset.clear();
+                else
+                    m_charset = cstemp;
 
                 /*
                  * To lowercase. Why?
@@ -264,7 +272,7 @@ moparser::charset () const
                 for (auto & ch : m_charset)
                     ch = std::tolower(ch);
 
-                // return m_charset;
+                result = m_charset;
             }
         }
     }
@@ -291,7 +299,7 @@ moparser::find (const std::string & target)
  *  header have been extracted.
  *
  *  First check if the string has already been looked up, in which case it
- *  is in the m_translation vector. If found, return it and exit.
+ *  is in the m_translations vector. If found, return it and exit.
  */
 
 std::string
@@ -313,7 +321,7 @@ moparser::translate (const std::string & original)
              *  the translated table is in header::offset_translated.
              */
 
-            offset * orig_offset =
+            extractor::offset * orig_offset =
                 xtract.offset_ptr(m_mo_header.offset_original);
 
             /*
@@ -324,8 +332,8 @@ moparser::translate (const std::string & original)
              *
              */
 
-            word olength = swap(orig_offset->o_length);
-            word ooffset = swap(orig_offset->o_offset);
+//          word olength = swap(orig_offset->o_length);
+//          word ooffset = swap(orig_offset->o_offset);
             int count = int(m_mo_header.string_count);
             bool found = false;
             int stringindex;
@@ -346,8 +354,8 @@ moparser::translate (const std::string & original)
                  */
 
                 ++orig_offset;
-                olength = swap(orig_offset->o_length);
-                ooffset = swap(orig_offset->o_offset);
+//              olength = swap(orig_offset->o_length);
+//              ooffset = swap(orig_offset->o_offset);
             }
 
             translation tranpair;
@@ -364,18 +372,18 @@ moparser::translate (const std::string & original)
              * translated string and build and the output message structure.
              */
 
-            offset * tran_offset =
+            extractor::offset * tran_offset =
                 xtract.offset_ptr(m_mo_header.offset_translated);
 
-            tran_offset += index;
-            tlength = swap(tran_offset->o_length);
-            toffset = swap(tran_offset->o_offset);
+            tran_offset += stringindex;
+            word tlength = swap(tran_offset->o_length);
+            word toffset = swap(tran_offset->o_offset);
 
             std::string translated = xtract.get(toffset, tlength);
             tranpair.translated = translated;
-            m_translation.push_back(message);
+            m_translations.push_back(tranpair);
             result = translated;
-            return result
+            return result;
         }
         else
             result = lookup;
