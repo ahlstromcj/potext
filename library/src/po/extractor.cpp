@@ -25,14 +25,14 @@
  */
 
 /**
- * \file          extractor.hpp
+ * \file          extractor.cpp
  *
  *      The extractor class is a refactoring of simple-gettext::MoParser.
  *
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-24
- * \updates       2024-03-24
+ * \updates       2024-03-25
  * \license       See above.
  *
  */
@@ -55,7 +55,10 @@ static int brute_force
     const std::string & text,
     const std::string & pattern
 );
+
+#if defined TEST_BRUTE_FORCE
 static bool brute_force_test ();
+#endif
 
 /**
  *  Principal constructor
@@ -120,10 +123,10 @@ extractor::find_offset (const std::string & target, std::size_t start) const
  */
 
 bool
-extractor::match (const std::string & target) const
+extractor::match (const std::string & target, std::size_t sz) const
 {
     bool result = true;
-    std::size_t i_index = m_data_pos;
+    std::size_t i_index = sz == 0 ? m_data_pos : sz ;
     for (auto ch : target)
     {
         if (m_data[i_index] != ch)
@@ -137,7 +140,7 @@ extractor::match (const std::string & target) const
 }
 
 /**
- *  Starting at the current position, this function extracts some data
+ *  Starting at the given position, this function extracts some data
  *  bytes into a string.
  */
 
@@ -202,6 +205,8 @@ brute_force (const std::string & text, const std::string & pattern)
     return index;
 }
 
+#if defined TEST_BRUTE_FORCE
+
 /**
  *  Set of brute_force() test cases.
  */
@@ -236,6 +241,8 @@ brute_force_test ()
     }
     return result;
 }
+
+#endif      // TEST_BRUTE_FORCE
 
 extractor::word
 extractor::swap (word ui)

@@ -33,7 +33,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-24
- * \updates       2024-03-24
+ * \updates       2024-03-25
  * \license       See above.
  *
  */
@@ -73,6 +73,11 @@ private:
 
     using byte = unsigned char;
     using word = int32_t;
+    using offset = struct
+    {
+        word o_length;    // length of the string
+        word o_offset;    // offset of the string
+    };
 
 private:
 
@@ -115,7 +120,7 @@ public:
         return m_data_pos;
     }
 
-    void swapped_bytes ()
+    void set_swapped_bytes ()
     {
         m_swapped_bytes = true;
     }
@@ -129,9 +134,21 @@ public:
         return m_data_pos;
     }
 
-    const char * ptr () const
+    char * ptr (std::size_t sz = 0)
     {
-        return m_data.data() + m_data_pos;      /* OR &m_data[m_data_pos];  */
+        if (sz == 0)
+            sz = m_data_pos;
+
+        return const_cast<char *>(m_data.data()) + sz;
+    }
+
+    offset * offset_ptr (word offsetvalue)
+    {
+        return RECAST_PTR
+        (
+            offset,
+            const_cast<char *>(m_data.data()) + std::size_t(offsetvalue)
+        );
     }
 
     bool valid_offset (std::size_t sz) const
@@ -149,7 +166,11 @@ public:
         const std::string & target,
         std::size_t start = 0
     ) const;
-    bool match (const std::string & target) const;
+    bool match
+    (
+        const std::string & target,
+        std::size_t start = 0
+    ) const;
     std::string get (std::size_t start, std::size_t len) const;
 
 private:
