@@ -43,6 +43,7 @@
 
 #include "platform_macros.h"            /* PLATFORM_WINDOWS macro           */
 #include "po/extractor.hpp"             /* po::extractor class              */
+#include "po/iconvert.hpp"              /* po::iconvert (IConv) class       */
 
 namespace po
 {
@@ -157,19 +158,20 @@ private:                // NEW
      *  out exactly what this means.
      */
 
-    bool m_use_fuzzy;
+    bool m_use_fuzzy;       // NOT YET USED
 
     /**
-     *  Indicates that no more lines can be read from the .po file.
+     *  Used in converting a translated message string to a specific character
+     *  set.
      */
 
-    bool m_eof;
+    iconvert m_conv;
 
     // NOTE: additional poparser members not yet included
 
 public:
 
-    moparser () = default;
+    moparser () = delete;
     moparser
     (
         const std::string & filename,
@@ -180,17 +182,13 @@ public:
     moparser (const moparser &) = delete;
     moparser (moparser &&) = delete;
     moparser & operator = (const moparser &) = delete;
-
-    ~moparser ()
-    {
-        clear();
-    }
+    ~moparser () = default;
 
     bool parse_file (const std::string & filename);
     bool parse ();
     void clear ();
     std::string translate (const std::string & original);
-    std::string charset () const;
+    std::string charset () /*const*/;
 
     bool ready () const
     {

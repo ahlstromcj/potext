@@ -63,6 +63,16 @@
 #endif
 #endif
 
+/**
+ *  We cannot enable translation in this module, because it leads to
+ *  recursion and a stack overflow. Oh well, it was worth a try.
+ *  Can still grab messages for a dictionary, if desired.
+ */
+
+#if ! defined PO_HAVE_GETTEXT_RECURSIVE
+#define _(str)      str
+#endif
+
 namespace po
 {
 
@@ -100,8 +110,9 @@ moparser::moparser
     m_in                (in),
     m_dict              (dict),
     m_use_fuzzy         (usefuzzy),
-    m_eof               (false)
+    m_conv              (filename)
 {
+    // no code
 }
 
 void
@@ -228,7 +239,7 @@ moparser::parse ()
  */
 
 std::string
-moparser::charset () const
+moparser::charset () // const
 {
     static std::string s_content_type{"Content-Type: text/plain; charset="};
     static std::size_t s_content_size{s_content_type.length()};     /* 34   */
@@ -244,16 +255,6 @@ moparser::charset () const
     else
     {
         m_charset_parsed = true;
-//      extractor::offset * trtable =
-//          xtract.offset_ptr(m_mo_header.offset_translated);
-
-        /*
-         *      trtable->length = swap(trtable->length);
-         *      trtable->offset = swap(trtable->offset);
-         */
-
-//      word tlength = swap(trtable->o_length);
-//      word toffset = swap(trtable->o_offset);
         std::size_t pos = xtract.find_offset(s_content_type);
         if (xtract.valid_offset(pos))
         {
@@ -261,18 +262,23 @@ moparser::charset () const
             if (! cstemp.empty())
             {
                 if (m_charset == "CHARSET")
-                    m_charset.clear();
+                {
+                    // m_charset.clear();
+                    // warning(_("Charset not found for .mo; fallback to UTF-8"));
+                    m_charset = "UTF-8";
+                }
                 else
                     m_charset = cstemp;
 
                 /*
                  * To lowercase. Why?
+                 *
+                 * for (auto & ch : m_charset)
+                 *      ch = std::tolower(ch);
                  */
 
-                for (auto & ch : m_charset)
-                    ch = std::tolower(ch);
-
                 result = m_charset;
+                (void) m_conv.set_charsets(m_charset, m_dict.get_charset());
             }
         }
     }

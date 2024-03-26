@@ -6,7 +6,7 @@
 # \library     potext
 # \author      Chris Ahlstrom
 # \date        2024-02-06
-# \updates     2024-03-24
+# \updates     2024-03-25
 # \license     $XPC_SUITE_GPL_LICENSE$
 #
 #  This file is part of the "potext" library. See the top-level meson.build
@@ -34,6 +34,7 @@ libpotext_sources += files(
    'po/moparser.cpp',
    'po/nlsbindings.cpp',
    'po/pluralforms.cpp',
+   'po/pomoparserbase.cpp',
    'po/poparser.cpp',
    'po/unixfilesystem.cpp'
    )

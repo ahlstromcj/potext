@@ -33,15 +33,17 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-11
+ * \updates       2024-03-26
  * \license       See above.
  *
  */
 
 #include <iosfwd>                       /* ostringstream forward reference  */
 
-#include "platform_macros.h"            /* PLATFORM_WINDOWS macro           */
-#include "po/iconvert.hpp"              /* po::iconvert (IConv) class       */
+// #include "platform_macros.h"            /* PLATFORM_WINDOWS macro           */
+// #include "po/iconvert.hpp"              /* po::iconvert (IConv) class       */
+
+#include "pomoparserbase.hpp"           /* po::pomoparserbase class         */
 
 namespace po
 {
@@ -52,43 +54,10 @@ class dictionary;
  *  A class to work with the GNU "po" translation file.
  */
 
-class poparser
+class poparser final : public pomoparserbase
 {
 
 private:
-
-    /**
-     *  If true (the default), a warning is emitted when the gettext keyword
-     *  and message string are not separated by a single space. Useful?
-     */
-
-    static bool sm_pedantic;
-
-    /**
-     *  Provides the name of the .po file to be parsed to create a dictionary
-     *  object. Used only for warning and error messages.
-     */
-
-    std::string m_filename;
-
-    /**
-     *  The input file stream from which the .po data is to be read.
-     */
-
-    std::istream & m_in;
-
-    /**
-     *  The dictionary to receive the results of the parsing.
-     */
-
-    dictionary & m_dict;
-
-    /**
-     *  The .po file has a "fuzzy" directive, but we still need to figure
-     *  out exactly what this means.
-     */
-
-    bool m_use_fuzzy;
 
     /**
      *  Indicates that no more lines can be read from the .po file.
@@ -116,12 +85,6 @@ private:
 
     std::string m_current_line;
 
-    /**
-     *  Used in converting a message string to a specific character set.
-     */
-
-    iconvert m_conv;
-
 private:
 
     /*
@@ -133,29 +96,23 @@ private:
     (
         const std::string & filename,
         std::istream & in,
-        dictionary & dict,
+        dictionary & dic,
         bool usefuzzy       = true
     );
     poparser (const poparser &) = delete;
     poparser (poparser &&) = delete;
     poparser & operator = (const poparser &) = delete;
-    ~poparser();
+    ~poparser () = default;
 
     bool parse_header (const std::string & header);
-    bool parse ();
+
+    virtual bool parse () override;
+
     void next_line ();
     std::string get_string (std::size_t skip);
     void get_string_line (std::ostringstream & str, std::size_t skip);
     bool is_empty_line ();
     bool prefix_match (const char *);
-
-#if defined PLATFORM_WINDOWS_32
-    void error (const std::string & msg);
-#else
-    void error (const std::string & msg) __attribute__((__noreturn__));
-#endif
-    void warning (const std::string & msg);
-
     bool get_msgid_plural
     (
         bool fuzzy,
@@ -194,13 +151,8 @@ public:
     (
         const std::string & filename,
         std::istream & in,
-        dictionary & dict
+        dictionary & dic
     );
-
-    static void loose ()
-    {
-        sm_pedantic = false;
-    }
 
 };              // class poparser
 

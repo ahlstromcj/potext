@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-16
+ * \updates       2024-03-26
  * \license       See above.
  *
  */
@@ -62,44 +62,19 @@ namespace po
 
 #define MSGCTXT_EMPTY_FLAG      "-"
 
-/**
- *  Currently always true.
- */
-
-bool poparser::sm_pedantic = true;
-
-/**
- *  Purely for catch errors. Doesn't even inherit from std::exception.
- *
- *  Should upgrade that at some point.
- */
-
-class internal_parser_error
-{
-    // nothing!
-};
 
 poparser::poparser
 (
     const std::string & filename,
     std::istream & in,
-    dictionary & dict,
+    dictionary & dic,
     bool usefuzzy
 ) :
-    m_filename        (filename),
-    m_in              (in),
-    m_dict            (dict),
-    m_use_fuzzy       (usefuzzy),
-    m_eof             (false),
-    m_big5            (false),
-    m_line_number     (0),
-    m_current_line    (),               /* accessor line() */
-    m_conv            (filename)
-{
-    // no code
-}
-
-poparser::~poparser()
+    pomoparserbase  (filename, in, dic, usefuzzy),
+    m_eof           (false),
+    m_big5          (false),
+    m_line_number   (0),
+    m_current_line  ()                /* accessor line() */
 {
     // no code
 }
@@ -113,89 +88,18 @@ poparser::parse_po_file
 (
     const std::string & filename,
     std::istream & in,
-    dictionary & dict
+    dictionary & dic
 )
 {
-    poparser parser(filename, in, dict);
+    poparser parser(filename, in, dic);
     return parser.parse();
-}
-
-void
-poparser::warning (const std::string & msg)
-{
-    std::ostream & warn = logstream::warning();
-    if (msg.empty())
-    {
-        warn << _("warning msg empty") << "!" << std::endl;
-    }
-    else
-    {
-        if (line().empty())
-        {
-            warn
-                << m_filename << ":" << m_line_number << ":\n"
-                << "    " << _("warning") << ": "
-                << msg << std::endl
-                ;
-        }
-        else
-        {
-            warn
-                << m_filename << ":" << m_line_number << ":\n"
-                << "    " << _("warning") << ": "
-                << msg << ": " << line() << "\n"
-                << _("Line:") << ": " << line() << std::endl
-                ;
-        }
-    }
-}
-
-void
-poparser::error (const std::string & msg)
-{
-    std::ostream & err = logstream::error();
-    if (msg.empty())
-    {
-        err << _("error msg empty") << std::endl;
-    }
-    else
-    {
-        if (line().empty())
-        {
-            err
-                << m_filename << ":" << m_line_number << ":\n"
-                << _("error") << ": "
-                << msg << std::endl
-                ;
-        }
-        else
-        {
-            err
-                << m_filename << ":" << m_line_number << ":\n"
-                << _("error") << ": "
-                << msg  << ": " << line() << std::endl
-                ;
-        }
-
-        /*
-         * Try to recover from an error by searching for start of another
-         * entry.
-         */
-
-        do
-        {
-            next_line();
-        }
-        while (! m_eof && ! is_empty_line());
-    }
-    throw internal_parser_error();
 }
 
 void
 poparser::next_line ()
 {
     ++m_line_number;
-    if (! std::getline(m_in, m_current_line))
+    if (! std::getline(in_stream(), m_current_line))
         m_eof = true;
 }
 
@@ -216,10 +120,10 @@ poparser::get_string_line (std::ostringstream & out, std::size_t skip)
 {
     std::size_t linesize = line().size();
     if ((skip + 1) >= linesize)
-        error(_("Unexpected end of line"));
+        error(_("Unexpected end of line"), m_line_number);
 
     if (line(skip) != '"')
-        error(_("Expected start of string"));   //  + '\"'");
+        error(_("Expected start of string"), m_line_number);
 
     std::string::size_type i;
     for (i = skip + 1; line(i) != '"'; ++i)
@@ -231,7 +135,7 @@ poparser::get_string_line (std::ostringstream & out, std::size_t skip)
             out << c;
             ++i;
             if (i >= line().size())
-                error(_("Invalid Big5 encoding"));
+                error(_("Invalid Big5 encoding"), m_line_number);
 
             out << line(i);
         }
@@ -243,7 +147,7 @@ poparser::get_string_line (std::ostringstream & out, std::size_t skip)
         {
             ++i;
             if (i >= line().size())
-                error(_("Unexpected end of line in handling")); //  '\\'");
+                error(_("Unexpected end of line in handling"), m_line_number);
 
             switch (c)
             {
@@ -294,7 +198,7 @@ std::string
 poparser::get_string (std::size_t skip)
 {
     if ((skip + 1) >= line().size())
-        error(_("Unexpected end of line"));
+        error(_("Unexpected end of line"), m_line_number);
 
     std::ostringstream ssout;
     if (line(skip) == ' ' && line(skip + 1) == '"')
@@ -303,14 +207,14 @@ poparser::get_string (std::size_t skip)
     }
     else
     {
-        if (sm_pedantic)
+        if (pedantic())
             warning(_("A single space must separate keyword and string"));
 
         for ( ; ; ++skip)
         {
             if (skip >= line().size())
             {
-                error(_("Unexpected end of line"));
+                error(_("Unexpected end of line"), m_line_number);
             }
             else if (line(skip) == '"')                 /* same as '\"'! */
             {
@@ -319,7 +223,7 @@ poparser::get_string (std::size_t skip)
             }
             else if (! std::isspace(line(skip)))
             {
-                error(_("Tagged string must start with quote"));
+                error(_("Tagged string must start with quote"), m_line_number);
             }
             else
             {
@@ -338,7 +242,7 @@ next:
         {
             if (i == 1)
             {
-                if (sm_pedantic)
+                if (pedantic())
                     warning(_("leading whitespace before string"));
             }
             get_string_line(ssout,  i);
@@ -415,13 +319,13 @@ poparser::parse_header (const std::string & header)
             }
             else
             {
-                if (! m_dict.get_plural_forms())
+                if (! dict().get_plural_forms())
                 {
-                    m_dict.set_plural_forms(plural_forms);
+                    dict().set_plural_forms(plural_forms);
                 }
                 else
                 {
-                    if (m_dict.get_plural_forms() != plural_forms)
+                    if (dict().get_plural_forms() != plural_forms)
                     {
                         warning
                         (
@@ -435,7 +339,7 @@ poparser::parse_header (const std::string & header)
     }
     if (from_charset.empty() || from_charset == "CHARSET")
     {
-        if (sm_pedantic)
+        if (pedantic())
             warning(_("Charset not found for .po; fallback to UTF-8"));
 
         from_charset = "UTF-8";
@@ -444,7 +348,7 @@ poparser::parse_header (const std::string & header)
     {
         m_big5 = true;
     }
-    return m_conv.set_charsets(from_charset, m_dict.get_charset());
+    return converter().set_charsets(from_charset, dict().get_charset());
 }
 
 bool
@@ -597,7 +501,7 @@ poparser::parse ()
                     got_a_tag = true;
                 }
                 if (! got_a_tag)
-                    error(_("Expected a msg tag"));
+                    error(_("Expected a msg tag"), m_line_number);
             }
             next_line();
         }
@@ -631,7 +535,7 @@ next:
     if (is_empty_line())                    /* blank line ends the entry    */
     {
         if (msglist.empty())
-          error(_("Expected 'msgstr[0 to 9]'"));
+          error(_("Expected 'msgstr[0 to 9]'"), m_line_number);
     }
     else if
     (
@@ -651,7 +555,7 @@ next:
         if (number >= msglist.size())
             msglist.resize(number + 1);
 
-        msglist[number] = m_conv.convert(msgstr);
+        msglist[number] = converter().convert(msgstr);
 #if defined PLATFORM_DEBUG_TMI
         if (msglist[number].empty())
             std::cout << "ERROR in " << m_filename << std::endl;
@@ -659,27 +563,27 @@ next:
         goto next;
     }
     else
-        error(_("Expected 'msgstr[n]' entry"));
+        error(_("Expected 'msgstr[n]' entry"), m_line_number);
 
     if (! is_empty_line())
-        error(_("Expected 'msgstr[n]' entry or empty line"));
+        error(_("Expected 'msgstr[n]' entry or empty line"), m_line_number);
 
     if (saw_nonempty_msgstr)
     {
-        if (m_use_fuzzy || ! fuzzy)
+        if (use_fuzzy() || ! fuzzy)
         {
-            if (! m_dict.get_plural_forms())
+            if (! dict().get_plural_forms())
             {
                 warning("msgstr[n] found, but no Plural-Form");
             }
             else
             {
-                if (msglist.size() != m_dict.get_plural_forms().get_nplural())
+                if (msglist.size() != dict().get_plural_forms().get_nplural())
                     warning(_("msgstr[n] count != Plural-Forms.nplural"));
             }
             if (msgctxt.empty())
             {
-                (void) m_dict.add(msgid, msgid_plural, msglist);
+                (void) dict().add(msgid, msgid_plural, msglist);
             }
             else
             {
@@ -687,7 +591,7 @@ next:
                 if (msgctxt != MSGCTXT_EMPTY_FLAG)
                     ctxt = msgctxt;
 
-                (void) m_dict.add(ctxt, msgid, msgid_plural, msglist);
+                (void) dict().add(ctxt, msgid, msgid_plural, msglist);
             }
         }
 #if defined PLATFORM_DEBUG_TMI
@@ -703,7 +607,7 @@ next:
             i < msglist.size(); ++i
         )
         {
-            std::string msgconversion = m_conv.convert(msglist[i]);
+            std::string msgconversion = converter().convert(msglist[i]);
             std::cout
                 << "msgstr[" << i << "] \"" << msgconvertsion
                 << "\""
@@ -746,11 +650,11 @@ poparser::get_msgstr
     }
     else
     {
-        if (m_use_fuzzy || ! fuzzy)
+        if (use_fuzzy() || ! fuzzy)
         {
             if (msgctxt.empty())
             {
-                (void) m_dict.add(msgid, m_conv.convert(msgstr));
+                (void) dict().add(msgid, converter().convert(msgstr));
             }
             else
             {
@@ -758,14 +662,14 @@ poparser::get_msgstr
                 if (msgctxt != MSGCTXT_EMPTY_FLAG)
                     ctxt = msgctxt;
 
-                (void) m_dict.add(ctxt, msgid, m_conv.convert(msgstr));
+                (void) dict().add(ctxt, msgid, converter().convert(msgstr));
             }
         }
 #if defined PLATFORM_DEBUG_TMI
         std::cout
             << (fuzzy ? _("fuzzy") : _("not fuzzy")) << "\n"
             << "msgid \"" << msgid << "\"\n"
-            << "msgstr \"" << m_conv.convert(msgstr)
+            << "msgstr \"" << converter().convert(msgstr)
             << "\"" << std::endl
             ;
 #endif

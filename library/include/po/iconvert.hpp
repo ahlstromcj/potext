@@ -28,12 +28,12 @@
 /**
  * \file          iconvert.hpp
  *
- *  Macros that depend upon the build platform.
+ *      Macros that depend upon the build platform.
  *
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-16
+ * \updates       2024-03-26
  * \license       See above.
  *
  */
@@ -143,9 +143,7 @@ public:
     iconvert & operator = (const iconvert &);
     ~iconvert ();
 
-  std::string convert (const std::string & text);
-
-private:
+    std::string convert (const std::string & text);
 
     bool set_charsets
     (
