@@ -58,13 +58,15 @@ libpotext_headers += files(
    'po/unixfilesystem.hpp'
    )
 
+'''
 # Not yet needed.
-#
-# configure_file(
-#    input: 'potext-config.h.in',
-#    output: 'potext-config.h',
-#    configuration: cdata
-#    )
+
+configure_file(
+   input: 'potext-config.h.in',
+   output: 'potext-config.h',
+   configuration: cdata
+   )
+'''
 
 #-----------------------------------------------------------------------------
 # Headers to install

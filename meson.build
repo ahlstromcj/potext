@@ -6,7 +6,7 @@
 # \library     potext
 # \author      Chris Ahlstrom
 # \date        2024-02-06
-# \updates     2024-03-21
+# \updates     2024-03-26
 # \license     $XPC_SUITE_GPL_LICENSE$
 #
 #  This file is part of the potext library and tests.
@@ -37,8 +37,8 @@
 #
 # Installation:
 #
-#     The library is build/libXXX-0.1.a. We will install the library
-#     all in in /usr/lib/potext-0.1 or /usr/local/lib/potext-0.1, rather
+#     The library is build/libXXX-0.2.a. We will install the library
+#     all in in /usr/lib/potext-0.2 or /usr/local/lib/potext-0.2, rather
 #     than a subdirectory for each of these somewhat related libraries.
 #
 # C++17:
@@ -48,7 +48,7 @@
 #-----------------------------------------------------------------------------
 
 project('potext', 'cpp',
-   version: '0.1.0',
+   version: '0.2.0',
    license: 'GPLv2',
    meson_version: '>=1.1.0',
    default_options: [
@@ -78,9 +78,9 @@ extra_flags = [
 #-----------------------------------------------------------------------------
 
 po_description = 'Builds the potext library and tests projects.'
-po_date = '2024-03-21'
+po_date = '2024-03-26'
 po_version = meson.project_version()
-po_api_version = '0.1'
+po_api_version = '0.2'
 po_build_type = get_option('buildtype')
 po_debug = get_option('buildtype').contains('debug')
 po_project_base = 'potext-@0@'.format(po_api_version)
@@ -98,11 +98,11 @@ endif
 #-----------------------------------------------------------------------------
 # Easy access to directory options.  Interim until meson version 0.64.0
 # We want to be able to install the header files to subdirectories of,
-# for example, /usr/local/include/potext-0.1, just as they appear in this
+# for example, /usr/local/include/potext-0.2, just as they appear in this
 # project, where the include subdirectory is 'po'.
 #-----------------------------------------------------------------------------
 
-po_dir = 'potext-0.1'
+po_dir = 'potext-0.2'
 po_po_dir = join_paths(po_dir, 'po')
 po_prefix = get_option('prefix')
 po_bindir = join_paths(po_prefix, get_option('bindir'))
@@ -166,16 +166,6 @@ empty_depends = [ ]
 # else
 #    build_args += '-DLIBPUBLIC=__attribute__((visibility("default")))'
 # endif
-
-#-----------------------------------------------------------------------------
-# po_exe_sources = files('po_linkage.cpp')
-# po_exe = executable('po_linkage',
-#    po_exe_sources,
-#    dependencies : libpotext_dep,
-#    install : true
-# )
-# test('Basic Linkage', po_exe)
-#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Info

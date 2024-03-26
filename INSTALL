@@ -1,26 +1,25 @@
-INSTALL for Potext v. 0.1.0 and above
+INSTALL for Potext v. 0.2.0 and above
 Chris Ahlstrom
-2024-02-15 to 2024-03-22
+2024-02-15 to 2024-03-26
 
-Meson is the build system for the Potext library. While Meson 0.63 should
-work, in order to use 'meson.options' instead a 'meson_options.txt',
-Meson 1.1 or above should be installed.
+Meson is the build system for the Potext library. Meson 1.1 and above is
+required. The 'meson.options' file replaces 'meson_options.txt'.
 
-In order to simplify life, a POSIX shell script, work.sh, is provided.
+In order to simplify life, a POSIX shell script, 'work.sh', is provided.
 The most important options are:
 
     -   --clean. Removes all build products from the build directory.
-    -   --make or no option. Build the library and test code.
+    -   --make or no option. Build the library and test code in DEBUG mode.
     -   --clang. Build the code using the Clang compiler.
-    -   --help. Show all available options.
+    -   --help. Show all available options; there a more than just these.
 
 Build:
 
-    $ ./work.sh --clean (if needed)
+    $ ./work.sh --clean (when Meson build/options files change)
     $ ./work.sh --clang (if desired, to use Clang)
     $ ./work.sh         (use default compiler)
 
-Test:
+Tests:
 
     $ ./library/tests/tests.sh
 
@@ -29,8 +28,11 @@ Test:
 
 Install:
 
-    The easiest way to install is to use the work.sh script:
+    The easiest way to install is to use the 'work.sh' script after rebuilding
+    for release (i.e. no debug code):
 
+    $ ./work.sh --clean
+    $ ./work.sh --release
     $ ./work.sh --install
 
     Of course, one can use Meson without this script if desired. Study the
@@ -38,7 +40,7 @@ Install:
 
 Subproject:
 
-    If one does not want to install Potext, Meson *.wrap files are
+    If one does not want to install Potext, Meson '*.wrap' files are
     provided to use Potext as a Meson subproject.
 
     See extras/wraps/potext-git.wrap in particular.
@@ -51,11 +53,12 @@ Subproject:
 
 Build tools:
 
-    -   C/C++ compiler. Currently only use the Mingw compiler setup.
-    -   Python
+    -   C/C++ compiler. On Linux etc., the GNU and Clang compilers are
+        support. On Windows, currently tested only with the Mingw compiler.
+    -   Python.
     -   Meson and Ninja. In Windows, they can be installed from
         the same Meson release '*.msi' file.
     -   C++17 and above is required to build Potext. The GNU and Clang
-        compilers are supported.
+        compilers support it.
 
 # vim: sw=4 ts=4 wm=4 et ft=sh

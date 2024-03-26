@@ -40,15 +40,10 @@
 
 #include <iosfwd>                       /* ostringstream forward reference  */
 
-// #include "platform_macros.h"            /* PLATFORM_WINDOWS macro           */
-// #include "po/iconvert.hpp"              /* po::iconvert (IConv) class       */
-
-#include "pomoparserbase.hpp"           /* po::pomoparserbase class         */
+#include "po/pomoparserbase.hpp"        /* po::pomoparserbase class         */
 
 namespace po
 {
-
-class dictionary;
 
 /**
  *  A class to work with the GNU "po" translation file.
@@ -104,10 +99,9 @@ private:
     poparser & operator = (const poparser &) = delete;
     ~poparser () = default;
 
-    bool parse_header (const std::string & header);
-
     virtual bool parse () override;
 
+    bool parse_header (const std::string & header);
     void next_line ();
     std::string get_string (std::size_t skip);
     void get_string_line (std::ostringstream & str, std::size_t skip);

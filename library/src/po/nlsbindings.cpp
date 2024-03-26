@@ -84,7 +84,7 @@
 #endif
 
 #include "c_macros.h"                   /* not_nullptr(), etc.              */
-#include "nlsbindings.hpp"              /* po::nlsbindings class            */
+#include "po/nlsbindings.hpp"           /* po::nlsbindings class            */
 
 namespace po
 {

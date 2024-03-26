@@ -6,7 +6,7 @@
 # \library     potext
 # \author      Chris Ahlstrom
 # \date        2024-02-07
-# \updates     2024-03-21
+# \updates     2024-03-26
 # \license     $XPC_SUITE_GPL_LICENSE$
 #
 #  This file is part of the potext library and tests. See the top-level
@@ -31,11 +31,12 @@ build_args = []
 #-----------------------------------------------------------------------------
 #
 #  The #include statements alway have the relative path in them, so
-#  we need add in only each sub-project's "include" directory.
+#  we need add in only each sub-project's "include" directory. No need
+#  for "include/po"... force all modules to use "#include po/xyz.hpp".
 #
 #-----------------------------------------------------------------------------
 
-po_includedirs = include_directories('include', 'include/po')
+po_includedirs = include_directories('include')
 po_install = not meson.is_subproject()
 
 #-----------------------------------------------------------------------------

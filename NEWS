@@ -1,8 +1,29 @@
-NEWS for Potext 0.1
+NEWS for Potext 0.2.0
 Chris Ahlstrom
-2024-03-19 to 2024-03-19
+2024-03-19 to 2024-03-26
 
 # Changelog
+
+## [0.2.0] - 2024-03-26
+
+### Added
+
+- Added the moparser class for creating dictionaries from .mo files
+- Added an extractor class to help with the parsing of this binary data.
+- Added pomoparserbase class to serve as an abstract base class for
+  poparser and moparser.
+
+### Fixed
+
+- TBD
+
+### Changed
+
+- Moved some poparser code to the new pomoparser base class.
+
+### Removed
+
+- Minor cleanup.
 
 ## [0.1.0] - 2024-03-19
 

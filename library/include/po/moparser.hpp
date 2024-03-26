@@ -33,7 +33,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-03-24
- * \updates       2024-03-25
+ * \updates       2024-03-26
  * \license       See above.
  *
  */
@@ -41,22 +41,17 @@
 #include <iosfwd>                       /* ostringstream forward reference  */
 #include <vector>                       /* std::vector<> template           */
 
-#include "platform_macros.h"            /* PLATFORM_WINDOWS macro           */
 #include "po/extractor.hpp"             /* po::extractor class              */
-#include "po/iconvert.hpp"              /* po::iconvert (IConv) class       */
+#include "po/pomoparserbase.hpp"        /* po::pomoparserbase class         */
 
 namespace po
 {
-
-class dictionary;
-
-class dictionary;
 
 /**
  *  A class to work with the GNU binary "mo" translation file.
  */
 
-class moparser
+class moparser final : public pomoparserbase
 {
 
 private:
@@ -132,44 +127,7 @@ private:                // ORIGINAL
 
     bool m_ready;
 
-private:                // NEW
-
-    /**
-     *  Provides the name of the .po file to be parsed to create a dictionary
-     *  object. Used only for warning and error messages.
-     */
-
-    std::string m_filename;
-
-    /**
-     *  The input file stream from which the .po data is to be read.
-     */
-
-    std::istream & m_in;
-
-    /**
-     *  The dictionary to receive the results of the parsing.
-     */
-
-    dictionary & m_dict;
-
-    /**
-     *  The .po file has a "fuzzy" directive, but we still need to figure
-     *  out exactly what this means.
-     */
-
-    bool m_use_fuzzy;       // NOT YET USED
-
-    /**
-     *  Used in converting a translated message string to a specific character
-     *  set.
-     */
-
-    iconvert m_conv;
-
-    // NOTE: additional poparser members not yet included
-
-public:
+private:
 
     moparser () = delete;
     moparser
@@ -184,9 +142,13 @@ public:
     moparser & operator = (const moparser &) = delete;
     ~moparser () = default;
 
+    virtual bool parse () override;
+
     bool parse_file (const std::string & filename);
-    bool parse ();
+    bool load ();
     void clear ();
+    word swap (word ui) const;
+    std::string find (const std::string & target);
     std::string translate (const std::string & original);
     std::string charset () /*const*/;
 
@@ -214,11 +176,6 @@ public:
         std::istream & in,
         dictionary & dict
     );
-
-private:
-
-    word swap (word ui) const;
-    std::string find (const std::string & target);
 
 };              // class moparser
 

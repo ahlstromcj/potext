@@ -1,5 +1,5 @@
-#if ! defined POTEXT_PO_POMOPARSER_HPP
-#define POTEXT_PO_POMOPARSER_HPP
+#if ! defined POTEXT_PO_POMOPARSERBASE_HPP
+#define POTEXT_PO_POMOPARSERBASE_HPP
 
 /*
  *  This file is part of potext.
@@ -17,21 +17,15 @@
  *  You should have received a copy of the GNU General Public License along
  *  with potext; if not, write to the Free Software Foundation, Inc., 59
  *  Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *  See tinydoc/LICENSE.md for the original tinygettext licensing statement.
- *  If you do not like the changes or the GPL licensing, use the original
- *  tinygettext project, available at GitHub:
- *
- *      https://github.com/tinygettext/tinygettext
  */
 
 /**
  * \file          pomoparserbase.hpp
  *
- *      A refactoring of tinygettext::POParser.
+ *      A base class for po::poparser and po::moparser.
  *
  * \library       potext
- * \author        tinygettext; refactoring by Chris Ahlstrom
+ * \author        Chris Ahlstrom
  * \date          2024-03-26
  * \updates       2024-03-26
  * \license       See above.
@@ -120,7 +114,7 @@ public:
         const std::string & filename,
         std::istream & in,
         dictionary & dict,
-        bool usefuzzy       = true
+        bool usefuzzy = true
     );
     pomoparserbase (const pomoparserbase &) = delete;
     pomoparserbase (pomoparserbase &&) = delete;
@@ -140,26 +134,6 @@ public:
     void warning (const std::string & msg, std::size_t pos = 0);
 
 public:
-
-#if 0
-    /**
-     * \param filename
-     *      Name of the istream, only used in error messages.
-     *
-     * \param in
-     *      Stream from which the PO file is read.
-     *
-     * \param dict
-     *      Dictionary to which the strings are written.
-     */
-
-    static bool parse_po_file
-    (
-        const std::string & filename,
-        std::istream & in,
-        dictionary & dict
-    );
-#endif
 
     static void loose ()
     {
@@ -200,7 +174,7 @@ public:
 
 }               // namespace po
 
-#endif          // POTEXT_PO_POMOPARSER_HPP
+#endif          // POTEXT_PO_POMOPARSERBASE_HPP
 
 /*
  * pomoparserbase.hpp

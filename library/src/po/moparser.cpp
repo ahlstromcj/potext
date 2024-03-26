@@ -28,9 +28,34 @@
  * \library       potext
  * \author        simple-gettext; refactoring by Chris Ahlstrom
  * \date          2024-03-25
- * \updates       2024-03-25
+ * \updates       2024-03-26
  * \license       See above.
  *
+ * Format of the .mo File:
+ *
+ *      This list is distilled from the diagram on page 120 of the GNU
+ *      Gettext PDF manual. Each data item is 4 bytes long, i.e. a word
+ *      or int32_t value.
+ *
+ *          -   M = Magic number 0x950412de or swapped value.
+ *          -   R = File format revision number.
+ *          -   N = Number of message strings in the catalog.
+ *          -   O = Offset of the table with the original message strings.
+ *          -   T = Offset of the table with the translated message strings.
+ *          -   Hs = Size of hashing table. (We ignore this hashing table.)
+ *          -   Ho = Offset of hashing table. (We ignore this hashing table.)
+ *
+ *      At the offset O pointing to the original messages are N pairs of
+ *      values:
+ *
+ *          -   Length of the string
+ *          -   Offset of the string (the string is null-terminated)
+ *
+ *      At the offset T pointing to the translated messages are N pairs of
+ *      values:
+ *
+ *          -   Length of the string
+ *          -   Offset of the string (the string is null-terminated)
  */
 
 #include <cctype>                       /* std::toupper() etc.              */
@@ -44,8 +69,7 @@
 #include "po/pluralforms.hpp"           /* po::pluralforms class            */
 #include "po/moparser.hpp"              /* po::moparser class               */
 
-#if 0
-#if defined _MSC_VER
+#if defined _MSC_VER_DISABLED           /* someone else can try this        */
 
 /*
  * C4345: behavior change: an object of POD type constructed with an
@@ -60,7 +84,7 @@
 
 #pragma warning(disable: 4996)
 #pragma warning(disable: 4345)
-#endif
+
 #endif
 
 /**
@@ -96,21 +120,17 @@ moparser::moparser
 (
     const std::string & filename,
     std::istream & in,
-    dictionary & dict,
+    dictionary & dic,
     bool usefuzzy
 ) :
+    pomoparserbase      (filename, in, dic, usefuzzy),
     m_swapped_bytes     (false),
     m_mo_header         (),
     m_mo_data           (),
     m_translations      (),
     m_charset           (),
     m_charset_parsed    (false),
-    m_ready             (false),
-    m_filename          (filename),     // first new item
-    m_in                (in),
-    m_dict              (dict),
-    m_use_fuzzy         (usefuzzy),
-    m_conv              (filename)
+    m_ready             (false)
 {
     // no code
 }
@@ -126,6 +146,10 @@ moparser::clear ()
     m_translations.clear();
     m_ready = false;
 }
+
+/**
+ *  This function is exactly like extractor::swap().
+ */
 
 moparser::word
 moparser::swap (word ui) const
@@ -144,10 +168,10 @@ moparser::parse_mo_file
 (
     const std::string & filename,
     std::istream & in,
-    dictionary & dict
+    dictionary & dic
 )
 {
-    moparser parser(filename, in, dict);
+    moparser parser(filename, in, dic);
     return parser.parse_file(filename);
 }
 
@@ -157,14 +181,14 @@ moparser::parse_file (const std::string & /* filename */)
     bool result = false;
     try
     {
-        (void) m_in.seekg(0, m_in.end);     /* seek to the file's end       */
+        (void) in_stream().seekg(0, in_stream().end);   /* seek to file end */
 
-        std::size_t sz = m_in.tellg();      /* get the end offset           */
+        std::size_t sz = in_stream().tellg();           /* get end offset   */
         if (sz > c_file_size_sanity_check)
         {
-            m_in.seekg(0, std::ios::beg);   /* seek to the file's start     */
-            m_mo_data.resize(sz);           /* allocate the "buffer"        */
-            m_in.read((char *)(&m_mo_data[0]), sz);
+            in_stream().seekg(0, std::ios::beg);        /* seek to start    */
+            m_mo_data.resize(sz);                       /* allocate buffer  */
+            in_stream().read((char *)(&m_mo_data[0]), sz);
 
             /*
              * Let the caller close it.
@@ -198,27 +222,32 @@ moparser::parse ()
         clear();
         return false;
     }
+    else
+    {
+        /*
+         *  If magic bytes are swapped, all other numbers will need swapping.
+         */
 
-    /*
-     *  If the magic number bytes are swapped, all the other numbers will have
-     *  to be swapped.
-     */
+        m_swapped_bytes = hp->magic == sm_magic_swapped;
+        m_mo_header.magic = swap(hp->magic);
+        m_mo_header.revision = swap(hp->revision);
+        m_mo_header.string_count = swap(hp->string_count);
+        m_mo_header.offset_original = swap(hp->offset_original);
+        m_mo_header.offset_translated = swap(hp->offset_translated);
+        m_mo_header.size_hash_table = swap(hp->size_hash_table);
+        m_mo_header.offset_hash_table = swap(hp->offset_hash_table);
 
-    m_swapped_bytes = hp->magic == sm_magic_swapped;
-    m_mo_header.magic = swap(hp->magic);
-    m_mo_header.revision = swap(hp->revision);
-    m_mo_header.string_count = swap(hp->string_count);
-    m_mo_header.offset_original = swap(hp->offset_original);
-    m_mo_header.offset_translated = swap(hp->offset_translated);
-    m_mo_header.size_hash_table = swap(hp->size_hash_table);
-    m_mo_header.offset_hash_table = swap(hp->offset_hash_table);
+        /*
+         *  Read only for lookup. Transations not stored.
+         */
 
-    /*
-     *  Read only for lookup. Transations not stored.
-     */
+        std::string cs = charset();
+        m_ready = ! cs.empty();
+        if (m_ready)
+            m_ready = load();
 
-    m_ready = true;
-    return true;
+        return m_ready;
+    }
 }
 
 /**
@@ -278,7 +307,7 @@ moparser::charset () // const
                  */
 
                 result = m_charset;
-                (void) m_conv.set_charsets(m_charset, m_dict.get_charset());
+                (void) converter().set_charsets(m_charset, dict().get_charset());
             }
         }
     }
@@ -296,6 +325,44 @@ moparser::find (const std::string & target)
             result = trpair.translated;
             break;
         }
+    }
+    return result;
+}
+
+/**
+ *  This function tries to get all of the message and translation pairs
+ *  from the .mo file. See the translate() function for some comments
+ *  about internal details.
+ */
+
+bool
+moparser::load ()
+{
+    bool result = true;
+    extractor xtract(m_mo_data);                    /* translation data     */
+    if (m_swapped_bytes)
+        xtract.set_swapped_bytes();
+
+    /*
+     * TODO: use word offset instead of ptr.
+     */
+
+    extractor::offset * orig =                      /* msg table start      */
+        xtract.offset_ptr(m_mo_header.offset_original);
+
+    extractor::offset * tran =                      /* translation start    */
+        xtract.offset_ptr(m_mo_header.offset_translated);
+
+    int count = int(m_mo_header.string_count);
+    for (int index = 0; index < count; ++index, ++orig, ++tran)
+    {
+#if 0
+        word olength = xtract.get_word(orig, 0);    /* pointer plus 0 words */
+        word ooffset = xtract.get_word(orig, 1);    /* pointer plus 1 words */
+        translation tranpair;
+        tranpair.original = xxxx;
+        tranpair.translated = xxxx;
+#endif
     }
     return result;
 }

@@ -1,4 +1,4 @@
-# README for Potext 0.1.0 2024-03-22
+# README for Potext 0.2.0 2024-03-26
 
 __Potext__ is a partial replacement for the __GNU Gettext__ library and a
 refactoring of the __Tinygettext__ library, with some additional features. It
@@ -7,6 +7,10 @@ libraries and applications. In basic usage, no change in phrase marking
 should needed.
 
 # Major Features
+
+    *   Note for this new version: clean the build directory (e.g. by
+        running "./work.sh clean" before building, as meson.build files
+        have changed.
 
 ##  Library Features
 

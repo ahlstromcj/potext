@@ -1,4 +1,4 @@
-# __Potext__ Licensing 0.1.0
+# __Potext__ Licensing 0.2.0
 
 ## Copyright (c) 2024
 
@@ -25,7 +25,7 @@
 
       https://www.gnu.org/licenses/lgpl.txt
 
-    Copied to this project as LGPL.txt.
+    Copied to this project as licenses/LGPL.txt.
 
 ## Documentation
 
@@ -48,6 +48,6 @@
 
       https://www.gnu.org/licenses/fdl.txt
 
-    Copied to this project as FDL.txt.
+    Copied to this project as licenses/FDL.txt.
 
 // vim: sw=4 ts=4 wm=2 et ft=markdown
