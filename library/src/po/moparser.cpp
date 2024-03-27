@@ -23,7 +23,8 @@
 /**
  * \file          moparser.cpp
  *
- *      The moparser class is a refactoring of simple-gettext::MoParser.
+ *      The moparser class is a refactoring and extension of simple-gettext's
+ *      MoParser to somewhat match the handling used by po::poparser.
  *
  * \library       potext
  * \author        simple-gettext; refactoring by Chris Ahlstrom
@@ -48,8 +49,31 @@
  *      At the offset O pointing to the original messages are N pairs of
  *      values:
  *
- *          -   Length of the string
- *          -   Offset of the string (the string is null-terminated)
+ *          -   Length of the string, does not count the NUL terminator.
+ *          -   Offset of the string (the string is null-terminated).
+ *
+ *          If the original string has a context, then the string holds the
+ *          following, concatenated:
+ *
+ *              -   Context string
+ *              -   EOT byte (0x04, U+0004)
+ *              -   Original string
+ *
+ *          Plurals forms are stored as:
+ *
+ *              -   Translated string (singular)
+ *              -   NUL byte
+ *              -   Any number of:
+ *                  -   Plural form
+ *                  -   NUL byte
+ *
+ *          The length value for the string includes context, separator bytes,
+ *          the original string, and the plural form(s).
+ *
+ *          The encoding of the strings can be any ASCII-compatible encoding
+ *          (e.g. UTF-8, ISO-8859-1), which must be stated in Content-Type.
+ *          Embedded NULs are useless, and currently .mo files do not use
+ *          wide characters.
  *
  *      At the offset T pointing to the translated messages are N pairs of
  *      values:
@@ -275,9 +299,9 @@ moparser::parse ()
             result = ! pf.empty();
         }
         if (result)
-            result = load_translations();
+            result = load_translations();       /* plus context and plurals */
 
-        m_ready = true;             /* we tried already, don't do it again  */
+        m_ready = true;                         /* don't try it again       */
         return result;
     }
 }
@@ -426,12 +450,15 @@ moparser::find (const std::string & target)
 /**
  *  This function tries to get all of the message and translation pairs
  *  from the .mo file. See the translate() function for some comments
- *  about internal details.
+ *  about internal details. Also see the banner at the top of this module
+ *  for how to get the context and plural translations.
  */
 
 bool
 moparser::load_translations ()
 {
+    static char s_NUL = 0x00;
+    static char s_EOT = 0x04;
     bool result = true;
     extractor xtract(m_mo_data);                    /* translation data     */
     if (m_swapped_bytes)
@@ -450,10 +477,29 @@ moparser::load_translations ()
         word olength = swap(orig->o_length);
         word toffset = swap(tran->o_offset);
         word tlength = swap(tran->o_length);
-        translation tranpair;
-        tranpair.original = xtract.get(ooffset, olength);
-        tranpair.translated = xtract.get(toffset, tlength);
-        m_translations.push_back(tranpair);
+        translation tranquad;
+
+        // MOVE TO BELOW
+
+        std::size_t eotpos = xtract.find_character(s_EOT, ooffset, olength);
+        if (xtract.valid_offset(eotpos))            /* get context string   */
+        {
+            std::size_t ctxtlength = eotpos - ooffset;
+            tranquad.context = xtract.get(ooffset, ctxtlength);
+        }
+
+        std::size_t rangelength = std::size_t(ooffset + olength);
+        std::size_t nulpos = xtract.find_character(s_NUL, ooffset, olength);
+        if (nulpos < rangelength)
+        {
+
+// while finding plurals tranquad.plurals.push_back(plural);
+        }
+
+        tranquad.original = xtract.get(ooffset, olength);
+        tranquad.translated = xtract.get(toffset, tlength);
+
+        m_translations.push_back(tranquad);
     }
     return result;
 }
@@ -475,7 +521,7 @@ moparser::translate (const std::string & original)
     std::string result;
     if (m_ready && ! original.empty())
     {
-        std::string lookup = find(original);
+        std::string lookup = find(original);        /* look in translations */
         if (lookup.empty())
         {
             extractor xtract(m_mo_data);            /* translation data     */

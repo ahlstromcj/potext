@@ -33,7 +33,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-24
- * \updates       2024-03-25
+ * \updates       2024-03-27
  * \license       See above.
  *
  */
@@ -163,16 +163,21 @@ public:
         const std::string & target,
         std::size_t start = 0
     ) const;
+
     std::size_t find_offset
     (
         const std::string & target,
         std::size_t start = 0
     ) const;
-    bool match
+
+    std::size_t find_character
     (
-        const std::string & target,
-        std::size_t start = 0
+        char target,
+        std::size_t start,
+        std::size_t len
     ) const;
+
+    bool match (const std::string & target, std::size_t start = 0) const;
     std::string get (std::size_t start, std::size_t len) const;
     std::string get_delimited
     (

@@ -32,13 +32,13 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-24
- * \updates       2024-03-25
+ * \updates       2024-03-27
  * \license       See above.
  *
  */
 
 #include <cstring>                      /* std::strlen() etc.               */
-#include <limits>                       /* std::numeric_limits<>::mex       */
+#include <limits>                       /* std::numeric_limits<>::max       */
 
 #include "c_macros.h"                   /* not_nullptr() text macro         */
 #include "po/extractor.hpp"             /* po::extractor class              */
@@ -84,16 +84,17 @@ extractor::extractor (const std::string & source) :
  *
  * \param start
  *      Provides the offset at which to start looking. Defaults to 0.
+ *      Not yet used, but still checked.
  *
  * \return
  *      Returns a null pointer or a pointer to the data.
  */
 
 const char *
-extractor::find (const std::string & target, std::size_t /* start */) const
+extractor::find (const std::string & target, std::size_t start) const
 {
     const char * result = nullptr;
-    if (target.length() < m_data.size())
+    if (valid_offset(start + target.length()))
     {
         int index = brute_force(m_data, target);
         if (index >= 0)
@@ -110,12 +111,53 @@ std::size_t
 extractor::find_offset (const std::string & target, std::size_t start) const
 {
     std::size_t result = std::numeric_limits<std::size_t>::max();
-    const char * bptr = find(target, start);
+    const char * bptr = find(target, start);    /* checks the parameters    */
     if (not_nullptr(bptr))
         result = bptr - m_data.data();
 
     return result;
 }
+
+/**
+ *  Look for a character in the given range.
+ *
+ *  The use case for moparser is looking for the EOT character (for context
+ *  strings) or additionl NUL characters to get all the plural forms.
+ *
+ * \param target
+ *      The target character (e.g. EOT or NUL).
+ *
+ * \param start
+ *      The offset of the start of the search range.
+ *
+ * \param len
+ *      The length of the search range.
+ *
+ * \return
+ *      Returns a valid offset to the first instance of the character,
+ *      if found.  Use the valid_offset() function to test this value.
+ */
+
+std::size_t
+extractor::find_character
+(
+    char target, std::size_t start, std::size_t len
+) const
+{
+    std::size_t result = std::numeric_limits<std::size_t>::max();
+    std::size_t rangelength = start + len;
+    if (valid_offset(rangelength))
+    {
+        std::string::size_type pos = m_data.find(target, start);
+        if (pos != std::string::npos)
+        {
+            if (pos < rangelength)
+                result = std::size_t(pos);
+        }
+    }
+    return result;
+}
+
 
 /**
  *  This function is akin to find(), but checks for the string at the

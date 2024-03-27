@@ -28,7 +28,7 @@
 /**
  * \file          moparser.hpp
  *
- *      A refactoring of tinygettext::POParser.
+ *      A refactoring and extension of simple-gettext's MoParser.
  *
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
@@ -42,6 +42,7 @@
 #include <vector>                       /* std::vector<> template           */
 
 #include "po/extractor.hpp"             /* po::extractor class              */
+#include "po/po_types.hpp"              /* po:phraselist vector             */
 #include "po/pomoparserbase.hpp"        /* po::pomoparserbase class         */
 
 namespace po
@@ -56,15 +57,35 @@ class moparser final : public pomoparserbase
 
 private:
 
+    /**
+     *  Easier to read than int32_t.
+     */
+
     using word = extractor::word;
+
+    /**
+     *  Holds a single translation entry. Note that the context and
+     *  plurals fields are extensions to the simple-gettext structure.
+     */
 
     using translation = struct
     {
         std::string original;
         std::string translated;
+        std::string context;
+        phraselist plurals;
     };
 
+    /**
+     *  A container of translations.
+     */
+
     using translations = std::vector<translation>;
+
+    /**
+     *  Mirrors the layout of the .mo file header as described in the top
+     *  banner of the cpp module.
+     */
 
     using header = struct
     {
@@ -79,17 +100,22 @@ private:
 
 private:
 
+    /**
+     *  The magic-word options, endian-dependent, in .mo file header as
+     *  described in the top banner of the cpp module.
+     */
+
     static const word sm_magic;
     static const word sm_magic_swapped;
 
-private:                // ORIGINAL
+private:
 
     /**
      *  Indicates we had to swap bytes based on the magic number found in the
      *  GNU .mo file.
      */
 
-    bool m_swapped_bytes;           /* FIXME */
+    bool m_swapped_bytes;
 
     /**
      *  Holds the data found in the header of the .mo file.
@@ -180,13 +206,14 @@ public:
 
     /**
      * \param filename
-     *      Name of the istream, only used in error messages.
+     *      Name of the file, only used in error messages.
      *
      * \param in
-     *      Stream from which the PO file is read.
+     *      Stream from which the MO file is read. The caller is responsible
+     *      for opening it and closing it.
      *
      * \param dict
-     *      Dictionary to which the strings are written.
+     *      Dictionary to which the translation strings are written.
      */
 
     static bool parse_mo_file

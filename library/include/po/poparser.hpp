@@ -132,13 +132,14 @@ public:
 
     /**
      * \param filename
-     *      Name of the istream, only used in error messages.
+     *      Name of the file, only used in error messages.
      *
      * \param in
-     *      Stream from which the PO file is read.
+     *      Stream from which the PO file is read. The caller is responsible
+     *      for opening it and closing it.
      *
      * \param dict
-     *      Dictionary to which the strings are written.
+     *      Dictionary to which the translation strings are written.
      */
 
     static bool parse_po_file

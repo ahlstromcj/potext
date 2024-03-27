@@ -32,6 +32,8 @@
  * \date          2024-02-29
  * \updates       2024-03-01
  * \license       See above.
+ *
+ * Note: Currently, these functions are not used.
  */
 
 #include "po/gettext.hpp"               /* basic gettext functions          */
