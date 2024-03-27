@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-08
+ * \updates       2024-03-27
  * \license       See above.
  *
  */
@@ -39,10 +39,11 @@
 #include <cctype>
 #include <fstream>
 
-#include "po/dictionarymgr.hpp"
+#include "po/dictionarymgr.hpp"         /* po::dictionarymgr class          */
 #include "po/logstream.hpp"             /* po::logstream::error(), etc.     */
-#include "po/poparser.hpp"
-#include "po/unixfilesystem.hpp"
+#include "po/moparser.hpp"              /* po::moparser class               */
+#include "po/poparser.hpp"              /* po::poparser class               */
+#include "po/unixfilesystem.hpp"        /* po::unixfilesystem class         */
 
 /**
  *  We cannot enable translation in this module, because it leads to
@@ -230,14 +231,18 @@ dictionarymgr::get_dictionary (const language & lang)
             phraselist files = m_filesystem->open_directory(*p);
             std::string best_filename;
             int best_score = 0;
+            bool has_po = false;
+            bool has_mo = false;
             for (const auto & fname : files)
             {
                 /*
                  * Check if fname matches requested lang; ignore anything that
-                 * isn't a .po file.
+                 * isn't a .po file or an .mo file.
                  */
 
-                if (has_suffix(fname, ".po"))
+                has_po = has_suffix(fname, ".po");
+                has_mo = has_suffix(fname, ".mo");
+                if (has_po || has_mo)
                 {
                     language po_lang = language::from_env
                     (
@@ -263,7 +268,7 @@ dictionarymgr::get_dictionary (const language & lang)
             }
             if (! best_filename.empty())
             {
-                std::string pofile = *p;
+                std::string pofile = *p;        /* now can be .mo file too  */
                 pofile += "/";
                 pofile += best_filename;
                 try
@@ -277,7 +282,12 @@ dictionarymgr::get_dictionary (const language & lang)
                             ;
                     }
                     else
-                        (void) poparser::parse_po_file(pofile, *in, *dict);
+                    {
+                        if (has_po)
+                            (void) poparser::parse_po_file(pofile, *in, *dict);
+                        else if (has_po)
+                            (void) moparser::parse_mo_file(pofile, *in, *dict);
+                    }
                 }
                 catch (const std::exception & e)
                 {

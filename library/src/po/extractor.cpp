@@ -165,7 +165,6 @@ extractor::get (std::size_t start, std::size_t len) const
  *  It's 29 characters; we will use 32 as a sanity check.
  */
 
-
 std::string
 extractor::get_delimited
 (

@@ -33,7 +33,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-03-24
- * \updates       2024-03-26
+ * \updates       2024-03-27
  * \license       See above.
  *
  */
@@ -110,7 +110,7 @@ private:                // ORIGINAL
     translations m_translations;
 
     /**
-     *  Hold the character-set name from in the .mo file.
+     *  Holds the character-set name from in the .mo file.
      */
 
     mutable std::string m_charset;
@@ -120,6 +120,18 @@ private:                // ORIGINAL
      */
 
     mutable bool m_charset_parsed;
+
+    /**
+     *  Holds the plural-forms string from in the .mo file.
+     */
+
+    mutable std::string m_plural_forms;
+
+    /**
+     *  Indicates we have already looked up the character-set.
+     */
+
+    mutable bool m_plural_forms_parsed;
 
     /**
      *  Indicates the items are ready.
@@ -145,12 +157,19 @@ private:
     virtual bool parse () override;
 
     bool parse_file (const std::string & filename);
-    bool load ();
     void clear ();
     word swap (word ui) const;
     std::string find (const std::string & target);
     std::string translate (const std::string & original);
-    std::string charset () /*const*/;
+
+    bool load_translations ();
+    std::string load_charset ();
+    std::string load_plural_forms ();
+
+    const translations & get_translations() const
+    {
+        return m_translations;
+    }
 
     bool ready () const
     {

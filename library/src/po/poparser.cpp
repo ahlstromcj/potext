@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-26
+ * \updates       2024-03-27
  * \license       See above.
  *
  */
@@ -306,7 +306,7 @@ poparser::parse_header (const std::string & header)
     {
         std::string::size_type slashpos = header.find_first_of
         (
-            "\\", pluralpos + 1
+            "\\", pluralpos + 1                 /* ends with "\n" string    */
         );
         if (slashpos != std::string::npos)
         {
@@ -316,6 +316,9 @@ poparser::parse_header (const std::string & header)
             if (! plural_forms)
             {
                 warning(_("Unknown Plural-Forms"));
+                /*
+                 * TODO: m_plural_forms = "nplurals=1; plural=0";
+                 */
             }
             else
             {
@@ -329,7 +332,7 @@ poparser::parse_header (const std::string & header)
                     {
                         warning
                         (
-                            _("Plural-Forms missmatch between .po "
+                            _("Plural-Forms mismatch between .po "
                             "file and dictionary")
                         );
                     }

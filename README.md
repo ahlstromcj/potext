@@ -1,4 +1,4 @@
-# README for Potext 0.2.0 2024-03-26
+# README for Potext 0.2.0 2024-03-27
 
 __Potext__ is a partial replacement for the __GNU Gettext__ library and a
 refactoring of the __Tinygettext__ library, with some additional features. It
@@ -19,9 +19,11 @@ should needed.
     *   The important features of the old tinygettext library follow.
         *   Rather than requiring a .mo file, the library directly parses
             .po files, which are human readable.
+        *   A .mo file can be used instead of a .po if desired.
         *   Domain support.
         *   Locale directory support.
         *   Character-set support.
+        *   Plural-forms support.
     *   Provides reimplementations for textdomain(), bindtextdomain(),
         provides gettext() and related functions, wrapped in the "po"
         namespace.

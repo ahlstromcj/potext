@@ -28,7 +28,7 @@
  * \library       potext
  * \author        simple-gettext; refactoring by Chris Ahlstrom
  * \date          2024-03-25
- * \updates       2024-03-26
+ * \updates       2024-03-27
  * \license       See above.
  *
  * Format of the .mo File:
@@ -123,14 +123,16 @@ moparser::moparser
     dictionary & dic,
     bool usefuzzy
 ) :
-    pomoparserbase      (filename, in, dic, usefuzzy),
-    m_swapped_bytes     (false),
-    m_mo_header         (),
-    m_mo_data           (),
-    m_translations      (),
-    m_charset           (),
-    m_charset_parsed    (false),
-    m_ready             (false)
+    pomoparserbase          (filename, in, dic, usefuzzy),
+    m_swapped_bytes         (false),
+    m_mo_header             (),
+    m_mo_data               (),
+    m_translations          (),
+    m_charset               (),
+    m_charset_parsed        (false),
+    m_plural_forms          (),
+    m_plural_forms_parsed   (false),
+    m_ready                 (false)
 {
     // no code
 }
@@ -143,6 +145,7 @@ moparser::clear ()
     m_mo_header.magic = 0;                  /* anything better than this?   */
     m_swapped_bytes = false;
     m_charset_parsed = false;
+    m_plural_forms_parsed = false;
     m_translations.clear();
     m_ready = false;
 }
@@ -161,6 +164,22 @@ moparser::swap (word ui) const
 
 /**
  *  Static function to parse a given binary mo file.
+ *
+ *      -   Character-set. The load_charset() function sets m_charset
+ *          and uses it to set the iconvert's character-set using
+ *          dict().get_charset().
+ *      -   Plural-forms. The load_plural_forms() function sets the
+ *          m_plural_forms string and calls dict().set_plural_forms().
+ *      -   Translation table. The load_translations() function
+ *          populates the m_translations vector. We need to add them all to the
+ *          dictionary.
+ *
+ *  Questions:
+ *
+ *      -   What about the plural-forms translations? How are they loaded?
+ *          We might need something better than a vector, or make
+ *          transation::translated a vector!
+ *      -   What about context?
  */
 
 bool
@@ -172,7 +191,17 @@ moparser::parse_mo_file
 )
 {
     moparser parser(filename, in, dic);
-    return parser.parse_file(filename);
+    bool result = parser.parse_file(filename);
+    if (result)
+    {
+#if defined USE_THIS_CODE_NOW
+        (void) dict().add(msgid, msgid_plural, msglist);
+        (void) dict().add(ctxt, msgid, msgid_plural, msglist);
+        (void) dict().add(msgid, converter().convert(msgstr));
+        (void) dict().add(ctxt, msgid, converter().convert(msgstr));
+#endif
+    }
+    return result;
 }
 
 bool
@@ -214,9 +243,10 @@ moparser::parse ()
 {
     extractor xtract(m_mo_data);                    /* our access object    */
     header * hp = RECAST_PTR(header, xtract.ptr()); /* point to first byte  */
-    if                                              /* invalid header       */
+    if                                              /* invalid header?      */
     (
-        hp->magic != sm_magic && hp->magic != sm_magic_swapped
+        hp->magic != sm_magic &&
+        hp->magic != sm_magic_swapped
     )
     {
         clear();
@@ -237,16 +267,18 @@ moparser::parse ()
         m_mo_header.size_hash_table = swap(hp->size_hash_table);
         m_mo_header.offset_hash_table = swap(hp->offset_hash_table);
 
-        /*
-         *  Read only for lookup. Transations not stored.
-         */
+        std::string cs = load_charset();
+        bool result = ! cs.empty();
+        if (result)
+        {
+            std::string pf = load_plural_forms();
+            result = ! pf.empty();
+        }
+        if (result)
+            result = load_translations();
 
-        std::string cs = charset();
-        m_ready = ! cs.empty();
-        if (m_ready)
-            m_ready = load();
-
-        return m_ready;
+        m_ready = true;             /* we tried already, don't do it again  */
+        return result;
     }
 }
 
@@ -268,7 +300,7 @@ moparser::parse ()
  */
 
 std::string
-moparser::charset () // const
+moparser::load_charset ()
 {
     static std::string s_content_type{"Content-Type: text/plain; charset="};
     static std::size_t s_content_size{s_content_type.length()};     /* 34   */
@@ -277,7 +309,7 @@ moparser::charset () // const
         xtract.set_swapped_bytes();
 
     std::string result;
-    if (m_charset_parsed && ! m_charset.empty())    /* && m_ready           */
+    if (m_charset_parsed && ! m_charset.empty())    /* && ready()           */
     {
         return m_charset;
     }
@@ -292,8 +324,6 @@ moparser::charset () // const
             {
                 if (m_charset == "CHARSET")
                 {
-                    // m_charset.clear();
-                    // warning(_("Charset not found for .mo; fallback to UTF-8"));
                     m_charset = "UTF-8";
                 }
                 else
@@ -308,6 +338,70 @@ moparser::charset () // const
 
                 result = m_charset;
                 (void) converter().set_charsets(m_charset, dict().get_charset());
+            }
+        }
+    }
+    return result;
+}
+
+/**
+ *  Obtain the Plural-Forms string. It comes three lines after "Content-Type,
+ */
+
+std::string
+moparser::load_plural_forms ()
+{
+    static std::string s_plural_forms{"Plural-Forms: nplurals="};
+    static std::size_t s_plural_size{s_plural_forms.length()};      /* 23   */
+    extractor xtract(m_mo_data);                    /* binary data access   */
+    if (m_swapped_bytes)
+        xtract.set_swapped_bytes();
+
+    std::string result;
+    if (m_plural_forms_parsed && ! m_plural_forms.empty())
+    {
+        return m_plural_forms;
+    }
+    else
+    {
+        m_plural_forms_parsed = true;
+        std::size_t pos = xtract.find_offset(s_plural_forms);
+        if (xtract.valid_offset(pos))
+        {
+            std::string pftemp = xtract.get_delimited(pos + s_plural_size);
+            if (! pftemp.empty())
+            {
+                m_plural_forms = pftemp;
+            }
+            else
+                m_plural_forms = "nplurals=1; plural=0";
+
+            result = m_plural_forms;
+            if (! result.empty())
+            {
+                pluralforms plural_forms = pluralforms::from_string(result);
+                if (! plural_forms)
+                {
+                    warning(_("Unknown Plural-Forms"));
+                }
+                else
+                {
+                    if (! dict().get_plural_forms())
+                    {
+                        dict().set_plural_forms(plural_forms);
+                    }
+                    else
+                    {
+                        if (dict().get_plural_forms() != plural_forms)
+                        {
+                            warning
+                            (
+                                _("Plural-Forms mismatch between .mo "
+                                "file and dictionary")
+                            );
+                        }
+                    }
+                }
             }
         }
     }
@@ -336,16 +430,12 @@ moparser::find (const std::string & target)
  */
 
 bool
-moparser::load ()
+moparser::load_translations ()
 {
     bool result = true;
     extractor xtract(m_mo_data);                    /* translation data     */
     if (m_swapped_bytes)
         xtract.set_swapped_bytes();
-
-    /*
-     * TODO: use word offset instead of ptr.
-     */
 
     extractor::offset * orig =                      /* msg table start      */
         xtract.offset_ptr(m_mo_header.offset_original);
@@ -356,13 +446,14 @@ moparser::load ()
     int count = int(m_mo_header.string_count);
     for (int index = 0; index < count; ++index, ++orig, ++tran)
     {
-#if 0
-        word olength = xtract.get_word(orig, 0);    /* pointer plus 0 words */
-        word ooffset = xtract.get_word(orig, 1);    /* pointer plus 1 words */
+        word ooffset = swap(orig->o_offset);        /* see extractor.hpp    */
+        word olength = swap(orig->o_length);
+        word toffset = swap(tran->o_offset);
+        word tlength = swap(tran->o_length);
         translation tranpair;
-        tranpair.original = xxxx;
-        tranpair.translated = xxxx;
-#endif
+        tranpair.original = xtract.get(ooffset, olength);
+        tranpair.translated = xtract.get(toffset, tlength);
+        m_translations.push_back(tranpair);
     }
     return result;
 }
@@ -373,6 +464,9 @@ moparser::load ()
  *
  *  First check if the string has already been looked up, in which case it
  *  is in the m_translations vector. If found, return it and exit.
+ *
+ *  Thus function is not all that useful for potext. See the
+ *  load_translations() function instead.
  */
 
 std::string

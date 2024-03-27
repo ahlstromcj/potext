@@ -33,7 +33,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-11
+ * \updates       2024-03-27
  * \license       See above.
  *
  */
@@ -48,8 +48,6 @@
 
 namespace po
 {
-
-    class pluralforms;
 
 /**
  *  A simple dictionary class that mimics gettext() behaviour. Each
