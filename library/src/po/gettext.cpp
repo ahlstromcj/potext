@@ -171,7 +171,8 @@ category_is_valid (int c)
 }
 
 /**
- *  Quick lookup of the category name.
+ *  Quick lookup of the category name. Note that LC_MESSAGES is by far the
+ *  most common category (at least on our Linux laptops).
  */
 
 const std::string &

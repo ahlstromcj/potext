@@ -33,7 +33,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-13
+ * \updates       2024-03-28
  * \license       See above.
  *
  *  Some additions have been made:
@@ -291,6 +291,16 @@ public:
         const std::string & domainname,
         const std::string & codeset
     );
+
+#if defined PLATFORM_WIN32_STRICT
+
+    std::wstring wbindtextdomain
+    (
+        const std::string & domainname,
+        const std::wstring & dirname
+    );
+
+#endif
 
 private:
 

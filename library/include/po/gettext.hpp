@@ -17,12 +17,6 @@
  *  You should have received a copy of the GNU General Public License along
  *  with potext; if not, write to the Free Software Foundation, Inc., 59
  *  Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *  See tinydoc/LICENSE.md for the original tinygettext licensing statement.
- *  If you do not like the changes or the GPL licensing, use the original
- *  tinygettext project, available at GitHub:
- *
- *      https://github.com/tinygettext/tinygettext
  */
 
 /**
@@ -33,7 +27,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-02-16
- * \updates       2024-03-04
+ * \updates       2024-03-28
  * \license       See above.
  *
  *  gettext_noop()  pseudo function call that serves as a marker for the

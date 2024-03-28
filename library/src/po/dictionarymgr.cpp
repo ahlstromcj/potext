@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-27
+ * \updates       2024-03-28
  * \license       See above.
  *
  */
@@ -348,7 +348,7 @@ dictionarymgr::get_languages ()
         phraselist files = m_filesystem->open_directory(*p);
         for (const auto & file : files)
         {
-            if (has_suffix(file, ".po"))
+            if (has_suffix(file, ".po") || has_suffix(file, ".mo"))
             {
                 std::string basename = file.substr(0, file.size() - 3);
                 if (basename.empty())
@@ -428,19 +428,21 @@ dictionarymgr::remove_directory (const std::string & pathname)
 }
 
 /**
- *  This function converts a .po filename (e.g. zh_TW.po) into a lang
- *  specification (zh_TW). On case insensitive file systems (think Windows) the
- *  filename and therefore the country specification is lower case (zh_tw). It
- *  Converts the lower case characters of the country back to upper case,
- *  otherwise potext (tinygettext) does not identify the country correctly.
+ *  This function converts a .po/.mo filename (e.g. zh_TW.po/mo) into a
+ *  language specification (zh_TW). On case-insensitive file systems
+ *  (think Windows) the filename and therefore the country specification
+ *  is lower case (zh_tw). It Converts the lower case characters of the
+ *  country back to upper case, otherwise potext does not identify the
+ *  country correctly.
  */
 
 std::string
 dictionarymgr::filename_to_language (const std::string & s_in) const
 {
     std::string s;
-    if(s_in.substr(s_in.size()-3, 3)==".po")
-        s = s_in.substr(0, s_in.size()-3);
+    std::string s_in_ext = s_in.substr(s_in.size() - 3, 3);
+    if (s_in_ext == ".po" || s_in_ext == ".mo")
+        s = s_in.substr(0, s_in.size() - 3);
     else
         s = s_in;
 
@@ -461,7 +463,7 @@ dictionarymgr::filename_to_language (const std::string & s_in) const
             s[i] = static_cast<char>(::toupper(s[i]));
         }
         else
-            underscore_found = s[i]=='_';
+            underscore_found = s[i] == '_';
     }
     return s;
 }
@@ -563,7 +565,7 @@ dictionarymgr::add_dictionaries
     bool logged_current_dict = false;
     for (const auto & fname : files)
     {
-        if (has_suffix(fname, ".po"))
+        if (has_suffix(fname, ".po") || has_suffix(fname, ".mo"))
         {
             language polang = language::from_env(filename_to_language(fname));
             if (polang)
@@ -623,10 +625,10 @@ dictionarymgr::add_dictionaries
  *  it is meant to be called near the beginning of main(). It doesn't count
  *  message catalogs either.
  *
- * TODO:
+ *  TODO:
  *
- *  Should not this function cause the domain's dictionary to be
- *  made the current dictionary?????????
+ *      Should not this function cause the domain's dictionary to be
+ *      made the current dictionary?????????
  *
  *  From GNU's textdomain.c, when the new domain name matches the old domain:
  *  "This can happen and people will use it to signal that some environment
@@ -740,6 +742,47 @@ dictionarymgr::bind_textdomain_codeset
     else
         return std::string("");
 }
+
+#if defined PLATFORM_WIN32_STRICT
+
+std::wstring
+dictionarymgr::wbindtextdomain
+(
+    const std::string & domainname,
+    const std::wstring & dirname
+)
+{
+    std::string result;
+    std::wstring saved_dirname = dirname;
+#if 0
+    if (dirname[0] == '/' || dirname[0] == '\\')
+    {
+        const char * ur = std::getenv("UNIXROOT");
+        if (not_nullptr(ur))
+        {
+            std::size_t len = dirname.length() + 3;
+            if (len <= p_max_path)
+            {
+                bool isdrivename = ur[0] != 0 && ur[1] == ':' && ur[2] == 0;
+                if (isdrivename)
+                {
+                    std::string dir_with_drive = ur;
+                    dir_with_drive += dirname;
+                    saved_dirname = dir_with_drive;
+                }
+            }
+        }
+    }
+#endif
+    if (get_bindings().set_binding_wide(domainname, saved_dirname))
+        result = saved_dirname;
+    else
+        result = dirname;
+
+    return result;
+}
+
+#endif      // defined PLATFORM_WIN32_STRICT
 
 }           // namespace po
 
