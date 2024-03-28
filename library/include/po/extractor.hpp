@@ -158,6 +158,11 @@ public:
         return sz < m_data.size();
     }
 
+    bool checked_offset (std::size_t sz, std::size_t maxx) const
+    {
+        return sz < maxx;
+    }
+
     const char * find
     (
         const std::string & target,

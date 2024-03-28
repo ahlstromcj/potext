@@ -82,8 +82,8 @@
  *          -   Offset of the string (the string is null-terminated)
  */
 
-#include <cctype>                       /* std::toupper() etc.              */
-#include <cstring>                      /* std::strlen() etc.               */
+// #include <cctype>                       /* std::toupper() etc.              */
+// #include <cstring>                      /* std::strlen() etc.               */
 #include <iostream>                     /* std::istream, std::ostream       */
 #include <fstream>
 
@@ -457,8 +457,8 @@ moparser::find (const std::string & target)
 bool
 moparser::load_translations ()
 {
-    static char s_NUL = 0x00;
-    static char s_EOT = 0x04;
+    static const char s_NUL = 0x00;
+    static const char s_EOT = 0x04;
     bool result = true;
     extractor xtract(m_mo_data);                    /* translation data     */
     if (m_swapped_bytes)
@@ -473,32 +473,77 @@ moparser::load_translations ()
     int count = int(m_mo_header.string_count);
     for (int index = 0; index < count; ++index, ++orig, ++tran)
     {
+        /*
+         * The full original length and offset, which can start with a context
+         * string terminated by an EOT character. We save the maximum offset
+         * in order to avoid bleeding into the next original string.
+         */
+
         word ooffset = swap(orig->o_offset);        /* see extractor.hpp    */
         word olength = swap(orig->o_length);
+        std::size_t omax = std::size_t(ooffset + olength);  // - 1 ???
+
         word toffset = swap(tran->o_offset);
         word tlength = swap(tran->o_length);
+//      std::size_t tmax = std::size_t(toffset + tlength);  // - 1 ???
         translation tranquad;
 
-        // MOVE TO BELOW
+        /*
+         * Context comes first, if present. If so, we get the context string
+         * and change the offset and length to get the "original" string.
+         */
 
         std::size_t eotpos = xtract.find_character(s_EOT, ooffset, olength);
-        if (xtract.valid_offset(eotpos))            /* get context string   */
+        if (xtract.checked_offset(eotpos, omax))    /* get context string   */
         {
             std::size_t ctxtlength = eotpos - ooffset;
             tranquad.context = xtract.get(ooffset, ctxtlength);
+            ooffset = word(eotpos) + 1;
+            olength -= word(ctxtlength);
         }
 
-        std::size_t rangelength = std::size_t(ooffset + olength);
-        std::size_t nulpos = xtract.find_character(s_NUL, ooffset, olength);
-        if (nulpos < rangelength)
+        /*
+         *  Get the original string and the first (singular) translation.
+         *  If the length of the translation is less than the specified
+         *  length of the translation, then get the plural-forms.
+         */
+
+        std::string translated = xtract.get(toffset, tlength);  /* singular */
+        int translength = int(translated.length());
+        tranquad.original = xtract.get(ooffset, olength);   /* original */
+        if (translength > 0)
         {
+            tranquad.translated = translated;
+            if (translength < tlength)
+            {
+                phraselist & plist{tranquad.plurals};
+                toffset += translength + 1;
+                tlength -= translength + 1;
+                for (;;)
+                {
+                    std::size_t range_end = std::size_t(toffset + tlength);
+                    std::size_t nulpos = xtract.find_character
+                    (
+                        s_NUL, toffset, tlength
+                    );
+                    if (nulpos < range_end)
+                    {
+                        std::size_t len = nulpos - toffset;
+                        std::string plural = xtract.get(toffset, len);
+                        if (plural.empty())
+                            break;
+                        else
+                            plist.push_back(plural);
 
-// while finding plurals tranquad.plurals.push_back(plural);
+                        translength = int(plural.length());
+                        toffset += translength + 1;
+                        tlength -= translength + 1;
+                    }
+                    else
+                        break;
+                }
+            }
         }
-
-        tranquad.original = xtract.get(ooffset, olength);
-        tranquad.translated = xtract.get(toffset, tlength);
-
         m_translations.push_back(tranquad);
     }
     return result;
