@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-28
+ * \updates       2024-03-29
  * \license       See above.
  *
  */
@@ -68,6 +68,71 @@
 
 namespace po
 {
+
+#if defined PLATFORM_WIN32_STRICT
+
+/**
+ *  Converts a string, which must be ASCII, to a wide string.  Useful for basic
+ *  translation of system path names in Linux, Windows, and other operating
+ *  systems.
+ */
+
+static std::wstring
+widen_ascii_string (const std::string & source)
+{
+    std::wstring result;
+    result.assign(source.begin(), source.end());
+    return result;
+}
+
+/**
+ *  Converts a wide string consisting of values less than or equal to 255
+ *  (extended ASCII) to a normal string.
+ */
+
+static std::string
+narrow_ascii_string (const std::wstring & wsource)
+{
+    std::string result;
+    for (auto wch : wsource)
+    {
+        int ch = int(wch);
+        result += char(ch);
+    }
+    return result;
+}
+
+/**
+ *  Stores the bytes of a wide string into a normal string; no character
+ *  conversion involved.  Useful only for shipping wide strings around
+ *  on the same computer.
+ */
+
+static std::string
+pack_wide_string (const std::wstring & wsource)
+{
+    const char * rawdata = reinterpret_cast<const char *>(wsource.data());
+    std::size_t sz = wsource.size() * sizeof(wsource[0]);
+    std::string result;
+    for (std::size_t i = 0; i < sz; ++i)
+        result.push_back(*rawdata++);
+
+    return result;
+}
+
+static std::wstring
+unpack_wide_string (const std::string & source)
+{
+    const wchar_t * rawdata = reinterpret_cast<const wchar_t *>(source.data());
+    std::size_t sz = source.size() / sizeof(wchar_t);
+    std::wstring result;
+    for (std::size_t i = 0; i < sz; ++i)
+        result.push_back(*rawdata++);
+
+    return result;
+}
+
+#endif  // defined PLATFORM_WIN32_STRICT
 
 /**
  *  Tests if lhs ends with rhs.
@@ -691,7 +756,12 @@ dictionarymgr::textdomain (const std::string & domainname)
  *
  * /param dirname
  *      The location of the package. Should be an absolute path, but
- *      we also support relative paths (for testing).
+ *      we also support relative paths (for testing). Also, we assume that
+ *      it contains only ASCII characters (beware!)
+ *
+ * /return
+ *      Returns the directory name. Normally it is not used, so we don't
+ *      worry about it.
  */
 
 std::string
@@ -701,6 +771,11 @@ dictionarymgr::bindtextdomain
     const std::string & dirname
 )
 {
+#if defined PLATFORM_WIN32_STRICT
+    std::wstring wdirname = widen_ascii_string(dirname);
+    std::wstring wideresult = wbindtextdomain(domainname, wdirname);
+    std::string result = narrow_ascii_string(wideresult);
+#else
     std::string result;
     std::string saved_dirname = dirname;
     if (dirname[0] == '/' || dirname[0] == '\\')
@@ -725,6 +800,7 @@ dictionarymgr::bindtextdomain
         result = saved_dirname;
     else
         result = dirname;
+#endif
 
     return result;
 }

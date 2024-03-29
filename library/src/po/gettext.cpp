@@ -28,9 +28,9 @@
  *  Macros that depend upon the build platform.
  *
  * \library       potext
- * \author        tinygettext; refactoring by Chris Ahlstrom
+ * \author        Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-10
+ * \updates       2024-03-29
  * \license       See above.
  *
  *  https://www.gnu.org/software/gettext/manual/ provides a 300-page manual in
@@ -56,6 +56,9 @@
  *
  *      LANGUAGE, LC_ALL, LC_CTYPE, LC_NUMERIC, LC_TIME, LC_COLLATE,
  *      LC_MONETARY, LC_MESSAGES, ..., LANG
+ *
+ *      GNU gettext() will act as a no-op if the LC_MESSAGES and LC_CTYPE
+ *      locale categories are not both set.
  *
  *  *.po Locations:
  *
@@ -235,6 +238,18 @@ static bool init_gettext ();
 static std::string current_domain (const std::string & cd = "");
 static std::string old_domain (const std::string & od = "");
 #endif
+
+static bool s_use_mo_mode = false;
+
+static void set_use_mo_mode ()
+{
+    s_use_mo_mode = true;
+}
+
+static bool use_mo_mode ()
+{
+    return s_use_mo_mode;
+}
 
 /**
  *  Indicates which locale directory processing is in force.
@@ -525,6 +540,25 @@ user_config_po (const std::string & appfolder)
 }
 
 /**
+ *  Detects if "LC_" is part of the locale directory name and turns on the
+ *  "mo mode".
+ *
+ *  TODO: how to adjust installed_po-path().
+ */
+
+static bool
+check_mo_mode (const std::string & dirname)
+{
+    bool result = false;
+    std::size_t pos = dirname.find("LC_");
+    if (pos != std::string::npos)
+    {
+        result = true;
+    }
+    return result;
+}
+
+/**
  *  Sets up and returns the domain and its locale directory.
  *
  * \param arg0
@@ -548,6 +582,11 @@ user_config_po (const std::string & appfolder)
  *      set. If the value is "user", then the "user" (.config) directory is
  *      assembled.
  *
+ *      TODO: if the value is "LC_MESSAGE" or even if it contains "LC" at the
+ *      beginning, or just /usr/.../locale, then we assume that .mo files
+ *      are to be used; these are never installed in the user's configuration
+ *      directory.
+ *
  * \return
  *      Returns true if both parameters were fine. If false, neither parameter
  *      is altered.
@@ -568,17 +607,23 @@ set_locale_info
     {
         const char * d = std::getenv("TEXTDOMAIN");
         if (not_nullptr(d))
+        {
             domname = std::string(d);
+        }
         else
         {
             d = std::getenv("LC_ALL");
             if (not_nullptr(d))
+            {
                 domname = std::string(d);
+            }
             else
             {
                 d = std::getenv("LC_MESSAGES");
                 if (not_nullptr(d))
+                {
                     domname = std::string(d);
+                }
                 else
                 {
                     d = std::getenv("LANG");
@@ -602,6 +647,10 @@ set_locale_info
         else if (domdirname == "user")          /* assemble user .config    */
         {
             domdirname = user_config_po(pkgname);
+        }
+        else if (check_mo_mode(domdirname))
+        {
+            set_use_mo_mode();
         }
         if (! domname.empty() && ! domdirname.empty())
         {
@@ -1163,7 +1212,10 @@ init_lib_locale
  * \param dirname
  *      Provides the name of the LOCALEDIR. The standard search directory is
  *      /user/share/locale. If empty, then the environment variable
- *      TEXTDOMAINDIR is used.
+ *      TEXTDOMAINDIR is used. These choices are made in set_locale_info().
+ *      See that function's description.
+ *
+ *      TODO:`
  *
  * \param category
  *      The area that is covered, such as LC_ALL, LC_MONETARY, and LC_NUMERIC.
