@@ -69,71 +69,6 @@
 namespace po
 {
 
-#if defined PLATFORM_WIN32_STRICT
-
-/**
- *  Converts a string, which must be ASCII, to a wide string.  Useful for basic
- *  translation of system path names in Linux, Windows, and other operating
- *  systems.
- */
-
-static std::wstring
-widen_ascii_string (const std::string & source)
-{
-    std::wstring result;
-    result.assign(source.begin(), source.end());
-    return result;
-}
-
-/**
- *  Converts a wide string consisting of values less than or equal to 255
- *  (extended ASCII) to a normal string.
- */
-
-static std::string
-narrow_ascii_string (const std::wstring & wsource)
-{
-    std::string result;
-    for (auto wch : wsource)
-    {
-        int ch = int(wch);
-        result += char(ch);
-    }
-    return result;
-}
-
-/**
- *  Stores the bytes of a wide string into a normal string; no character
- *  conversion involved.  Useful only for shipping wide strings around
- *  on the same computer.
- */
-
-static std::string
-pack_wide_string (const std::wstring & wsource)
-{
-    const char * rawdata = reinterpret_cast<const char *>(wsource.data());
-    std::size_t sz = wsource.size() * sizeof(wsource[0]);
-    std::string result;
-    for (std::size_t i = 0; i < sz; ++i)
-        result.push_back(*rawdata++);
-
-    return result;
-}
-
-static std::wstring
-unpack_wide_string (const std::string & source)
-{
-    const wchar_t * rawdata = reinterpret_cast<const wchar_t *>(source.data());
-    std::size_t sz = source.size() / sizeof(wchar_t);
-    std::wstring result;
-    for (std::size_t i = 0; i < sz; ++i)
-        result.push_back(*rawdata++);
-
-    return result;
-}
-
-#endif  // defined PLATFORM_WIN32_STRICT
-
 /**
  *  Tests if lhs ends with rhs.
  *
@@ -774,7 +709,7 @@ dictionarymgr::bindtextdomain
 #if defined PLATFORM_WIN32_STRICT
     std::wstring wdirname = widen_ascii_string(dirname);
     std::wstring wideresult = wbindtextdomain(domainname, wdirname);
-    std::string result = narrow_ascii_string(wideresult);
+    std::string result = pack_wide_string(wideresult);
 #else
     std::string result;
     std::string saved_dirname = dirname;
@@ -828,7 +763,7 @@ dictionarymgr::wbindtextdomain
     const std::wstring & dirname
 )
 {
-    std::string result;
+    std::wstring result;
     std::wstring saved_dirname = dirname;
 #if 0
     if (dirname[0] == '/' || dirname[0] == '\\')

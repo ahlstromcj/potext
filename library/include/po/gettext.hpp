@@ -27,7 +27,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-02-16
- * \updates       2024-03-28
+ * \updates       2024-03-29
  * \license       See above.
  *
  *  gettext_noop()  pseudo function call that serves as a marker for the
@@ -224,6 +224,15 @@ extern std::string bind_textdomain_codeset
     const std::string & domain,
     const std::string & codeset
 );
+
+#endif
+
+#if defined PLATFORM_WIN32_STRICT
+
+extern std::wstring widen_ascii_string (const std::string & source);
+extern std::string narrow_ascii_string (const std::wstring & wsource);
+extern std::string pack_wide_string (const std::wstring & wsource);
+extern std::wstring unpack_wide_string (const std::string & source);
 
 #endif
 

@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-11
+ * \updates       2024-03-29
  * \license       See above.
  *
  */
@@ -53,6 +53,8 @@
 #define _(str)      str
 #endif
 
+#if defined POTEX_USE_STATIC_OPERATOR_OSTREAM
+
 /**
  *  Writes a list of phrases to the given output stream.
  *
@@ -67,7 +69,7 @@
  *      concatenated "<<" operators.
  */
 
-std::ostream &
+static std::ostream &
 operator << (std::ostream & o, const po::phraselist & v)
 {
     int count = 0;
@@ -81,6 +83,8 @@ operator << (std::ostream & o, const po::phraselist & v)
     }
     return o;
 }
+
+#endif      // defined POTEX_USE_STATIC_OPERATOR_OSTREAM
 
 /*
  *  The main namespace of this library. We could have followed Boost
