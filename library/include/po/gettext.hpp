@@ -27,7 +27,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-02-16
- * \updates       2024-03-29
+ * \updates       2024-03-30
  * \license       See above.
  *
  *  gettext_noop()  pseudo function call that serves as a marker for the
@@ -61,7 +61,7 @@
  *  CODESET could be something like "UTF-8".
  */
 
-#include <string>                       /* std::string class                */
+#include <string>                       /* std::string & std::wstring       */
 
 #include "po_build_macros.h"            /* build (and platform) macros      */
 
@@ -195,7 +195,8 @@ extern std::string dcpgettext
 extern std::string init_lib_locale
 (
     const std::string & domainname,
-    const std::string & dirname
+    const std::string & dirname,
+    const std::wstring & wdirname = L""
 );
 extern std::string init_app_locale
 (
@@ -203,13 +204,17 @@ extern std::string init_app_locale
     const std::string & pkg,
     const std::string & domainname,
     const std::string & dirname,
+    const std::wstring & wdirname = L"",
     int category = (-1)
 );
+#if 0
 extern std::string get_binding
 (
     const std::string & domainname,
     const std::string & dirname
+    const std::wstring & wdirname = L""
 );
+#endif
 
 #if defined POTEXT_ENABLE_I18N
 
@@ -224,15 +229,11 @@ extern std::string bind_textdomain_codeset
     const std::string & domain,
     const std::string & codeset
 );
-
-#endif
-
-#if defined PLATFORM_WIN32_STRICT
-
-extern std::wstring widen_ascii_string (const std::string & source);
-extern std::string narrow_ascii_string (const std::wstring & wsource);
-extern std::string pack_wide_string (const std::wstring & wsource);
-extern std::wstring unpack_wide_string (const std::string & source);
+extern std::wstring wbindtextdomain
+(
+    const std::string & domainname,
+    const std::wstring & wdirname
+);
 
 #endif
 

@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-29
+ * \updates       2024-03-30
  * \license       See above.
  *
  */
@@ -706,11 +706,6 @@ dictionarymgr::bindtextdomain
     const std::string & dirname
 )
 {
-#if defined PLATFORM_WIN32_STRICT
-    std::wstring wdirname = widen_ascii_string(dirname);
-    std::wstring wideresult = wbindtextdomain(domainname, wdirname);
-    std::string result = pack_wide_string(wideresult);
-#else
     std::string result;
     std::string saved_dirname = dirname;
     if (dirname[0] == '/' || dirname[0] == '\\')
@@ -735,7 +730,6 @@ dictionarymgr::bindtextdomain
         result = saved_dirname;
     else
         result = dirname;
-#endif
 
     return result;
 }
@@ -753,47 +747,6 @@ dictionarymgr::bind_textdomain_codeset
     else
         return std::string("");
 }
-
-#if defined PLATFORM_WIN32_STRICT
-
-std::wstring
-dictionarymgr::wbindtextdomain
-(
-    const std::string & domainname,
-    const std::wstring & dirname
-)
-{
-    std::wstring result;
-    std::wstring saved_dirname = dirname;
-#if 0
-    if (dirname[0] == '/' || dirname[0] == '\\')
-    {
-        const char * ur = std::getenv("UNIXROOT");
-        if (not_nullptr(ur))
-        {
-            std::size_t len = dirname.length() + 3;
-            if (len <= p_max_path)
-            {
-                bool isdrivename = ur[0] != 0 && ur[1] == ':' && ur[2] == 0;
-                if (isdrivename)
-                {
-                    std::string dir_with_drive = ur;
-                    dir_with_drive += dirname;
-                    saved_dirname = dir_with_drive;
-                }
-            }
-        }
-    }
-#endif
-    if (get_bindings().set_binding_wide(domainname, saved_dirname))
-        result = saved_dirname;
-    else
-        result = dirname;
-
-    return result;
-}
-
-#endif      // defined PLATFORM_WIN32_STRICT
 
 }           // namespace po
 

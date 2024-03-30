@@ -30,7 +30,7 @@
  * \library       potext
  * \author        gettext; refactoring by Chris Ahlstrom
  * \date          2024-02-20
- * \updates       2024-03-19
+ * \updates       2024-03-30
  * \license       See above.
  *
  *  Defines setbinding(), a replacement for set_binding_values in the
@@ -85,6 +85,7 @@
 
 #include "c_macros.h"                   /* not_nullptr(), etc.              */
 #include "po/nlsbindings.hpp"           /* po::nlsbindings class            */
+#include "po/wstrfunctions.hpp"         /* po::wide-to-narrow functions     */
 
 namespace po
 {
@@ -103,8 +104,6 @@ namespace po
 
 std::string nlsbindings::sm_default_dirname = "/usr/share/locale";
 
-#if defined PLATFORM_WIN32_STRICT
-
 /**
  *  Provides storage for the default locale directory on strict Windows
  *  32 (without Cygwin).
@@ -118,8 +117,6 @@ std::string nlsbindings::sm_default_dirname = "/usr/share/locale";
  */
 
 std::wstring nlsbindings::sm_default_wdirname = L"C:/";  // TODO TODO
-
-#endif
 
 /**
  *  Constructor
@@ -168,16 +165,12 @@ nlsbindings::create_binding
     {
         std::string tmpname = dirname.empty() ? sm_default_dirname : dirname ;
         result->b_dirname = tmpname;
-#if defined PLATFORM_WIN32_STRICT
         result->b_wdirname.clear();
-#endif
         result->b_codeset.clear();
         result->b_domainname = domainname;
     }
     return result;
 }
-
-#if defined PLATFORM_WIN32_STRICT
 
 nlsbindings::binding *
 nlsbindings::create_binding_wide
@@ -198,7 +191,6 @@ nlsbindings::create_binding_wide
     }
     return result;
 }
-#endif
 
 /**
  *  Specifies the directory name *dirname, the directory name *wdirnamep
@@ -330,8 +322,6 @@ nlsbindings::set_binding_codeset
     return result;
 }
 
-#if defined PLATFORM_WIN32_STRICT
-
 /**
  * libintl_wbindtextdomain():
  *      set_binding_values(domainname, NULL, &wdirname, NULL);
@@ -387,8 +377,6 @@ nlsbindings::set_binding_wide
     }
     return result;
 }
-
-#endif  // defined PLATFORM_WIN32_STRICT
 
 static bool
 name_has_root_path (const std::string & filename)
@@ -469,14 +457,12 @@ nlsbindings::get_binding
     return result;
 }
 
-#if defined PLATFORM_WIN32_STRICT
-
 /**
  *  This needs some work, unfortunately.
  */
 
-std::string
-nlsbindings::get_binding
+std::wstring
+nlsbindings::get_binding_wide
 (
     const std::string & domainname,
     const std::wstring & wdirname
@@ -486,18 +472,20 @@ nlsbindings::get_binding
     auto bit = find(domainname);
     if (bit != m_container.end())
     {
-        if (! name_has_root_path(wdirname))      /* relative path, root it   */
+        std::string dirname = wstring_to_utf8(wdirname);
+        if (! name_has_root_path(dirname))       /* relative path, root it   */
         {
-            wchar_t buffer[1024];                /* we'll fix it later       */
-            const wchar_t * b = p_getcwd(buffer, 1024);
+            char buffer[1024];                   /* we'll fix it later       */
+            const char * b = p_getcwd(buffer, 1024);
             if (not_nullptr(b))
-                result = get_full_path(std::wstring(b));
+            {
+                dirname = get_full_path(std::string(b));
+                result = utf8_to_wstring(dirname);
+            }
         }
     }
     return result;
 }
-
-#endif
 
 }               // namespace po
 
@@ -506,4 +494,3 @@ nlsbindings::get_binding
  *
  * vim: sw=4 ts=4 wm=4 et ft=cpp
  */
-

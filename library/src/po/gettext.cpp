@@ -30,7 +30,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-29
+ * \updates       2024-03-30
  * \license       See above.
  *
  *  https://www.gnu.org/software/gettext/manual/ provides a 300-page manual in
@@ -97,8 +97,10 @@
 #include <cerrno>                       /* errno                            */
 #include <climits>                      /* PATH_MAX                         */
 #include <clocale>                      /* std::setlocale()                 */
+#include <codecvt>                      /* std::codecvt()                   */
 #include <cstdlib>                      /* std::getenv()                    */
 #include <cstring>                      /* std::strerror()                  */
+#include <locale>                       /* std::wstring_convert<>           */
 #include <map>                          /* std::map<>                       */
 
 #include "c_macros.h"                   /* not_nullptr(), etc.              */
@@ -106,6 +108,7 @@
 #include "po/gettext.hpp"               /* external gettext-related funcs   */
 #include "po/logstream.hpp"             /* po::logstream::info(), etc.      */
 #include "po/nlsbindings.hpp"           /* po::nlsbindings class            */
+#include "po/wstrfunctions.hpp"         /* po::wide-to-narrow functions     */
 
 /**
  *  Since we're using C++17, we could use std::filesystem::path and it's
@@ -963,6 +966,8 @@ dcpgettext
  *  One can have an array of domains; we do not support that concept here.
  */
 
+#if defined USE_INIT_GETTEXT_ETC
+
 static std::string
 base_locale_directory (const std::string & bld = "")
 {
@@ -972,8 +977,6 @@ base_locale_directory (const std::string & bld = "")
 
     return s_base_locale_directory;
 }
-
-#if defined USE_INIT_GETTEXT
 
 static std::string
 old_domain (const std::string & od)
@@ -1057,6 +1060,22 @@ bind_textdomain_codeset
     return dictionary_manager().bind_textdomain_codeset(domainname, codeset);
 }
 
+#if 0
+/**
+ *  See dictionarymgr::wbindtextdomain().
+ */
+
+std::wstring
+wbindtextdomain
+(
+    const std::string & domainname,
+    const std::wstring & wdirname
+)
+{
+    return dictionary_manager().wbindtextdomain(domainname, wdirname);
+}
+#endif
+
 /**
  *  bindtextdomain() sets the base directory of the hierarchy containing
  *  message catalogs for a given message domain.
@@ -1101,17 +1120,17 @@ bind_textdomain_codeset
  *  the locale. The library code doesn’t call textdomain(PACKAGE); it would
  *  interfere with the text domain set by the main program.
  *
- * \param pkg
- *      Provides the name of the PACKAGE.
+ * \param domainname
+ *      Provides the base name of a message catalog, such as "en_US".
+ *      It cannot be empty. It must consist of characters legal in filenames.
  *
  * \param dirname
  *      Provides the name of the LOCALDIR to which the domain is to be bound.
  *      For consistency, this directory should be an absolute path, not a
- *      relative one.
+ *      relative one. If empty, then the next parameter should be supplied.
  *
- * \param domainname
- *      Provides the base name of a message catalog, such as "en_US".
- *      It cannot be empty. It must consist of characters legal in filenames.
+ * \param wdirname
+ *      The same as \a dirname, but for use with wide strings.
  *
  *  Also consider bind_textdomain_codeset(domainname, codeset = "UTF-8").
  *
@@ -1123,25 +1142,25 @@ std::string
 init_lib_locale
 (
     const std::string & domainname,     /* the desired domain name          */
-    const std::string & dirname         /* i.e. the locale directory        */
+    const std::string & dirname,        /* i.e. the locale directory        */
+    const std::wstring & wdirname       /* optional wide-string format      */
 )
 {
     std::string result;
     bool ok = ! domainname.empty();
     if (ok)
     {
-
+        bool use_wstring = ! wdirname.empty();
         std::string domdirname = dirname;
-        if (domdirname.empty())
-        {
-            domdirname = base_locale_directory();   // TODO
-        }
+        if (use_wstring)
+            domdirname = wstring_to_utf8(wdirname);
+
         if (! domdirname.empty())
         {
             std::string bd;
             bool ok = dictionary_manager().add_dictionaries
             (
-                dirname, domainname
+                domdirname, domainname
             );
             if (ok)
                 bd = bindtextdomain(domainname, domdirname);
@@ -1215,7 +1234,8 @@ init_lib_locale
  *      TEXTDOMAINDIR is used. These choices are made in set_locale_info().
  *      See that function's description.
  *
- *      TODO:`
+ * \param wdirname
+ *      The same as \a dirname, but for use with wide strings.
  *
  * \param category
  *      The area that is covered, such as LC_ALL, LC_MONETARY, and LC_NUMERIC.
@@ -1233,6 +1253,7 @@ init_app_locale
     const std::string & pkgname,
     const std::string & domainname,
     const std::string & dirname,
+    const std::wstring & wdirname,      /* optional wide-string format      */
     int category
 )
 {
@@ -1247,13 +1268,17 @@ init_app_locale
     bool ok = not_nullptr(lc);
     if (ok)
     {
+        /*
+         * TODO: handle wide strings.
+         */
+
         std::string domname = domainname;
         std::string domdirname = dirname;
         ok = set_locale_info(arg0, pkgname, domname, domdirname);
         if (ok)
         {
             logstream::info() << "setlocale() --> " << lc << std::endl;
-            result = init_lib_locale(domname, domdirname);
+            result = init_lib_locale(domname, domdirname, wdirname);
             if (! result.empty())
             {
                 std::string td = textdomain(domname);       /* not 'pkg'    */
@@ -1267,71 +1292,6 @@ init_app_locale
 }
 
 #endif  // defined POTEXT_ENABLE_I18N
-
-#if defined PLATFORM_WIN32_STRICT
-
-/**
- *  Converts a string, which must be ASCII, to a wide string.  Useful for basic
- *  translation of system path names in Linux, Windows, and other operating
- *  systems.
- */
-
-std::wstring
-widen_ascii_string (const std::string & source)
-{
-    std::wstring result;
-    result.assign(source.begin(), source.end());
-    return result;
-}
-
-/**
- *  Converts a wide string consisting of values less than or equal to 255
- *  (extended ASCII) to a normal string.
- */
-
-std::string
-narrow_ascii_string (const std::wstring & wsource)
-{
-    std::string result;
-    for (auto wch : wsource)
-    {
-        int ch = int(wch);
-        result += char(ch);
-    }
-    return result;
-}
-
-/**
- *  Stores the bytes of a wide string into a normal string; no character
- *  conversion involved.  Useful only for shipping wide strings around
- *  on the same computer.
- */
-
-std::string
-pack_wide_string (const std::wstring & wsource)
-{
-    const char * rawdata = reinterpret_cast<const char *>(wsource.data());
-    std::size_t sz = wsource.size() * sizeof(wsource[0]);
-    std::string result;
-    for (std::size_t i = 0; i < sz; ++i)
-        result.push_back(*rawdata++);
-
-    return result;
-}
-
-std::wstring
-unpack_wide_string (const std::string & source)
-{
-    const wchar_t * rawdata = reinterpret_cast<const wchar_t *>(source.data());
-    std::size_t sz = source.size() / sizeof(wchar_t);
-    std::wstring result;
-    for (std::size_t i = 0; i < sz; ++i)
-        result.push_back(*rawdata++);
-
-    return result;
-}
-
-#endif  // defined PLATFORM_WIN32_STRICT
 
 }               // namespace po
 

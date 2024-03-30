@@ -26,7 +26,7 @@
  */
 
 /**
- * \file          gettext.hpp
+ * \file          gettextex.hpp
  *
  *  Universal types for the potext library
  *

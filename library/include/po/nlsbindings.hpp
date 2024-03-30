@@ -33,7 +33,7 @@
  * \library       potext
  * \author        gettext; refactoring by Chris Ahlstrom
  * \date          2024-02-20
- * \updates       2024-03-04
+ * \updates       2024-03-30
  * \license       See above.
  *
  *  This module defines set_binding_values() and an nlsbindings class.
@@ -68,9 +68,7 @@ public:
     using binding = struct
     {
         std::string b_dirname;
-#if defined PLATFORM_WIN32_STRICT                   /* WIN32 and not Cygwin */
         std::wstring b_wdirname;
-#endif
         std::string b_codeset;
         std::string b_domainname;
     };
@@ -87,15 +85,11 @@ private:
 
     static std::string sm_default_dirname;
 
-#if defined PLATFORM_WIN32_STRICT
-
     /**
      *  Similar to the above, for Windows without Cygwin.
      */
 
     static std::wstring sm_default_wdirname;
-
-#endif
 
     /**
      *  Holds a list of all of the NLS bindings.
@@ -148,18 +142,16 @@ public:
         std::string & codeset
     );
 
-#if defined PLATFORM_WIN32_STRICT
     bool set_binding_wide
     (
         const std::string & domainname,
         std::wstring & wdirname
     );
-    std::string get_binding
+    std::wstring get_binding_wide
     (
         const std::string & domainname,
         const std::wstring & wdirname
     );
-#endif
 
 private:
 
@@ -170,14 +162,11 @@ private:
         const std::string & domainname,
         const std::string & dirname
     );
-
-#if defined PLATFORM_WIN32_STRICT
     binding * create_binding_wide
     (
         const std::string & domainname,
         const std::wstring & dirname
     );
-#endif
 
 };              // class nlsbindings
 
