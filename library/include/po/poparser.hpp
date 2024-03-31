@@ -33,7 +33,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-26
+ * \updates       2024-03-31
  * \license       See above.
  *
  */
@@ -102,7 +102,7 @@ private:
     virtual bool parse () override;
 
     bool parse_header (const std::string & header);
-    void next_line ();
+    bool next_line ();
     std::string get_string (std::size_t skip);
     void get_string_line (std::ostringstream & str, std::size_t skip);
     bool is_empty_line ();

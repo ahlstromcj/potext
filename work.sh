@@ -8,7 +8,7 @@
 # \library        potext
 # \author         Chris Ahlstrom
 # \date           2024-02-06
-# \update         2024-03-19
+# \update         2024-03-31
 # \version        $Revision$
 # \license        $XPC_SUITE_GPL_LICENSE$
 #
@@ -30,8 +30,8 @@ LANG=C
 export LANG
 CYGWIN=binmode
 export CYGWIN
-export POTEXT_SCRIPT_EDIT_DATE="2024-03-19"
-export POTEXT_LIBRARY_API_VERSION="0.1"
+export POTEXT_SCRIPT_EDIT_DATE="2024-03-31"
+export POTEXT_LIBRARY_API_VERSION="0.2"
 export POTEXT_LIBRARY_VERSION="$POTEXT_LIBRARY_API_VERSION.0"
 export POTEXT="potext"
 
@@ -325,8 +325,10 @@ if test "$DOMAKE" = "yes" ; then
       echo "New configuration, creating $MAKEFILE, etc...."
       if test "$DODEBUG" = "yes" ; then
          meson setup build/ --buildtype=debug
+         echo "... for debugging"
       else
          meson setup build/ --buildtype=release
+         echo "... for release"
       fi
    fi
 
@@ -336,9 +338,17 @@ if test "$DOMAKE" = "yes" ; then
    cd build
    ninja -v > make.log
    if test $? = 0 ; then
-      echo "Build succeeded."
+      if test "$DODEBUG" = "yes" ; then
+         echo "Debug build succeeded."
+      else
+         echo "Release build succeeded."
+      fi
    else
-      echo "Build failed, check build/make.log for errors."
+      if test "$DODEBUG" = "yes" ; then
+         echo "Debug build failed, check build/make.log for errors."
+      else
+         echo "Release build failed, check build/make.log for errors."
+      fi
    fi
    cd ..
 
@@ -355,7 +365,7 @@ if test "$DOINSTALL" = "yes" ; then
       meson install
       cd ..
    else
-      echo "You must be root to install the potext library!"
+      echo "We need you to be root to install the potext library..."
    fi
 
 fi

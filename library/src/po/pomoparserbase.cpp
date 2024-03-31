@@ -25,7 +25,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-26
- * \updates       2024-03-26
+ * \updates       2024-03-31
  * \license       See above.
  *
  */
@@ -90,12 +90,12 @@ pomoparserbase::error (const std::string & msg, std::size_t pos)
     else
     {
         err
-            << m_filename << ":" << pos << ":\n"
-            << _("error") << ": "
+            << _("error") << ": " << m_filename << " "
+            << _("line") << " " << pos << ": "
             << msg << std::endl
             ;
     }
-    throw internal_parser_error();
+    throw parser_error(msg);
 }
 
 void

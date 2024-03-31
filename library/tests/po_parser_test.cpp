@@ -62,7 +62,7 @@ namespace
 void
 my_log_callback (const std::string & err)
 {
-    std::cerr << "[po parser test] " << err;
+    std::cerr << "[poparser test] " << err;
 }
 
 /**
