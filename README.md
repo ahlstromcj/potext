@@ -1,4 +1,4 @@
-# README for Potext 0.2.0 2024-03-27
+# README for Potext 0.2.0 2024-03-31
 
 __Potext__ is a partial replacement for the __GNU Gettext__ library and a
 refactoring of the __Tinygettext__ library, with some additional features. It
@@ -67,6 +67,7 @@ should needed.
     *   Figure out how to deal with the "category" parameter. LC_MESSAGES
         is by far the most common, but....
     *   Add the parsing of .mo files to create the internal dictionaries.
+    *   Support reading a single .mo/.po file rather than a whole directory.
     *   Flesh out and test the Windows support; it still has problems.
     *   Tighten up the nlsbinding class and the dictionarymgr class.
     *   See Section 1.4 of the developer guide for more.

@@ -27,7 +27,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-30
- * \updates       2024-03-30
+ * \updates       2024-04-01
  * \license       See above.
  *
  */
@@ -42,6 +42,10 @@ namespace po
  *  strings. Not just for Windows.
  */
 
+extern bool has_suffix (const std::string & lhs, const std::string & rhs);
+extern std::string filename_path (const std::string & fullpath);
+extern std::string extract_mo_domain (const std::string & fullpath);
+extern std::string extract_po_domain (const std::string & fullpath);
 extern std::wstring widen_ascii_string (const std::string & source);
 extern std::string narrow_ascii_string (const std::wstring & wsource);
 extern std::string pack_wide_string (const std::wstring & wsource);

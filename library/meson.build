@@ -91,7 +91,7 @@ po_library_build = library(
 #-----------------------------------------------------------------------------
 
 libpotext_lt_c = 0
-libpotext_lt_r = 1
+libpotext_lt_r = 2
 libpotext_lt_a = 0
 libpotext_so_version = '@0@.@1@.@2@'.format(
    (libpotext_lt_c - libpotext_lt_a), libpotext_lt_a, libpotext_lt_r)

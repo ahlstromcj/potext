@@ -6,7 +6,7 @@
 # \library     potext
 # \author      Chris Ahlstrom
 # \date        2024-02-06
-# \updates     2024-03-26
+# \updates     2024-03-31
 # \license     $XPC_SUITE_GPL_LICENSE$
 #
 #  This file is part of the potext library and tests.
@@ -25,6 +25,15 @@
 #  the "potext" library. If not, see <https://www.gnu.org/licenses/>.
 #
 #     See the "work.sh" bash script.
+#
+# Debug:
+#
+#     In order to see the library modules (and not just the main application
+#     module), set 'default_library=static' instead of using 'both'.
+#
+# Warning level:
+#
+#     At some point, try setting it to "everything".
 #
 # Release:
 #
@@ -53,7 +62,7 @@ project('potext', 'cpp',
    meson_version: '>=1.1.0',
    default_options: [
       'cpp_std=c++17', 'warning_level=3',
-      'default_library=both'
+      'default_library=static'            # static for debug, both otherwise
       ]
    )
 
@@ -78,7 +87,7 @@ extra_flags = [
 #-----------------------------------------------------------------------------
 
 po_description = 'Builds the potext library and tests projects.'
-po_date = '2024-03-26'
+po_date = '2024-03-31'
 po_version = meson.project_version()
 po_api_version = '0.2'
 po_build_type = get_option('buildtype')
@@ -102,7 +111,7 @@ endif
 # project, where the include subdirectory is 'po'.
 #-----------------------------------------------------------------------------
 
-po_dir = 'potext-0.2'
+po_dir = 'potext-@0@'.format(po_api_version)
 po_po_dir = join_paths(po_dir, 'po')
 po_prefix = get_option('prefix')
 po_bindir = join_paths(po_prefix, get_option('bindir'))

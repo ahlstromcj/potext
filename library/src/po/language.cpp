@@ -128,8 +128,8 @@ language::from_spec
 /**
  *  Create a language from language and country code:
  *
- *  Example: languge("deutsch");
- *  Example: languge("de_DE");
+ *  Example: language("deutsch");
+ *  Example: language("de_DE");
  */
 
 language

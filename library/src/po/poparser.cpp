@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-27
+ * \updates       2024-03-31
  * \license       See above.
  *
  */
@@ -44,9 +44,9 @@
 #include "po/poparser.hpp"              /* po::poparser class               */
 
 /**
- *  We cannot enable translation in this module, because it leads to
- *  recursion and a stack overflow. Oh well, it was worth a try.
- *  Can still grab messages for a dictionary, if desired.
+ *  We cannot enable translation in this module, because it leads to recursion
+ *  and a stack overflow. Oh well, it was worth a try.  Can still grab
+ *  messages for a dictionary, if desired.
  */
 
 #if ! defined PO_HAVE_GETTEXT_RECURSIVE
@@ -62,6 +62,9 @@ namespace po
 
 #define MSGCTXT_EMPTY_FLAG      "-"
 
+/**
+ *  Constructor.
+ */
 
 poparser::poparser
 (
@@ -120,7 +123,7 @@ poparser::get_string_line (std::ostringstream & out, std::size_t skip)
 {
     std::size_t linesize = line().size();
     if ((skip + 1) >= linesize)
-        error(_("Unexpected end of line"), m_line_number);
+        error(_("1. Unexpected end of line"), m_line_number);
 
     if (line(skip) != '"')
         error(_("Expected start of string"), m_line_number);
@@ -141,7 +144,7 @@ poparser::get_string_line (std::ostringstream & out, std::size_t skip)
         }
         else if (i >= line().size())
         {
-            error(_("Unexpected end of line"));
+            error(_("2. Unexpected end of line"));
         }
         else if (c == '\\')
         {
@@ -198,7 +201,7 @@ std::string
 poparser::get_string (std::size_t skip)
 {
     if ((skip + 1) >= line().size())
-        error(_("Unexpected end of line"), m_line_number);
+        error(_("3. Unexpected end of line"), m_line_number);
 
     std::ostringstream ssout;
     if (line(skip) == ' ' && line(skip + 1) == '"')
@@ -214,7 +217,7 @@ poparser::get_string (std::size_t skip)
         {
             if (skip >= line().size())
             {
-                error(_("Unexpected end of line"), m_line_number);
+                error(_("4. Unexpected end of line"), m_line_number);
             }
             else if (line(skip) == '"')                 /* same as '\"'! */
             {

@@ -147,13 +147,13 @@ private:
     bool m_use_fuzzy;
 
     /**
-     *  The current domain (package name or language.
+     *  The current domain (package name or language).
      */
 
     std::string m_current_domain;
 
     /**
-     *  The previous domain (package name or language.
+     *  The previous domain (package name or language).
      */
 
     std::string m_previous_domain;
@@ -168,12 +168,12 @@ private:
      *  The current dictionary to use in get-text functions that do not accept
      *  a domain parameter.
      *
-     *  Using this shared pointer yields a double delete. This pointer is
-     *  owned by dictionaries m_dictionaries.
+     *  This pointer is not shared. This pointer is owned by dictionaries
+     *  m_dictionaries.
      *
      *      dictpointer m_current_dict;
      *
-     *  See c_macros.h.
+     *  See po_types.hpp.
      */
 
     observer_ptr<dictionary> m_current_dict;
@@ -275,6 +275,7 @@ public:
      * Additional functions for potext.
      */
 
+    bool add_dictionary_file (const std::string & fname);
     bool add_dictionaries
     (
         const std::string & dirname,

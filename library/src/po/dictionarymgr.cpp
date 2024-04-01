@@ -25,12 +25,12 @@
 /**
  * \file          dictionarymgr.cpp
  *
- *      A refactoring of tinygettext::DictionaryManager.
+ *      A major refactoring of tinygettext::DictionaryManager.
  *
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-30
+ * \updates       2024-04-01
  * \license       See above.
  *
  */
@@ -44,6 +44,7 @@
 #include "po/moparser.hpp"              /* po::moparser class               */
 #include "po/poparser.hpp"              /* po::poparser class               */
 #include "po/unixfilesystem.hpp"        /* po::unixfilesystem class         */
+#include "po/wstrfunctions.hpp"         /* po::functions for string/wstring */
 
 /**
  *  We cannot enable translation in this module, because it leads to
@@ -62,32 +63,11 @@
 #if defined PLATFORM_WINDOWS            /* Microsoft platform               */
 #define p_max_path       260            /* _MAX_PATH: Microsoft's path size */
 #else
-#include <unistd.h>
 #define p_max_path      1024            /* PATH_MAX: POSIX; 4096 Linux      */
 #endif
 
 namespace po
 {
-
-/**
- *  Tests if lhs ends with rhs.
- *
- *  Can we use operator <=> here?
- */
-
-static bool
-has_suffix (const std::string & lhs, const std::string & rhs)
-{
-    if (lhs.length() < rhs.length())
-    {
-        return false;
-    }
-    else
-    {
-        size_t diff = lhs.length() - rhs.length();
-        return lhs.compare(diff, rhs.length(), rhs) == 0;
-    }
-}
 
 /**
  *  A dictionary to return when none are available.
@@ -136,21 +116,13 @@ dictionarymgr::dictionarymgr
 dictionarymgr::~dictionarymgr ()
 {
     /*
-     * No longer needed with shared (and purely internal) pointers.
-     *
-     *  for (auto i = m_dictionaries.begin(); i != m_dictionaries.end(); ++i)
-     *      delete i->second;
+     * No code needed with shared (and purely internal) pointers.
      */
 }
 
 void
 dictionarymgr::clear_cache ()
 {
-    /*
-     *  for (auto i = m_dictionaries.begin(); i != m_dictionaries.end(); ++i)
-     *      delete i->second;
-     */
-
     m_dictionaries.clear();             /* destroys all the shared pointers */
     m_current_dict = nullptr;           /* nullify this observer_ptr<>      */
 }
@@ -523,6 +495,47 @@ dictionarymgr::make_dictionary
 }
 
 /**
+ *  Adds a single and explicitly name dictionary file, either .po or
+ *  .mo file. This new dictionary becomes the current one.
+ *
+ *  Currently duplicates code in add_dictionaries().
+ *
+ *  Currently not built for wide-strings.
+ */
+
+bool
+dictionarymgr::add_dictionary_file (const std::string & fname)
+{
+    language polang = language::from_env(filename_to_language(fname));
+    bool result = bool(polang);
+    if (result)
+    {
+        std::string dirname = filename_path(fname);
+        dictpointer d = make_dictionary(polang, fname, dirname);
+        result = bool(d);
+        if (result)
+        {
+            std::string domain = extract_mo_domain(fname);
+            if (domain.empty())
+                domain = extract_po_domain(fname);
+
+            (void) textdomain(domain);
+            set_language(polang);
+            m_current_dict = d.get();           /* replace observer pointer */
+        }
+    }
+    else
+    {
+        result = false;
+        logstream::warning()
+            << fname << ": "
+            << _("unknown language") << std::endl
+            ;
+    }
+    return result;
+}
+
+/**
  *  This function is meant to read in all .po files from a given directory
  *  and create a dictionary and a binding entry for each one. It also adds
  *  the directory using the add_directory() function.
@@ -568,7 +581,7 @@ dictionarymgr::add_dictionaries
         if (has_suffix(fname, ".po") || has_suffix(fname, ".mo"))
         {
             language polang = language::from_env(filename_to_language(fname));
-            if (polang)
+            if (bool(polang))
             {
                 std::string pofile = dirname;
                 pofile += "/";
