@@ -42,12 +42,16 @@ namespace po
 /*
  *  Free functions in the po namespace to work around narrow versus wide
  *  strings. Not just for Windows.
+ *
+ *  Some functions for narrow-only strings are included.
  */
 
 extern bool has_suffix (const std::string & lhs, const std::string & rhs);
 extern bool has_file (const std::string & fullpath);
 extern std::string filename_path (const std::string & fullpath);
+extern bool is_mo_path (const std::string & fullpath);
 extern std::string extract_mo_domain (const std::string & fullpath);
+extern bool is_po_path (const std::string & fullpath);
 extern std::string extract_po_domain (const std::string & fullpath);
 
 #if defined POTEXT_WIDE_STRING_SUPPORT

@@ -27,7 +27,8 @@
 /**
  * \file          po_build_macros.h
  *
- *  Macros that depend upon the build platform.
+ *      Macros that depend upon the decisions select to build the
+ *      library.
  *
  * \library       potext
  * \author        Gary P. Scavone; refactoring by Chris Ahlstrom
@@ -76,12 +77,13 @@
 
 /**
  *  If true, we can use the enum class LC to handle categories. This
- *  looks to be a bit difficult at the moment.
+ *  looks to be a bit difficult at the moment, so it is disabled.
  */
 
 #undef POTEXT_BUILD_CATEGORY_SUPPORT
 
 /**
+<<<<<<< Updated upstream
  *  Handles wide strings by conversion to narrow strings.
  */
 
@@ -89,6 +91,18 @@
 
 /**
  *  We do not need to use operator =() so set up some static
+=======
+ *  If true, support handling wide-string directory names, etc.  If false, all
+ *  functions with std::wstring parameters are commented out. If true, in most
+ *  cases we try to use std::codecvt etc. We wonder how much extra code this
+ *  brings in.
+ */
+
+#define POTEXT_WIDE_STRING_SUPPORT
+
+/**
+ *  We do not need to use operator = () to set up some static
+>>>>>>> Stashed changes
  *  arrays. We'll keep this around just in case.
  */
 
@@ -101,7 +115,7 @@
 #undef POTEXT_PO_WITH_SDL
 
 /**
- *  To do: improve the naming
+ *  To do: improve the naming.
  */
 
 #if defined POTEXT_EXPORT

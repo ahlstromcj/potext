@@ -27,7 +27,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-02-16
- * \updates       2024-03-30
+ * \updates       2024-04-01
  * \license       See above.
  *
  *  gettext_noop()  pseudo function call that serves as a marker for the
@@ -221,11 +221,14 @@ extern std::string bind_textdomain_codeset
     const std::string & domain,
     const std::string & codeset
 );
+
+#if defined POTEXT_WIDE_STRING_SUPPORT
 extern std::wstring wbindtextdomain
 (
     const std::string & domainname,
     const std::wstring & wdirname
 );
+#endif
 
 #endif
 

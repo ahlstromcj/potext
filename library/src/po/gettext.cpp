@@ -547,7 +547,6 @@ user_config_po (const std::string & appfolder)
  *  "mo mode".
  *
  *  TODO: how to adjust installed_po-path().
- */
 
 static bool
 check_mo_mode (const std::string & dirname)
@@ -560,6 +559,7 @@ check_mo_mode (const std::string & dirname)
     }
     return result;
 }
+ */
 
 /**
  *  Sets up and returns the domain and its locale directory.
@@ -651,7 +651,7 @@ set_locale_info
         {
             domdirname = user_config_po(pkgname);
         }
-        else if (check_mo_mode(domdirname))
+        else if (is_mo_path(domdirname))
         {
             set_use_mo_mode();
         }
@@ -1135,10 +1135,19 @@ init_lib_locale
     if (ok)
     {
         std::string domdirname = dirname;
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 #if defined POTEXT_WIDE_STRING_SUPPORT
         bool use_wstring = ! wdirname.empty();
         if (use_wstring)
             domdirname = wstring_to_utf8(wdirname);
+<<<<<<< Updated upstream
+=======
+#else
+        (void) wdirname;
+>>>>>>> Stashed changes
 #endif
 
         if (! domdirname.empty())

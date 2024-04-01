@@ -196,7 +196,11 @@ nlsbindings::create_binding_wide
     return result;
 }
 
+<<<<<<< Updated upstream
 #endif          // defined POTEXT_WIDE_STRING_SUPPORT
+=======
+#endif
+>>>>>>> Stashed changes
 
 /**
  *  Specifies the directory name *dirname, the directory name *wdirnamep
@@ -386,7 +390,11 @@ nlsbindings::set_binding_wide
     return result;
 }
 
+<<<<<<< Updated upstream
 #endif          // defined POTEXT_WIDE_STRING_SUPPORT
+=======
+#endif  // defined POTEXT_WIDE_STRING_SUPPORT
+>>>>>>> Stashed changes
 
 static bool
 name_has_root_path (const std::string & filename)

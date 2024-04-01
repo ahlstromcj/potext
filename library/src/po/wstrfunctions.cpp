@@ -14,12 +14,6 @@
  *  You should have received a copy of the GNU General Public License along
  *  with potext; if not, write to the Free Software Foundation, Inc., 59
  *  Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *  See tinydoc/LICENSE.md for the original tinywstrfunctions licensing statement.
- *  If you do not like the changes or the GPL licensing, use the original
- *  tinywstrfunctions project, available at GitHub:
- *
- *      https://github.com/tinywstrfunctions/tinywstrfunctions
  */
 
 /**
@@ -146,6 +140,21 @@ filename_path (const std::string & fullpath)
 }
 
 /**
+ *  Tests for "LC_", "locale", or ".mo" in a path/file specification.
+ */
+
+bool
+is_mo_path (const std::string & fullpath)
+{
+    return
+    (
+        fullpath.find("LC_") ||
+        fullpath.find("locale") ||
+        fullpath.find(".mo")
+    );
+}
+
+/**
  *  Looks for "LC_" in a path like "/usr/share/locale/es/LC_MESSAGES..." and
  *  extracts the "es" portion, i.e. the domain name. This function is meant
  *  for use with .mo files, not .po files.
@@ -177,6 +186,21 @@ extract_mo_domain (const std::string & fullpath)
         }
     }
     return result;
+}
+
+/**
+ *  Tests for "/po" or ".po" in a path/file specification.
+ */
+
+bool
+is_po_path (const std::string & fullpath)
+{
+    return
+    (
+        fullpath.find("/po/") ||
+        fullpath.find("\\po\\") ||
+        fullpath.find(".po")
+    );
 }
 
 /**

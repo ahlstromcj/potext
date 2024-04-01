@@ -62,8 +62,11 @@ public:
      *  A set of settings bound to a message domain.  Used to store settings
      *  from bindtextdomain() and bind_textdomain_codeset().
      *
-     *  We changed the name from "binding" to "nlbinding" for a little more
+     *  We changed the name from "binding" to "nlsbinding" for a little more
      *  clarity.
+     *
+     *  Also, we provide an std::wstring field no matter whether
+     *  POTEXT_WIDE_STRING_SUPPORT is defined or not.
      */
 
     using binding = struct
@@ -165,6 +168,10 @@ private:
         const std::string & domainname,
         const std::string & dirname
     );
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 #if defined POTEXT_WIDE_STRING_SUPPORT
     binding * create_binding_wide
     (
