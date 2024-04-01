@@ -27,11 +27,12 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-26
- * \updates       2024-03-26
+ * \updates       2024-03-31
  * \license       See above.
  *
  */
 
+#include <exception>                    /* std::exception base class        */
 #include <iosfwd>                       /* ostringstream forward reference  */
 
 #include "platform_macros.h"            /* PLATFORM_WINDOWS macro           */
@@ -48,9 +49,37 @@ class dictionary;
  *  Should upgrade that at some point.
  */
 
-class internal_parser_error
+class parser_error : public std::exception
 {
-    // nothing!
+
+private:
+
+    std::string m_message;
+
+public:
+
+    parser_error () : m_message{"No message supplied!"}
+    {
+        // no code
+    }
+
+    parser_error (const std::string & message) : m_message{message}
+    {
+        if (m_message.empty())
+            m_message = "No message supplied!";
+    }
+
+    virtual ~parser_error () = default;
+
+    /**
+     *  Returns the thrown error message string.
+     */
+
+    virtual const std::string & message () const
+    {
+        return m_message;
+    }
+
 };
 
 /**

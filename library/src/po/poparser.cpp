@@ -98,12 +98,18 @@ poparser::parse_po_file
     return parser.parse();
 }
 
-void
+bool
 poparser::next_line ()
 {
     ++m_line_number;
-    if (! std::getline(in_stream(), m_current_line))
+    if (std::getline(in_stream(), m_current_line))
+    {
+        return true;
+    }
+    {
         m_eof = true;
+        return false;
+    }
 }
 
 static unsigned char
@@ -144,13 +150,13 @@ poparser::get_string_line (std::ostringstream & out, std::size_t skip)
         }
         else if (i >= line().size())
         {
-            error(_("2. Unexpected end of line"));
+            error(_("missing end-of-line quote"));
         }
         else if (c == '\\')
         {
             ++i;
             if (i >= line().size())
-                error(_("Unexpected end of line in handling"), m_line_number);
+                error(_("missing/incomplete '\\' code"), m_line_number);
 
             switch (c)
             {
@@ -162,7 +168,6 @@ poparser::get_string_line (std::ostringstream & out, std::size_t skip)
             case 'r':  out << '\r'; break;
             case '"':  out << '"';  break;
             case '\\': out << '\\'; break;
-
             default:
 
                 std::ostringstream err;
@@ -237,28 +242,30 @@ poparser::get_string (std::size_t skip)
 
 next:
 
-    next_line();
-    int i = 0;
-    for (auto ch : line())
+    if (next_line())
     {
-        if (ch == '"')
+        int i = 0;
+        for (auto ch : line())
         {
-            if (i == 1)
+            if (ch == '"')
             {
-                if (pedantic())
-                    warning(_("leading whitespace before string"));
+                if (i == 1)
+                {
+                    if (pedantic())
+                        warning(_("leading whitespace before string"));
+                }
+                get_string_line(ssout,  i);
+                goto next;
             }
-            get_string_line(ssout,  i);
-            goto next;
-        }
-        else if (std::isspace(ch))
-        {
-            // skip
-        }
-        else
-            break;
+            else if (std::isspace(ch))
+            {
+                // skip
+            }
+            else
+                break;
 
-        ++i;
+            ++i;
+        }
     }
     return ssout.str();
 }
@@ -455,7 +462,9 @@ bool
 poparser::parse ()
 {
     bool result = true;
-    next_line();
+    if (! next_line())
+        return false;
+
     if (check_BOM(line()))
         m_current_line = line().substr(3);  // tricky?
 
@@ -474,7 +483,8 @@ poparser::parse ()
                     if (line().find("fuzzy", 2) != std::string::npos)
                         fuzzy = true;
                 }
-                next_line();
+                if (! next_line())
+                    break;
             }
             if (! is_empty_line())
             {
@@ -509,12 +519,23 @@ poparser::parse ()
                 if (! got_a_tag)
                     error(_("Expected a msg tag"), m_line_number);
             }
-            next_line();
+            if (! next_line())
+                break;
         }
-        catch (const internal_parser_error &)
+#if defined PLATFORM_DEBUG_TMI
+        catch (const parser_error & err)
+        {
+            std::cerr << "ERROR: " << err.message();
+            result = false;
+            break;
+        }
+#else
+        catch (const parser_error &)
         {
             result = false;
+            break;
         }
+#endif
     }
     return result;
 }
@@ -564,7 +585,7 @@ next:
         msglist[number] = converter().convert(msgstr);
 #if defined PLATFORM_DEBUG_TMI
         if (msglist[number].empty())
-            std::cout << "ERROR in " << m_filename << std::endl;
+            std::cerr << "ERROR in " << m_filename << std::endl;
 #endif
         goto next;
     }
