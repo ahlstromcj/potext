@@ -1060,22 +1060,6 @@ bind_textdomain_codeset
     return dictionary_manager().bind_textdomain_codeset(domainname, codeset);
 }
 
-#if 0
-/**
- *  See dictionarymgr::wbindtextdomain().
- */
-
-std::wstring
-wbindtextdomain
-(
-    const std::string & domainname,
-    const std::wstring & wdirname
-)
-{
-    return dictionary_manager().wbindtextdomain(domainname, wdirname);
-}
-#endif
-
 /**
  *  bindtextdomain() sets the base directory of the hierarchy containing
  *  message catalogs for a given message domain.
@@ -1150,13 +1134,18 @@ init_lib_locale
     bool ok = ! domainname.empty();
     if (ok)
     {
-        bool use_wstring = ! wdirname.empty();
         std::string domdirname = dirname;
+#if defined POTEXT_WIDE_STRING_SUPPORT
+        bool use_wstring = ! wdirname.empty();
         if (use_wstring)
             domdirname = wstring_to_utf8(wdirname);
+#endif
 
         if (! domdirname.empty())
         {
+#if TODO
+            bool dirname_is_file = has_file(domdirname);
+#endif
             std::string bd;
             bool ok = dictionary_manager().add_dictionaries
             (

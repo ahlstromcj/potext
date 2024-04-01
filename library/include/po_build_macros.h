@@ -32,7 +32,7 @@
  * \library       potext
  * \author        Gary P. Scavone; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-10
+ * \updates       2024-04-01
  * \license       See above.
  *
  * Introduction:
@@ -80,6 +80,12 @@
  */
 
 #undef POTEXT_BUILD_CATEGORY_SUPPORT
+
+/**
+ *  Handles wide strings by conversion to narrow strings.
+ */
+
+#undef POTEXT_WIDE_STRING_SUPPORT
 
 /**
  *  We do not need to use operator =() so set up some static

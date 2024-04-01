@@ -34,6 +34,8 @@
 
 #include <string>                       /* std::string & std::wstring       */
 
+#include "po_build_macros.h"            /* POTEXT_WIDE_STRING_SUPPORT       */
+
 namespace po
 {
 
@@ -43,15 +45,19 @@ namespace po
  */
 
 extern bool has_suffix (const std::string & lhs, const std::string & rhs);
+extern bool has_file (const std::string & fullpath);
 extern std::string filename_path (const std::string & fullpath);
 extern std::string extract_mo_domain (const std::string & fullpath);
 extern std::string extract_po_domain (const std::string & fullpath);
+
+#if defined POTEXT_WIDE_STRING_SUPPORT
 extern std::wstring widen_ascii_string (const std::string & source);
 extern std::string narrow_ascii_string (const std::wstring & wsource);
 extern std::string pack_wide_string (const std::wstring & wsource);
 extern std::wstring unpack_wide_string (const std::string & source);
 extern std::string wstring_to_utf8 (std::wstring const & str);
 extern std::wstring utf8_to_wstring (std::string const & str);
+#endif
 
 }               // namespace po
 

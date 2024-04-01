@@ -33,7 +33,7 @@
  * \library       potext
  * \author        gettext; refactoring by Chris Ahlstrom
  * \date          2024-02-20
- * \updates       2024-03-30
+ * \updates       2024-04-01
  * \license       See above.
  *
  *  This module defines set_binding_values() and an nlsbindings class.
@@ -44,6 +44,7 @@
 #include <forward_list>                 /* std::forward_list<> template     */
 
 #include "platform_macros.h"            /* PLATFORM_WINDOWS macro           */
+#include "po_build_macros.h"            /* POTEXT_WIDE_STRING_SUPPORT       */
 
 namespace po
 {
@@ -142,6 +143,7 @@ public:
         std::string & codeset
     );
 
+#if defined POTEXT_WIDE_STRING_SUPPORT
     bool set_binding_wide
     (
         const std::string & domainname,
@@ -152,6 +154,7 @@ public:
         const std::string & domainname,
         const std::wstring & wdirname
     );
+#endif
 
 private:
 
@@ -162,11 +165,13 @@ private:
         const std::string & domainname,
         const std::string & dirname
     );
+#if defined POTEXT_WIDE_STRING_SUPPORT
     binding * create_binding_wide
     (
         const std::string & domainname,
         const std::wstring & dirname
     );
+#endif
 
 };              // class nlsbindings
 

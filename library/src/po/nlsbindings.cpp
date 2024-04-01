@@ -30,7 +30,7 @@
  * \library       potext
  * \author        gettext; refactoring by Chris Ahlstrom
  * \date          2024-02-20
- * \updates       2024-03-30
+ * \updates       2024-04-01
  * \license       See above.
  *
  *  Defines setbinding(), a replacement for set_binding_values in the
@@ -172,18 +172,22 @@ nlsbindings::create_binding
     return result;
 }
 
+#if defined POTEXT_WIDE_STRING_SUPPORT
+
 nlsbindings::binding *
 nlsbindings::create_binding_wide
 (
     const std::string & domainname,
-    const std::wstring & dirname
+    const std::wstring & wdirname
 )
 {
     binding * result = new (std::nothrow) binding();
     bool ok = not_nullptr(result);
     if (ok)
     {
-        std::wstring tmpname = dirname.empty() ? sm_default_wdirname : dirname ;
+        std::wstring tmpname = wdirname.empty() ?
+            sm_default_wdirname : wdirname ;
+
         result->b_dirname.clear();
         result->b_wdirname = tmpname;
         result->b_codeset.clear();
@@ -191,6 +195,8 @@ nlsbindings::create_binding_wide
     }
     return result;
 }
+
+#endif          // defined POTEXT_WIDE_STRING_SUPPORT
 
 /**
  *  Specifies the directory name *dirname, the directory name *wdirnamep
@@ -322,6 +328,8 @@ nlsbindings::set_binding_codeset
     return result;
 }
 
+#if defined POTEXT_WIDE_STRING_SUPPORT
+
 /**
  * libintl_wbindtextdomain():
  *      set_binding_values(domainname, NULL, &wdirname, NULL);
@@ -377,6 +385,8 @@ nlsbindings::set_binding_wide
     }
     return result;
 }
+
+#endif          // defined POTEXT_WIDE_STRING_SUPPORT
 
 static bool
 name_has_root_path (const std::string & filename)
@@ -457,6 +467,8 @@ nlsbindings::get_binding
     return result;
 }
 
+#if defined POTEXT_WIDE_STRING_SUPPORT
+
 /**
  *  This needs some work, unfortunately.
  */
@@ -486,6 +498,8 @@ nlsbindings::get_binding_wide
     }
     return result;
 }
+
+#endif          // defined POTEXT_WIDE_STRING_SUPPORT
 
 }               // namespace po
 

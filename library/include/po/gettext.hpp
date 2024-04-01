@@ -207,14 +207,6 @@ extern std::string init_app_locale
     const std::wstring & wdirname = L"",
     int category = (-1)
 );
-#if 0
-extern std::string get_binding
-(
-    const std::string & domainname,
-    const std::string & dirname
-    const std::wstring & wdirname = L""
-);
-#endif
 
 #if defined POTEXT_ENABLE_I18N
 

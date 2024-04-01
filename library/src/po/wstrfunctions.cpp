@@ -67,7 +67,7 @@ namespace po
 /**
  *  Tests if lhs ends with rhs.
  *
- *  Can we use operator <=> here?
+ *  Can we use operator <=> here? :-D
  */
 
 bool
@@ -82,6 +82,24 @@ has_suffix (const std::string & lhs, const std::string & rhs)
         size_t diff = lhs.length() - rhs.length();
         return lhs.compare(diff, rhs.length(), rhs) == 0;
     }
+}
+
+/**
+ *  Tests if the path has a file extension. Useful for .po and .mo files
+ *  specified as the only dictionary file to use. Returns true if a dot
+ *  appears near the end (between two and three characters).
+ */
+
+bool
+has_file (const std::string & fullpath)
+{
+    bool result = false;
+    auto dpos = fullpath.find_last_of(".");
+    bool ok = dpos != std::string::npos;
+    if (ok)
+        result = (fullpath.length() - dpos) >= 2;
+
+    return result;
 }
 
 /**
@@ -193,6 +211,8 @@ extract_po_domain (const std::string & fullpath)
     return result;
 }
 
+#if defined POTEXT_WIDE_STRING_SUPPORT
+
 /**
  *  Converts a string, which must be ASCII, to a wide string.  Useful for basic
  *  translation of system path names in Linux, Windows, and other operating
@@ -301,6 +321,8 @@ utf8_to_wstring (std::string const & str)
 #if defined PLATFORM_MSVC
 #pragma warning(pop)
 #endif
+
+#endif          // defined POTEXT_WIDE_STRING_SUPPORT
 
 }               // namespace po
 
