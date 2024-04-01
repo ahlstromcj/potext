@@ -168,10 +168,6 @@ private:
         const std::string & domainname,
         const std::string & dirname
     );
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 #if defined POTEXT_WIDE_STRING_SUPPORT
     binding * create_binding_wide
     (

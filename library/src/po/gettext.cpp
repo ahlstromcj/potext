@@ -1135,19 +1135,12 @@ init_lib_locale
     if (ok)
     {
         std::string domdirname = dirname;
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 #if defined POTEXT_WIDE_STRING_SUPPORT
         bool use_wstring = ! wdirname.empty();
         if (use_wstring)
             domdirname = wstring_to_utf8(wdirname);
-<<<<<<< Updated upstream
-=======
 #else
         (void) wdirname;
->>>>>>> Stashed changes
 #endif
 
         if (! domdirname.empty())

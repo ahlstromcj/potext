@@ -83,15 +83,6 @@
 #undef POTEXT_BUILD_CATEGORY_SUPPORT
 
 /**
-<<<<<<< Updated upstream
- *  Handles wide strings by conversion to narrow strings.
- */
-
-#undef POTEXT_WIDE_STRING_SUPPORT
-
-/**
- *  We do not need to use operator =() so set up some static
-=======
  *  If true, support handling wide-string directory names, etc.  If false, all
  *  functions with std::wstring parameters are commented out. If true, in most
  *  cases we try to use std::codecvt etc. We wonder how much extra code this
@@ -102,7 +93,6 @@
 
 /**
  *  We do not need to use operator = () to set up some static
->>>>>>> Stashed changes
  *  arrays. We'll keep this around just in case.
  */
 
