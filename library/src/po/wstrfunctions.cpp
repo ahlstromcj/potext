@@ -24,7 +24,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-30
- * \updates       2024-04-01
+ * \updates       2024-04-02
  * \license       See above.
  *
  *      Functions to work around narrow versus wide strings. Not just for
@@ -148,10 +148,20 @@ is_mo_path (const std::string & fullpath)
 {
     return
     (
-        fullpath.find("LC_") ||
-        fullpath.find("locale") ||
-        fullpath.find(".mo")
+        (fullpath.find("LC_") != std::string::npos) ||
+        (fullpath.find("locale") != std::string::npos) ||
+        (fullpath.find(".mo") != std::string::npos)
     );
+}
+
+/**
+ *  A simpler check.
+ */
+
+bool
+is_pm_file (const std::string & fullpath)
+{
+    return fullpath.find(".mo") == (fullpath.length() - 3);
 }
 
 /**
@@ -197,10 +207,20 @@ is_po_path (const std::string & fullpath)
 {
     return
     (
-        fullpath.find("/po/") ||
-        fullpath.find("\\po\\") ||
-        fullpath.find(".po")
+        (fullpath.find("/po/") != std::string::npos) ||
+        (fullpath.find("\\po\\") != std::string::npos) ||
+        (fullpath.find(".po") != std::string::npos)
     );
+}
+
+/**
+ *  A simpler check.
+ */
+
+bool
+is_po_file (const std::string & fullpath)
+{
+    return fullpath.find(".po") == (fullpath.length() - 3);
 }
 
 /**

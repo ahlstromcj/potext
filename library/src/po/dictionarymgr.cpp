@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-04-01
+ * \updates       2024-04-02
  * \license       See above.
  *
  */
@@ -448,19 +448,19 @@ dictionarymgr::dictpointer
 dictionarymgr::make_dictionary
 (
     language & polang,
-    const std::string & pofile,
+    const std::string & pomofile,
     const std::string & dirname
 )
 {
     dictpointer result;
     try
     {
-        uistream_ptr in = m_filesystem->open_file(pofile);
+        uistream_ptr in = m_filesystem->open_file(pomofile);
         if (! in)
         {
             logstream::error()
                 << _("error") << ": " << _("failure opening")
-                << ": " << pofile << std::endl
+                << ": " << pomofile << std::endl
                 ;
         }
         else
@@ -474,21 +474,35 @@ dictionarymgr::make_dictionary
                 auto iter = inserted_item.first;
                 auto dp = iter->second;
                 std::string name = polang.get_language();
-                bool ok = poparser::parse_po_file(pofile, *in, *dp);
+                bool has_po = is_po_path(pomofile);
+                bool has_mo = is_mo_path(pomofile);
+                bool ok = false;
+                if (has_po)
+                    ok = poparser::parse_po_file(pomofile, *in, *dp);
+                else if (has_mo)
+                    ok = moparser::parse_mo_file(pomofile, *in, *dp);
+
                 if (ok)
                 {
                     std::string ncname = dirname;
                     if (get_bindings().set_binding_values(name, ncname))
                         result = dp;
                 }
+                else
+                {
+                    logstream::error()
+                        << _("Not a po/mo file") << ": " << pomofile
+                        << std::endl
+                        ;
+                }
             }
         }
     }
-    catch (const std::exception & e)
+    catch (const parser_error & e)
     {
         logstream::error()
             << _("error") << ": " << _("failure parsing") << ": "
-            << pofile << "\n" << e.what() << "" << std::endl
+            << pomofile << "\n" << e.what() << std::endl
             ;
     }
     return result;

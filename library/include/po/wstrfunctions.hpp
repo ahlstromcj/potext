@@ -27,7 +27,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-30
- * \updates       2024-04-01
+ * \updates       2024-04-02
  * \license       See above.
  *
  */
@@ -50,8 +50,10 @@ extern bool has_suffix (const std::string & lhs, const std::string & rhs);
 extern bool has_file (const std::string & fullpath);
 extern std::string filename_path (const std::string & fullpath);
 extern bool is_mo_path (const std::string & fullpath);
+extern bool is_mo_file (const std::string & fullpath);
 extern std::string extract_mo_domain (const std::string & fullpath);
 extern bool is_po_path (const std::string & fullpath);
+extern bool is_po_file (const std::string & fullpath);
 extern std::string extract_po_domain (const std::string & fullpath);
 
 #if defined POTEXT_WIDE_STRING_SUPPORT
