@@ -24,7 +24,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-30
- * \updates       2024-04-02
+ * \updates       2024-04-03
  * \license       See above.
  *
  *      Functions to work around narrow versus wide strings. Not just for
@@ -141,6 +141,14 @@ filename_path (const std::string & fullpath)
 
 /**
  *  Tests for "LC_", "locale", or ".mo" in a path/file specification.
+ *  These features are expected with installed .mo files.
+ *
+ * \param fullpath
+ *      Provides what is assumed to be a valid path or filename
+ *      specification.
+ *
+ * \return
+ *      Returns true if the "mo"-related components are found.
  */
 
 bool
@@ -155,13 +163,19 @@ is_mo_path (const std::string & fullpath)
 }
 
 /**
- *  A simpler check.
+ *  A simpler check. Well, not so simple, as the path length minus 3
+ *  could equal std::string::npos!
  */
 
 bool
-is_pm_file (const std::string & fullpath)
+is_mo_file (const std::string & fullpath)
 {
-    return fullpath.find(".mo") == (fullpath.length() - 3);
+    bool result = false;
+    auto pos = fullpath.find(".mo");
+    if (pos != std::string::npos)
+        result = pos == (fullpath.length() - 3);
+
+    return result;
 }
 
 /**
@@ -199,7 +213,15 @@ extract_mo_domain (const std::string & fullpath)
 }
 
 /**
- *  Tests for "/po" or ".po" in a path/file specification.
+ *  Tests for "/po/" or ".po" in a path/file specification. Note
+ *  that this kind of a path are a potext-only feature.
+ *
+ * \param fullpath
+ *      Provides what is assumed to be a valid path or filename
+ *      specification.
+ *
+ * \return
+ *      Returns true if the "po" components are found.
  */
 
 bool
@@ -220,7 +242,23 @@ is_po_path (const std::string & fullpath)
 bool
 is_po_file (const std::string & fullpath)
 {
-    return fullpath.find(".po") == (fullpath.length() - 3);
+    bool result = false;
+    auto pos = fullpath.find(".po");
+    if (pos != std::string::npos)
+        result = pos == (fullpath.length() - 3);
+
+    return result;
+}
+
+/**
+ *  A more complete check for the types of translation files potext
+ *  supports.
+ */
+
+bool
+is_mo_or_po_file (const std::string & fullpath)
+{
+    return is_mo_file(fullpath) || is_po_file(fullpath);
 }
 
 /**

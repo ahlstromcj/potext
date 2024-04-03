@@ -54,6 +54,7 @@ extern bool is_mo_file (const std::string & fullpath);
 extern std::string extract_mo_domain (const std::string & fullpath);
 extern bool is_po_path (const std::string & fullpath);
 extern bool is_po_file (const std::string & fullpath);
+extern bool is_mo_or_po_file (const std::string & fullpath);
 extern std::string extract_po_domain (const std::string & fullpath);
 
 #if defined POTEXT_WIDE_STRING_SUPPORT

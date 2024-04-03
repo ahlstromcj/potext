@@ -510,11 +510,12 @@ dictionarymgr::make_dictionary
 
 /**
  *  Adds a single and explicitly name dictionary file, either .po or
- *  .mo file. This new dictionary becomes the current one.
+ *  .mo file. This new dictionary becomes the current one. The language
+ *  and the domain are also extracted from the filename.
  *
  *  Currently duplicates code in add_dictionaries().
  *
- *  Currently not built for wide-strings.
+ *  TODO: Currently not built for wide-strings.
  */
 
 bool

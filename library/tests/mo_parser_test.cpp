@@ -23,21 +23,15 @@
  */
 
 /**
- * \file          po_parser_test.hpp
+ * \file          mo_parser_test.hpp
  *
  *      Simple test of parsing .po files.
  *
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
- * \date          2024-02-05
- * \updates       2024-04-03
+ * \date          2024-04-02
+ * \updates       2024-04-02
  * \license       See above.
- *
- *  The feaures of this test:
- *
- *      -   po::init_app_locale() is not called.
- *      -   po::poparser::parse_po_file() parses each file, and the result
- *          is evaluated.
  *
  */
 
@@ -49,7 +43,7 @@
 #include <fstream>
 #include <stdexcept>
 
-#include "po/poparser.hpp"
+#include "po/moparser.hpp"
 #include "po/potext.hpp"
 #include "po/logstream.hpp"
 
@@ -68,7 +62,7 @@ namespace
 void
 my_log_callback (const std::string & err)
 {
-    std::cerr << "[poparser test] " << err;
+    std::cerr << "[moparser test] " << err;
 }
 
 /**
@@ -89,76 +83,10 @@ my_log_callback (const std::string & err)
 
 po::phraselist s_all_files
 {
-    /*
-     * GNU gettext message catalogue, ASCII text.
-     */
-
-    "library/tests/broken.po",              /* erroneous, no closing quote  */
-
-    /*
-     * GNU gettext message catalogue, ISO-8859 text.
-     */
-
-    "library/tests/de.po",
-
-    /*
-     * GNU gettext message catalogue, ASCII text.
-     */
-
-    "library/tests/helloworld/de.po",
-
-    /*
-     * GNU gettext message catalogue, ISO-8859 text, but specifies
-     * "charset=CHARSET".
-     */
-
-    "library/tests/level/de.po",            /* erroneous, bad CHARSET       */
-
-    /*
-     * GNU gettext message catalogue, Unicode text, UTF-8 text.
-     */
-
-    "library/tests/po/de_AT.po",
-
-    /*
-     * GNU gettext message catalogue, ISO-8859 text, but specifies
-     * "charset=UTF-8".
-     */
-
-    "library/tests/po/de.po",               /* erroneous, multibyte bad     */
-
-    /*
-     * GNU gettext message catalogue, Unicode text, UTF-8 text, but
-     * specifies "charset=utf-8".
-     */
-
-    "library/tests/po/fr.po",
-
-    /*
-     * file: GNU gettext message catalogue, Unicode text, UTF-8 text for
-     * all of the following.
-     */
-
-    "po/de.po",
-    "po/es.po",
-    "po/fr.po",
-    "po/pl.po"
+    "mo/colord.po",
+    "mo/garcon.po",
+    "mo/new.po"
 };
-
-/**
- *  Some tests are designed to fail. So failure is success.`
- */
-
-bool
-deliberate_error (const std::string & filename)
-{
-    return
-    (
-        filename == "library/tests/broken.po" ||
-        filename == "library/tests/level/de.po" ||
-        filename == "library/tests/po/de.po"
-    );
-}
 
 } // namespace
 
@@ -171,7 +99,6 @@ main (int argc, char * argv [])
 {
     int result = EXIT_FAILURE;
     bool runtest = true;
-    bool runall = false;
     po::logstream::set_enable_testing();    /* useful for detecting issues  */
     std::string arg1;
     if (argc > 1)
@@ -197,7 +124,6 @@ main (int argc, char * argv [])
     {
         if (arg1 != "--all")
         {
-            runall = true;
             s_all_files.clear();
             for (int i = 1; i < argc; ++i)
             {
@@ -223,11 +149,10 @@ main (int argc, char * argv [])
                 }
             else
             {
-                po::logstream::clear_test_error();          /* start fresh! */
                 try
                 {
                     po::dictionary dict1;
-                    bool ok = po::poparser::parse_po_file(fname, in, dict1);
+                    bool ok = po::moparser::parse_mo_file(fname, in, dict1);
                     if (ok)
                         ok = ! po::logstream::get_test_error();
 
@@ -246,19 +171,7 @@ main (int argc, char * argv [])
                             << _("parsed unsuccessfully") << "..."
                             << std::endl
                             ;
-
-                        ok = deliberate_error(fname) && runall;
-                        if (ok)
-                        {
-                            std::cout
-                                << "..." << _("An expected failure")
-                                << std::endl
-                                ;
-                        }
-                        else
-                        {
-                            result = EXIT_FAILURE;
-                        }
+                        result = EXIT_FAILURE;
                     }
                 }
                 catch (const std::runtime_error & err)
@@ -268,17 +181,7 @@ main (int argc, char * argv [])
                         << _("Exception") << ": " << err.what()
                         << std::endl
                         ;
-                    if (deliberate_error(fname) && runall)
-                    {
-                        std::cout
-                            << "..." << _("An expected failure")
-                            << std::endl
-                            ;
-                    }
-                    else
-                    {
-                        result = EXIT_FAILURE;
-                    }
+                    result = EXIT_FAILURE;
                 }
             }
         }
@@ -290,7 +193,7 @@ main (int argc, char * argv [])
 }
 
 /*
- * po_parser_test.cpp
+ * mo_parser_test.cpp
  *
  * vim: sw=4 ts=4 wm=4 et ft=cpp
  */

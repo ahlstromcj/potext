@@ -33,11 +33,12 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-24
- * \updates       2024-03-27
+ * \updates       2024-04-02
  * \license       See above.
  *
  */
 
+#include <cstdint>                      /* for weird error re uintptr_t     */
 #include <string>                       /* std::string<> template           */
 #include <vector>                       /* std::vector<> template           */
 

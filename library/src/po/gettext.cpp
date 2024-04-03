@@ -1112,6 +1112,8 @@ bind_textdomain_codeset
  *      Provides the name of the LOCALDIR to which the domain is to be bound.
  *      For consistency, this directory should be an absolute path, not a
  *      relative one. If empty, then the next parameter should be supplied.
+ *      As a special case, if it names an actual .po or .mo file, then that
+ *      file is used as the main dictionary.
  *
  * \param wdirname
  *      The same as \a dirname, but for use with wide strings.
@@ -1149,13 +1151,25 @@ init_lib_locale
             bool dirname_is_file = has_file(domdirname);
 #endif
             std::string bd;
-            bool ok = dictionary_manager().add_dictionaries
-            (
-                domdirname, domainname
-            );
-            if (ok)
-                bd = bindtextdomain(domainname, domdirname);
-
+            if (is_mo_or_po_file(domdirname))   /* translation file?        */
+            {
+                bool ok = dictionary_manager().add_dictionary_file(domdirname);
+                if (ok)
+                {
+                    std::string dom = dictionary_manager().current_domain();
+                    std::string ddname = filename_path(domdirname);
+                    bd = bindtextdomain(dom, ddname);
+                }
+            }
+            else
+            {
+                bool ok = dictionary_manager().add_dictionaries
+                (
+                    domdirname, domainname
+                );
+                if (ok)
+                    bd = bindtextdomain(domainname, domdirname);
+            }
             if (! bd.empty())
             {
                 result = std::string(bd);
@@ -1163,8 +1177,10 @@ init_lib_locale
                     << "bindtextdomain() --> " << result << std::endl;
             }
             else
+            {
                 logstream::error()
                     << "bindtextdomain() " << "failed" << std::endl;
+            }
         }
     }
     return result;
@@ -1230,7 +1246,7 @@ init_lib_locale
  *
  * \param category
  *      The area that is covered, such as LC_ALL, LC_MONETARY, and LC_NUMERIC.
- *      The default, 0, selects LC_ALL.
+ *      The default, (-1), selects LC_ALL.
  *
  * \return
  *      Returns the result of init_lib_locale() [bindtextdomain() wrapper].
@@ -1245,7 +1261,7 @@ init_app_locale
     const std::string & domainname,
     const std::string & dirname,
     const std::wstring & wdirname,      /* optional wide-string format      */
-    int category
+    int category                        /* optional locale category (LC)    */
 )
 {
     std::string result;
