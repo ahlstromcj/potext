@@ -15,7 +15,7 @@
  *  with potext; if not, write to the Free Software Foundation, Inc., 59
  *  Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  See this project, from which this module was derived.
+ *  See this project, from which this module was derived and extended.
  *
  *      https://github.com/laurent22/simple-gettext
  */
@@ -29,7 +29,7 @@
  * \library       potext
  * \author        simple-gettext; refactoring by Chris Ahlstrom
  * \date          2024-03-25
- * \updates       2024-03-27
+ * \updates       2024-04-03
  * \license       See above.
  *
  * Format of the .mo File:
@@ -82,8 +82,6 @@
  *          -   Offset of the string (the string is null-terminated)
  */
 
-// #include <cctype>                       /* std::toupper() etc.              */
-// #include <cstring>                      /* std::strlen() etc.               */
 #include <iostream>                     /* std::istream, std::ostream       */
 #include <fstream>
 
@@ -175,7 +173,15 @@ moparser::clear ()
 }
 
 /**
- *  This function is exactly like extractor::swap().
+ *  This function is exactly like extractor::swap(), for now.
+ *
+ *  Little-endian means that least-significant bytes (LSB) come first
+ *  in memory. The x86 and x86_64 processors are little-endian.
+ *
+ *  Big-endian means that most-significant bytes (MSB) come first
+ *  in memory. This includes the 68000, PowerPC, and Sparc processors.
+ *
+ *  The test file library/test/mo/es/newt.mo has values in little-endian.
  */
 
 moparser::word

@@ -32,7 +32,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-24
- * \updates       2024-03-27
+ * \updates       2024-04-03
  * \license       See above.
  *
  */
@@ -205,6 +205,13 @@ extractor::get (std::size_t start, std::size_t len) const
  *      https://www.iana.org/assignments/character-sets/character-sets.xhtml
  *
  *  It's 29 characters; we will use 32 as a sanity check.
+ *
+ * \param start
+ *      The position at which to start looking.
+ *
+ * \param delimiters
+ *      The delimiters to search for. By default, it is the single character
+ *      new-line ("\n").
  */
 
 std::string
@@ -216,7 +223,7 @@ extractor::get_delimited
 {
     static const std::size_t s_max_charset_length = 32;
     std::string result;
-    std::string::size_type pos = m_data.find_first_of(delimiters);
+    std::string::size_type pos = m_data.find_first_of(delimiters, start);
     if (pos != std::string::npos)
     {
         std::size_t count = pos - start;            /* stop at delimiter    */

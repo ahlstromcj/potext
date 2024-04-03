@@ -1,5 +1,5 @@
-#if ! defined POTEXT_HPP
-#define POTEXT_HPP
+#if ! defined POTEXT_PO_POTEXT_HPP
+#define POTEXT_PO_POTEXT_HPP
 
 /*
  *  This file is part of potext.
@@ -33,16 +33,17 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-19
+ * \updates       2024-04-03
  * \license       See above.
  *
- *  Easy collection of headers for an application.
+ *  Easy collection of headers for an application that uses the Potext
+ *  library.
  */
 
-#include "po/dictionarymgr.hpp"
-#include "po/gettext.hpp"
+#include "po/dictionarymgr.hpp"         /* po::dictionarymgr class          */
+#include "po/gettext.hpp"               /* po::gettext() & other functions  */
 
-#endif          //  POTEXT_HPP
+#endif          //  POTEXT_PO_POTEXT_HPP
 
 /*
  * potext.hpp

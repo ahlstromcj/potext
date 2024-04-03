@@ -25,12 +25,12 @@
 /**
  * \file          mo_parser_test.hpp
  *
- *      Simple test of parsing .po files.
+ *      Simple test of parsing .mo files.
  *
  * \library       potext
- * \author        tinygettext; refactoring by Chris Ahlstrom
+ * \author        Chris Ahlstrom
  * \date          2024-04-02
- * \updates       2024-04-02
+ * \updates       2024-04-03
  * \license       See above.
  *
  */
@@ -38,14 +38,13 @@
 #include <cerrno>                       /* errno                            */
 #include <cstdlib>                      /* EXIT_SUCCESS, EXIT_FAILURE       */
 #include <cstring>                      /* std::strerror()                  */
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <stdexcept>
+#include <string>                       /* std::string                      */
+#include <iostream>                     /* std::cout                        */
+#include <fstream>                      /* std::ifstream                    */
 
-#include "po/moparser.hpp"
-#include "po/potext.hpp"
-#include "po/logstream.hpp"
+#include "po/moparser.hpp"              /* po::moparser to test             */
+#include "po/potext.hpp"                /* po::dictionarymgr, po::gettext   */
+#include "po/logstream.hpp"             /* po::logstream                    */
 
 /*
  *  The usage of an anonymous namespace is essentially the same as using
@@ -69,23 +68,13 @@ my_log_callback (const std::string & err)
  *  Use with the "--all" option to run through all files. With no such
  *  option, the command-line arguments replace this list of files for the
  *  run.
- *
- *  Note that "library/tests/po/de.po" yields invalid multibyte characters
- *  on umlauts, while "po/de.po" does not. The "file" command shows.
- *
- *  library/tests/po/de.po: GNU gettext message catalogue, ISO-8859 text
- *  po/de.po: GNU gettext message catalogue, Unicode text, UTF-8 text
- *
- *  But the former has "charset=UTF-8". Changing it to "ISO-8859-1"
- *  removed the multibyte error, but the test still fails. INVESTIGATE.
- *
  */
 
 po::phraselist s_all_files
 {
-    "mo/colord.po",
-    "mo/garcon.po",
-    "mo/new.po"
+    "library/tests/mo/es/colord.mo",
+    "library/tests/mo/es/garcon.mo",
+    "library/tests/mo/es/new.mo"
 };
 
 } // namespace
@@ -109,7 +98,7 @@ main (int argc, char * argv [])
         runtest = false;
         std::cout
             << "Usage:\n\n"
-            << "  " << argv[0] << " filename.po [filename.po ...]\n\n"
+            << "  " << argv[0] << " filename.mo [filename.mo ...]\n\n"
             << "Options:\n\n"
                "  --all    Run all of the following files.\n"
                "  --help   Show this help text.\n\n"
