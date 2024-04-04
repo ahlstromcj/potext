@@ -29,22 +29,31 @@
  * \library       potext
  * \author        simple-gettext; refactoring by Chris Ahlstrom
  * \date          2024-03-25
- * \updates       2024-04-03
+ * \updates       2024-04-04
  * \license       See above.
  *
  * Format of the .mo File:
  *
  *      This list is distilled from the diagram on page 120 of the GNU
- *      Gettext PDF manual. Each data item is 4 bytes long, i.e. a word
- *      or int32_t value.
+ *      Gettext PDF manual. Also see the GNU Gettext project header file
+ *      gettext-runtime/intl/gmo.h.  Also see the file
+ *      library/tests/mo/es/newt.hex, which breaks down the contents of the
+ *      small newt.mo file.
  *
- *          -   M = Magic number 0x950412de or swapped value.
- *          -   R = File format revision number.
+ *      Header:
+ *
+ *          Each data item is 4 bytes long, i.e. a word or int32_t value;
+ *
+ *          -   M = Magic number 0x950412de or swapped value 0xde130495.
+ *          -   R = File format major+minor revision number.
  *          -   N = Number of message strings in the catalog.
  *          -   O = Offset of the table with the original message strings.
  *          -   T = Offset of the table with the translated message strings.
  *          -   Hs = Size of hashing table. (We ignore this hashing table.)
  *          -   Ho = Offset of hashing table. (We ignore this hashing table.)
+ *          -   In the future there might might be more entries. In gmo.h
+ *              we see that if the minor revision is > 0, then there are 5
+ *              more words in the header.
  *
  *      At the offset O pointing to the original messages are N pairs of
  *      values:
@@ -83,7 +92,6 @@
  */
 
 #include <iostream>                     /* std::istream, std::ostream       */
-#include <fstream>
 
 #include "po/dictionary.hpp"            /* po::dictionary class             */
 #include "po/extractor.hpp"             /* po::extractor class              */
@@ -210,6 +218,10 @@ moparser::swap (word ui) const
  *          We might need something better than a vector, or make
  *          transation::translated a vector!
  *      -   What about context?
+ *
+ *  What we decided was to have the translation structure contain the original
+ *  and translated strings, plus the context (if present), plus a phraselist
+ *  for the plurals, if present.
  */
 
 bool
@@ -221,15 +233,46 @@ moparser::parse_mo_file
 )
 {
     moparser parser(filename, in, dic);
-    bool result = parser.parse_file(filename);
+    bool result = parser.parse_file(filename);      /* fills m_translations */
     if (result)
     {
-#if defined USE_THIS_CODE_NOW
-        (void) dict().add(msgid, msgid_plural, msglist);
-        (void) dict().add(ctxt, msgid, msgid_plural, msglist);
-        (void) dict().add(msgid, converter().convert(msgstr));
-        (void) dict().add(ctxt, msgid, converter().convert(msgstr));
+        for (const auto & tquad : parser.get_translations())
+        {
+            bool have_context = ! tquad.context.empty();
+            bool have_plurals = ! tquad.plurals.empty();
+            const iconvert & cvt = parser.converter();
+            if (have_context && have_plurals)
+            {
+                // (void) dic.add(ctxt, msgid, msgid_plural, msglist);
+            }
+            else if (have_context)
+            {
+                // (void) dic.add(ctxt, msgid, converter().convert(msgstr));
+            }
+            else if (have_plurals)
+            {
+                // (void) dic.add(msgid, msgid_plural, msglist);
+            }
+            else
+            {
+                // std::string converted = cvt.convert(tquad.translated);
+                std::string converted = tquad.translated;
+                result = dic.add(tquad.original, converted);
+
+#if defined PLATFORM_DEBUG
+                std::cout
+                    << "Added: '" << tquad.original << "' and '"
+                    << converted
+                    << std::endl
+                    ;
 #endif
+
+                // tquad.original, tquad.translated
+
+                if (! result)
+                    break;
+            }
+        }
     }
     return result;
 }
@@ -458,6 +501,14 @@ moparser::find (const std::string & target)
  *  from the .mo file. See the translate() function for some comments
  *  about internal details. Also see the banner at the top of this module
  *  for how to get the context and plural translations.
+ *
+ *  The process for both the original and translated strings is:
+ *
+ *      -   Get the offset of the table.
+ *      -   Starting at this offset, for each index in the string-count,
+ *          get the length of the string, then the offset of the string.
+ *      -   At the string offset, grab the number of bytes specified.
+ *      -   Increment to the next string. See the first for-loop below.
  */
 
 bool
@@ -487,11 +538,10 @@ moparser::load_translations ()
 
         word ooffset = swap(orig->o_offset);        /* see extractor.hpp    */
         word olength = swap(orig->o_length);
-        std::size_t omax = std::size_t(ooffset + olength);  // - 1 ???
+        std::size_t omax = std::size_t(ooffset + olength);
 
         word toffset = swap(tran->o_offset);
         word tlength = swap(tran->o_length);
-//      std::size_t tmax = std::size_t(toffset + tlength);  // - 1 ???
         translation tranquad;
 
         /*
@@ -516,7 +566,7 @@ moparser::load_translations ()
 
         std::string translated = xtract.get(toffset, tlength);  /* singular */
         int translength = int(translated.length());
-        tranquad.original = xtract.get(ooffset, olength);   /* original */
+        tranquad.original = xtract.get(ooffset, olength);       /* original */
         if (translength > 0)
         {
             tranquad.translated = translated;

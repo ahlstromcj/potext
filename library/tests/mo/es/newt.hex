@@ -1,44 +1,90 @@
 newt.mo bytes (little-endian):
 
-     <  magic  > < revis.  > <  count  > < origin  >
-000  DE 12 04 95 00 00 00 00 05 00 00 00 1C 00 00 00 ................
+Each data item in the header of a message catalog is 4 bytes long, i.e. a
+word or int32_t value:
 
-     < transl. > < hash sz > < hashtbl >
-010  44 00 00 00 07 00 00 00 6C 00 00 00 00 00 00 00 D.......l.......
-020  88 00 00 00 06 00 00 00 89 00 00 00 02 00 00 00 ................
-030  90 00 00 00 02 00 00 00 93 00 00 00 03 00 00 00 ................
-040  96 00 00 00 61 01 00 00 9A 00 00 00 08 00 00 00 ....a...........
-050  FC 01 00 00 02 00 00 00 05 02 00 00 07 00 00 00 ................
-060  08 02 00 00 04 00 00 00 10 02 00 00 01 00 00 00 ................
-070  03 00 00 00 05 00 00 00 00 00 00 00 02 00 00 00 ................
-080  00 00 00 00 04 00 00 00 00 43 61 6E 63 65 6C 00 .........Cancel.
-090  4E 6F 00 4F 6B 00 59 65 73 00 50 72 6F 6A 65 63 No.Ok.Yes.Projec
-0A0  74 2D 49 64 2D 56 65 72 73 69 6F 6E 3A 20 6E 65 t-Id-Version: ne
-0B0  77 74 0A 52 65 70 6F 72 74 2D 4D 73 67 69 64 2D wt.Report-Msgid-
-0C0  42 75 67 73 2D 54 6F 3A 20 0A 50 4F 2D 52 65 76 Bugs-To: .PO-Rev
-0D0  69 73 69 6F 6E 2D 44 61 74 65 3A 20 32 30 30 33 ision-Date: 2003
-0E0  2D 30 37 2D 31 33 20 30 38 3A 32 35 2D 30 34 30 -07-13 08:25-040
-0F0  30 0A 4C 61 73 74 2D 54 72 61 6E 73 6C 61 74 6F 0.Last-Translato
-100  72 3A 20 41 6C 61 73 74 61 69 72 20 4D 63 4B 69 r: Alastair McKi
-110  6E 73 74 72 79 20 3C 6D 63 6B 69 6E 73 74 72 79 nstry <mckinstry
-120  40 64 65 62 69 61 6E 2E 6F 72 67 3E 0A 4C 61 6E @debian.org>.Lan
-130  67 75 61 67 65 2D 54 65 61 6D 3A 20 53 70 61 6E guage-Team: Span
-140  69 73 68 20 3C 65 73 40 6C 69 2E 6F 72 67 3E 0A ish <es@li.org>.
-150  4D 49 4D 45 2D 56 65 72 73 69 6F 6E 3A 20 31 2E MIME-Version: 1.
+    -   M = Magic number 0x950412de or swapped value 0xde130495. The newt.mo
+            file is little-endian, since the LSB 0xde comes first in memory.
+    -   R = File format major+minor revision number. Here it is 0.0.
+    -   N = Number of message strings in the catalog. Here N = 5.
+            This count seems to include the first, empty, message.
+    -   O = Offset of the table with the original message strings. Here it
+            is 0x1c = 28.
+    -   T = Offset of the table with the translated message strings. Here it
+            is 0x44 = 68.
+    -  Hs = Size of hashing table. Here it is 7 bytes. Potext ignores the
+            hashing table.
+    -  Ho = Offset of hashing table. Here it is 0x6c = 108. Again, ignored.
+    -  Li = length of entry i, i = 0 to N-1. Items at 0 are empty strings.
+    -  Oi = offset of entry i, i = 0 to N-1.
+
+Note:
+
+    The first entry in the translation table (at 0x44) seems to specify,
+    not an empty message, but the start of the 0x161 bytes at location
+    0x9a: "Project-Id-Version: ... X-Generator: Zanata3.8.2\n", which ends
+    at 0x1fb. So that is what the empty message maps to.
+
+     <    M    > <    R    > | <    N    > <    O    >
+000  DE 12 04 95 00 00 00 00 | 05 00 00 00 1C 00 00 00 ................
+
+     <    T    > <   Hs    > | <   Ho    > <<  L0   >  O table at 0x1c
+010  44 00 00 00 07 00 00 00 | 6C 00 00 00 00 00 00 00 ................
+
+     <   O0    > <   L1    > | <   O1    > <   L2    > 1st msg at 0x88
+020  88 00 00 00 06 00 00 00 | 89 00 00 00 02 00 00 00 ................
+
+     <   O2    > <   L3    > | <   O3    > <   L4    >
+030  90 00 00 00 02 00 00 00 | 93 00 00 00 03 00 00 00 ................
+
+     <   O4   >> <<  L0    > | <   O0    > <   L1    > T table at 0x44
+040  96 00 00 00 61 01 00 00 | 9A 00 00 00 08 00 00 00 ................
+
+     <   O1    > <   L2    > | <   O2    > <   L3    > 1st tran at 0x9a
+050  FC 01 00 00 02 00 00 00 | 05 02 00 00 07 00 00 00 ................
+
+     <   O3    > <   L4    > | <   O4    > <   H0    > Hash starts here
+060  08 02 00 00 04 00 00 00 | 10 02 00 00 01 00 00 00 ................
+
+     <   H1    > <   H2    > | <   H3    > <   H4    >
+070  03 00 00 00 05 00 00 00 | 00 00 00 00 02 00 00 00 ................
+
+     <   H5    > <   H6    > | <> 1st message is empty, just a null.
+                                  C  a  n  c  e  l
+080  00 00 00 00 04 00 00 00 | 00 43 61 6E 63 65 6C 00 .........Cancel.
+
+090  4E 6F 00 4F 6B 00 59 65 | 73 00 50 72 6F 6A 65 63 No.Ok.Yes.Projec
+0A0  74 2D 49 64 2D 56 65 72 | 73 69 6F 6E 3A 20 6E 65 t-Id-Version: ne
+0B0  77 74 0A 52 65 70 6F 72 | 74 2D 4D 73 67 69 64 2D wt.Report-Msgid-
+0C0  42 75 67 73 2D 54 6F 3A | 20 0A 50 4F 2D 52 65 76 Bugs-To: .PO-Rev
+0D0  69 73 69 6F 6E 2D 44 61 | 74 65 3A 20 32 30 30 33 ision-Date: 2003
+0E0  2D 30 37 2D 31 33 20 30 | 38 3A 32 35 2D 30 34 30 -07-13 08:25-040
+0F0  30 0A 4C 61 73 74 2D 54 | 72 61 6E 73 6C 61 74 6F 0.Last-Translato
+100  72 3A 20 41 6C 61 73 74 | 61 69 72 20 4D 63 4B 69 r: Alastair McKi
+110  6E 73 74 72 79 20 3C 6D | 63 6B 69 6E 73 74 72 79 nstry <mckinstry
+120  40 64 65 62 69 61 6E 2E | 6F 72 67 3E 0A 4C 61 6E @debian.org>.Lan
+130  67 75 61 67 65 2D 54 65 | 61 6D 3A 20 53 70 61 6E guage-Team: Span
+140  69 73 68 20 3C 65 73 40 | 6C 69 2E 6F 72 67 3E 0A ish <es@li.org>.
+150  4D 49 4D 45 2D 56 65 72 | 73 69 6F 6E 3A 20 31 2E MIME-Version: 1.
 
            < Content-Type: ...
-160  30 0A 43 6F 6E 74 65 6E 74 2D 54 79 70 65 3A 20 0.Content-Type:
-170  74 65 78 74 2F 70 6C 61 69 6E 3B 20 63 68 61 72 text/plain; char
+160  30 0A 43 6F 6E 74 65 6E | 74 2D 54 79 70 65 3A 20 0.Content-Type:
+170  74 65 78 74 2F 70 6C 61 | 69 6E 3B 20 63 68 61 72 text/plain; char
 
-                 < charset    >
-180  73 65 74 3D 55 54 46 2D 38 0A 43 6F 6E 74 65 6E set=UTF-8.Conten
-190  74 2D 54 72 61 6E 73 66 65 72 2D 45 6E 63 6F 64 t-Transfer-Encod
-1A0  69 6E 67 3A 20 38 62 69 74 0A 4C 61 6E 67 75 61 ing: 8bit.Langua
-1B0  67 65 3A 20 65 73 0A 50 6C 75 72 61 6C 2D 46 6F ge: es.Plural-Fo
-1C0  72 6D 73 3A 20 6E 70 6C 75 72 61 6C 73 3D 32 3B rms: nplurals=2;
-1D0  20 70 6C 75 72 61 6C 3D 28 6E 20 21 3D 20 31 29  plural=(n != 1)
-1E0  0A 58 2D 47 65 6E 65 72 61 74 6F 72 3A 20 5A 61 .X-Generator: Za
-1F0  6E 61 74 61 20 33 2E 38 2E 32 0A 00 43 61 6E 63 nata 3.8.2..Canc
-200  65 6C 61 72 00 4E 6F 00 41 63 65 70 74 61 72 00 elar.No.Aceptar.
+            ...> < charset      >
+180  73 65 74 3D 55 54 46 2D | 38 0A 43 6F 6E 74 65 6E set=UTF-8.Conten
+190  74 2D 54 72 61 6E 73 66 | 65 72 2D 45 6E 63 6F 64 t-Transfer-Encod
+1A0  69 6E 67 3A 20 38 62 69 | 74 0A 4C 61 6E 67 75 61 ing: 8bit.Langua
+1B0  67 65 3A 20 65 73 0A 50 | 6C 75 72 61 6C 2D 46 6F ge: es.Plural-Fo
+1C0  72 6D 73 3A 20 6E 70 6C | 75 72 61 6C 73 3D 32 3B rms: nplurals=2;
+1D0  20 70 6C 75 72 61 6C 3D | 28 6E 20 21 3D 20 31 29  plural=(n != 1)
+1E0  0A 58 2D 47 65 6E 65 72 | 61 74 6F 72 3A 20 5A 61 .X-Generator: Za
+
+                                        <> C  a  n  c
+1F0  6E 61 74 61 20 33 2E 38 | 2E 32 0A 00 43 61 6E 63 nata 3.8.2..Canc
+
+     e  l  a  r     N  o       A  c  e  p  t  a  r
+200  65 6C 61 72 00 4E 6F 00 | 41 63 65 70 74 61 72 00 elar.No.Aceptar.
 210  53 EF BF BD 00                                  S....
 
+# vim: sw=4 ts=4 wm=4 et ft=po

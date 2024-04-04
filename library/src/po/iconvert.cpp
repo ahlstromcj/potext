@@ -215,7 +215,7 @@ iconvert::set_charsets
 #if defined USE_FLUXBOX_RECODE_FUNCTION
 
 std::string
-iconvert::convert (const std::string & text)
+iconvert::convert (const std::string & text) const
 {
     if (! m_conversion_descriptor)
     {
@@ -230,7 +230,7 @@ iconvert::convert (const std::string & text)
 #else           // ! defined USE_FLUXBOX_RECODE_FUNCTION
 
 std::string
-iconvert::convert (const std::string & text)
+iconvert::convert (const std::string & text) const
 {
     if (! m_conversion_descriptor)
     {
@@ -410,7 +410,7 @@ iconv_close (iconv_t cd)
 */
 
 std::string
-iconvert::recode (iconv_t cd, const std::string & in)
+iconvert::recode (iconv_t cd, const std::string & in) const
 {
     static const iconv_t ICONV_NULL = reinterpret_cast<iconv_t>(-1);
     std::string result;

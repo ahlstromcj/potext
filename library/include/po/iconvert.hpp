@@ -143,7 +143,7 @@ public:
     iconvert & operator = (const iconvert &);
     ~iconvert ();
 
-    std::string convert (const std::string & text);
+    std::string convert (const std::string & text) const;
 
     bool set_charsets
     (
@@ -154,7 +154,7 @@ public:
 private:
 
 #if defined USE_FLUXBOX_RECODE_FUNCTION
-    std::string recode (iconv_t cd, const std::string & in);
+    std::string recode (iconv_t cd, const std::string & in) const;
 #endif
 
 };
