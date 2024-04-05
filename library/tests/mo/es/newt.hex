@@ -1,7 +1,13 @@
-newt.mo bytes (little-endian):
+Description of library/tests/mo/es/newt.mo
+Chris Ahlstrom
+2024-04-02 to 2024-04-05
 
-Each data item in the header of a message catalog is 4 bytes long, i.e. a
-word or int32_t value:
+Describes the newt.mo file. Also see the library/src/po/moparser.cpp module.
+
+The newt.mo file included in this project is little-endian. That is, the
+least-significant-byte (LSB) of each value comes first. For example,
+the value 5 is represented by the bytes 05 00 00 00.  Each data item in the
+header of a message catalog is 4 bytes long, i.e. a word or int32_t value:
 
     -   M = Magic number 0x950412de or swapped value 0xde130495. The newt.mo
             file is little-endian, since the LSB 0xde comes first in memory.

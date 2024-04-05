@@ -25,7 +25,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-26
- * \updates       2024-03-31
+ * \updates       2024-04-04
  * \license       See above.
  *
  */
@@ -114,6 +114,18 @@ pomoparserbase::warning (const std::string & msg, std::size_t pos)
             << msg << std::endl
             ;
     }
+}
+
+phraselist
+pomoparserbase::convert_list (const phraselist & source)
+{
+    phraselist result;
+    for (const auto & msg : source)
+    {
+        std::string cmsg = converter().convert(msg);
+        result.push_back(cmsg);
+    }
+    return result;
 }
 
 }               // namespace po

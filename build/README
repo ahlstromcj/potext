@@ -1,14 +1,13 @@
 Build Directory for the potext Library
 Chris Ahlstrom
-2024-04-02 to 2024-04-02
+2024-04-02 to 2024-04-05
 
 This file merely keeps the build directory around. Just because.
-
-Use the following to clean it:
+Use the following to clean it without removing it completely:
 
     $ ./work.sh --clean
 
-The build/latex directory is removed completely during a --clean
+The build/latex directory also is removed completely during a --clean
 operation.
 
 # vim: sw=4 ts=4 wm=8 et ft=sh

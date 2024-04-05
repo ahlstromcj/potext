@@ -610,6 +610,10 @@ next:
             }
             if (msgctxt.empty())
             {
+                /*
+                 * TODO: convert the msglist.
+                 */
+
                 (void) dict().add(msgid, msgid_plural, msglist);
             }
             else
@@ -617,6 +621,10 @@ next:
                 std::string ctxt;
                 if (msgctxt != MSGCTXT_EMPTY_FLAG)
                     ctxt = msgctxt;
+
+                /*
+                 * TODO: convert the msglist.
+                 */
 
                 (void) dict().add(ctxt, msgid, msgid_plural, msglist);
             }

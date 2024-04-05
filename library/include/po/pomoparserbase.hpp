@@ -27,7 +27,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-26
- * \updates       2024-03-31
+ * \updates       2024-04-05
  * \license       See above.
  *
  */
@@ -37,6 +37,7 @@
 
 #include "platform_macros.h"            /* PLATFORM_WINDOWS macro           */
 #include "po/iconvert.hpp"              /* po::iconvert (IConv) class       */
+#include "po/po_types.hpp"              /* po:phraselist vector             */
 
 namespace po
 {
@@ -198,6 +199,8 @@ public:
     {
         return m_converter;
     }
+
+    phraselist convert_list (const phraselist & source);
 
 };              // class pomoparserbase
 

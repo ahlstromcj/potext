@@ -155,6 +155,16 @@ dictionary::translate (const entries & dict, const std::string & msgid) const
  *  Translate the string \a msgid to its correct plural form, based on the
  *  number of items given by \a num. \a msgid_plural is \a msgid in plural
  *  form.
+ *
+ * \param msgid
+ *      The English version of the string, passed to a Gettext function.
+ *
+ * \param msgid_plural
+ *      The plural form to display in warnings.  Provides the plural form
+ *      of the message ID.
+ *
+ * \param N
+ *      The index (starting at 1) to the plural form to look up.
  */
 
 std::string
@@ -341,22 +351,6 @@ dictionary::add
     const std::string & msgstr
 )
 {
-#if defined USE_OLD_CODE
-    phraselist & vec = m_entries[msgid];
-    if (vec.empty())
-    {
-        vec.push_back(msgstr);
-    }
-    else if (vec[0] != msgstr)
-    {
-        logstream::warning()
-            << _("Collision in") << " add(): '"
-            << msgid << "' -> '" << msgstr << "' vs '" << vec[0] << "'"
-            << std::endl
-            ;
-        vec[0] = msgstr;
-    }
-#else
     bool result = false;
     auto it = m_entries.find(msgid);
     if (it != m_entries.end())
@@ -377,7 +371,6 @@ dictionary::add
 #endif
     }
     return result;
-#endif
 }
 
 /**
@@ -394,6 +387,22 @@ dictionary::add
  *  want to tell the user about them.
  *
  *  The given msgid parameter is looked up.
+ *
+ * TODO: Shouldn't we make a new phraselist by converting the charset of each
+ * phrase?  Or is this done in poparser?
+ *
+ * \param msgid
+ *      The original search string.
+ *
+ * \param msgid_plural
+ *      Used only for warning output, same as in tinygettext. It refers to the
+ *      English version of the plural. The selection of the plural form(s) is
+ *      triggered by explicit function calls. Only the singular form takes
+ *      part in the lookup.
+ *
+ * \param msgstrs
+ *      Provides a list of the various plural forms translations of the plural
+ *      message ID.
  */
 
 bool
@@ -404,22 +413,6 @@ dictionary::add
     const phraselist & msgstrs
 )
 {
-#if defined USE_OLD_CODE
-    phraselist & vec = m_entries[msgid];
-    if (vec.empty())
-    {
-        vec = msgstrs;
-    }
-    else if (vec != msgstrs)
-    {
-        logstream::warning()
-            << _("Collision in") << " add(): '"
-            << msgid << "', '" << msgid_plural
-            << "' -> [" << vec << "] vs [" << msgstrs << "]" << std::endl
-            ;
-        vec = msgstrs;
-    }
-#else
     bool result = false;
     auto it = m_entries.find(msgid);
     if (it != m_entries.end())
@@ -439,7 +432,6 @@ dictionary::add
 #endif
     }
     return result;
-#endif
 }
 
 /**
@@ -476,6 +468,22 @@ dictionary::add
  *  m_ctxt_entries[ctxt] is a list of the entries (phraselists keyed by the
  *  message ID) for that context string. Then m_ctxt_entries[ctxt][id]
  *  is the list of phrases for that context and message ID.
+ *
+ * \param msgctxt
+ *      Provides the context string to use to select the proper translation.
+ *
+ * \param msgid
+ *      The English form of the message.
+ *
+ * \param msgid_plural
+ *      Used only for warning output, same as in tinygettext. It refers to the
+ *      English version of the plural. The selection of the plural form(s) is
+ *      triggered by explicit function calls. Only the singular form takes
+ *      part in the lookup.
+ *
+ * \param msgstrs
+ *      Provides a list of the various plural forms translations of the plural
+ *      message ID.
  */
 
 bool

@@ -29,7 +29,7 @@
  * \library       potext
  * \author        simple-gettext; refactoring by Chris Ahlstrom
  * \date          2024-03-25
- * \updates       2024-04-04
+ * \updates       2024-04-05
  * \license       See above.
  *
  * Format of the .mo File:
@@ -89,6 +89,23 @@
  *
  *          -   Length of the string
  *          -   Offset of the string (the string is null-terminated)
+ *
+ * First message:
+ *
+ *      The first original message string can be empty. In the file
+ *      library/tests/mo/es/newt.mo (see newt.hex for readability),
+ *      the first message is empty and translates to information about the
+ *      .mo file: "Project-Id-Version: ... X-Generator: Zanata3.8.2\n".
+ *      The empty string in a PO file GNU gettext is usually translated into
+ *      some system information attached to that particular MO file,
+ *
+ * Original plural form:
+ *
+ *      Plural forms are stored by letting the plural of the original string
+ *      follow the singular of the original string, separated through a NUL
+ *      byte. The length which appears in the string descriptor includes
+ *      both. However, only the singular of the original string takes part in
+ *      the hash table lookup.
  */
 
 #include <iostream>                     /* std::istream, std::ostream       */
@@ -203,10 +220,10 @@ moparser::swap (word ui) const
 /**
  *  Static function to parse a given binary mo file.
  *
- *      -   Character-set. The load_charset() function sets m_charset
+ *      -   Character-set. The load_charset_name() function sets m_charset
  *          and uses it to set the iconvert's character-set using
  *          dict().get_charset().
- *      -   Plural-forms. The load_plural_forms() function sets the
+ *      -   Plural-forms. The load_plural_form_name() function sets the
  *          m_plural_forms string and calls dict().set_plural_forms().
  *      -   Translation table. The load_translations() function
  *          populates the m_translations vector. We need to add them all to the
@@ -241,23 +258,38 @@ moparser::parse_mo_file
             bool have_context = ! tquad.context.empty();
             bool have_plurals = ! tquad.plurals.empty();
             const iconvert & cvt = parser.converter();
+            const std::string & msgid = tquad.original;
+
+            /*
+             * Not part of the lookup, but we can use it for reporting.
+             */
+
+            const std::string & pluralmsgid = tquad.original_plural;
             if (have_context && have_plurals)
             {
-                // (void) dic.add(ctxt, msgid, msgid_plural, msglist);
+                const std::string & ctxt = tquad.context;
+                phraselist msglist = parser.convert_list(tquad.plurals);
+                result = dic.add(ctxt, msgid, pluralmsgid, msglist);
             }
             else if (have_context)
             {
-                // (void) dic.add(ctxt, msgid, converter().convert(msgstr));
+                const std::string & ctxt = tquad.context;
+                const std::string & msgstr = cvt.convert(tquad.translated);
+                result = dic.add(ctxt, msgid, msgstr);
             }
             else if (have_plurals)
             {
-                // (void) dic.add(msgid, msgid_plural, msglist);
+                phraselist msglist = parser.convert_list(tquad.plurals);
+                result = dic.add(msgid, pluralmsgid, msglist);
             }
             else
             {
-                // std::string converted = cvt.convert(tquad.translated);
-                std::string converted = tquad.translated;
-                result = dic.add(tquad.original, converted);
+                /*
+                 * Like poparser, do the character-set conversion here.
+                 */
+
+                std::string converted = cvt.convert(tquad.translated);
+                result = dic.add(msgid, converted);
 
 #if defined PLATFORM_DEBUG
                 std::cout
@@ -266,9 +298,6 @@ moparser::parse_mo_file
                     << std::endl
                     ;
 #endif
-
-                // tquad.original, tquad.translated
-
                 if (! result)
                     break;
             }
@@ -340,11 +369,11 @@ moparser::parse ()
         m_mo_header.size_hash_table = swap(hp->size_hash_table);
         m_mo_header.offset_hash_table = swap(hp->offset_hash_table);
 
-        std::string cs = load_charset();
+        std::string cs = load_charset_name();
         bool result = ! cs.empty();
         if (result)
         {
-            std::string pf = load_plural_forms();
+            std::string pf = load_plural_form_name();
             result = ! pf.empty();
         }
         if (result)
@@ -373,7 +402,7 @@ moparser::parse ()
  */
 
 std::string
-moparser::load_charset ()
+moparser::load_charset_name ()
 {
     static std::string s_content_type{"Content-Type: text/plain; charset="};
     static std::size_t s_content_size{s_content_type.length()};     /* 34   */
@@ -422,7 +451,7 @@ moparser::load_charset ()
  */
 
 std::string
-moparser::load_plural_forms ()
+moparser::load_plural_form_name ()
 {
     static std::string s_plural_forms{"Plural-Forms: nplurals="};
     static std::size_t s_plural_size{s_plural_forms.length()};      /* 23   */
@@ -509,6 +538,11 @@ moparser::find (const std::string & target)
  *          get the length of the string, then the offset of the string.
  *      -   At the string offset, grab the number of bytes specified.
  *      -   Increment to the next string. See the first for-loop below.
+ *
+ *  Note that the plural form of the original (msgid) string is stored
+ *  with the original, but is not used for lookup. Also note that a context
+ *  string plus an EOT character comes before the original string, if
+ *  present.
  */
 
 bool
@@ -557,6 +591,18 @@ moparser::load_translations ()
             ooffset = word(eotpos) + 1;
             olength -= word(ctxtlength);
         }
+
+        /*
+         *  Check for the presence of the plural form of the original
+         *  string.
+         *
+         *  TODO: extract it properly
+         */
+
+        bool plural_msgid = false;
+        std::size_t nulpos = xtract.find_character(s_NUL, ooffset, olength);
+        if (nulpos < std::size_t(ooffset + olength))
+            plural_msgid = true;
 
         /*
          *  Get the original string and the first (singular) translation.

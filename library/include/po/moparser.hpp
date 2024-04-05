@@ -33,7 +33,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-03-24
- * \updates       2024-03-27
+ * \updates       2024-04-05
  * \license       See above.
  *
  */
@@ -70,10 +70,11 @@ private:
 
     using translation = struct
     {
-        std::string original;
-        std::string translated;
-        std::string context;
-        phraselist plurals;
+        std::string original;           /* the English message ID           */
+        std::string original_plural;    /* stored with the original msgid   */
+        std::string translated;         /* the translated singular version  */
+        std::string context;            /* the context of the translation   */
+        phraselist plurals;             /* a list of all the plurals        */
     };
 
     /**
@@ -189,8 +190,8 @@ private:
     std::string translate (const std::string & original);
 
     bool load_translations ();
-    std::string load_charset ();
-    std::string load_plural_forms ();
+    std::string load_charset_name ();
+    std::string load_plural_form_name ();
 
     const translations & get_translations() const
     {
