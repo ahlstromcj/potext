@@ -58,8 +58,10 @@
  *      At the offset O pointing to the original messages are N pairs of
  *      values:
  *
- *          -   Length of the string, does not count the NUL terminator.
- *          -   Offset of the string (the string is null-terminated).
+ *          -   Length of the string, does not count the NUL terminator
+ *              unless the NUL separates a singular and plural original
+ *              string.
+ *          -   Offset of the string (normally NUL-terminated).
  *
  *          If the original string has a context, then the string holds the
  *          following, concatenated:
@@ -70,11 +72,16 @@
  *
  *          Plurals forms are stored as:
  *
- *              -   Translated string (singular)
- *              -   NUL byte
- *              -   Any number of:
- *                  -   Plural form
+ *              -   Original:
+ *                  -   Original string msgid
  *                  -   NUL byte
+ *                  -   Plural string msgid (but not used in lookup).
+ *              -   Translated:
+ *                  -   Translated string (singular)
+ *                  -   NUL byte
+ *                  -   Any number of:
+ *                      -   Plural form
+ *                      -   NUL byte
  *
  *          The length value for the string includes context, separator bytes,
  *          the original string, and the plural form(s).
@@ -595,14 +602,19 @@ moparser::load_translations ()
         /*
          *  Check for the presence of the plural form of the original
          *  string.
-         *
-         *  TODO: extract it properly
          */
 
-        bool plural_msgid = false;
         std::size_t nulpos = xtract.find_character(s_NUL, ooffset, olength);
-        if (nulpos < std::size_t(ooffset + olength))
-            plural_msgid = true;
+        if (nulpos < std::size_t(ooffset + olength - 1))
+        {
+            std::size_t len1 = nulpos - ooffset;
+            tranquad.original = xtract.get(ooffset, len1);   /* original */
+            ooffset = nulpos + 1;
+            olength -= len1 + 1;
+            tranquad.original_plural = xtract.get(ooffset, olength);
+        }
+        else
+            tranquad.original = xtract.get(ooffset, olength);   /* original */
 
         /*
          *  Get the original string and the first (singular) translation.
@@ -612,7 +624,6 @@ moparser::load_translations ()
 
         std::string translated = xtract.get(toffset, tlength);  /* singular */
         int translength = int(translated.length());
-        tranquad.original = xtract.get(ooffset, olength);       /* original */
         if (translength > 0)
         {
             tranquad.translated = translated;
@@ -692,8 +703,6 @@ moparser::translate (const std::string & original)
              *
              */
 
-//          word olength = swap(orig_offset->o_length);
-//          word ooffset = swap(orig_offset->o_offset);
             int count = int(m_mo_header.string_count);
             bool found = false;
             int stringindex;
@@ -714,8 +723,6 @@ moparser::translate (const std::string & original)
                  */
 
                 ++orig_offset;
-//              olength = swap(orig_offset->o_length);
-//              ooffset = swap(orig_offset->o_offset);
             }
 
             translation tranpair;

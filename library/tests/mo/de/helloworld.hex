@@ -1,0 +1,67 @@
+Description of library/tests/mo/de/helloworld.mo
+Chris Ahlstrom
+2024-04-05 to 2024-04-05
+
+Describes the helloworld.mo file. Also see the
+library/src/po/moparser.cpp module.
+
+This is an extract from creating this .mo file from the file
+library/tests/helloworld/de.po file. We need a way to be sure
+of the layout of plurals.
+
+000  DE 12 04 95 00 00 00 00 07 00 00 00 1C 00 00 00 ................
+010  54 00 00 00 0B 00 00 00 8C 00 00 00 00 00 00 00 T...............
+                   ___________  length 13 at B9: "Retry0Retries"
+                  |           |
+                  v           v
+020  B8 00 00 00 0D 00 00 00 B9 00 00 00 11 00 00 00 ................
+030  C7 00 00 00 20 00 00 00 D9 00 00 00 15 00 00 00 .... ...........
+040  FA 00 00 00 0F 00 00 00 10 01 00 00 11 00 00 00 ................
+050  20 01 00 00 37 01 00 00 32 01 00 00 2D 00 00 00  ...7...2...-...
+060  6A 02 00 00 11 00 00 00 98 02 00 00 47 00 00 00 j...........G...
+070  AA 02 00 00 3D 00 00 00 F2 02 00 00 29 00 00 00 ....=.......)...
+080  30 03 00 00 35 00 00 00 5A 03 00 00 01 00 00 00 0...5...Z.......
+090  00 00 00 00 03 00 00 00 02 00 00 00 05 00 00 00 ................
+0A0  00 00 00 00 07 00 00 00 00 00 00 00 06 00 00 00 ................
+0B0  04 00 00 00 00 00 00 00 00 52 65 74 72 79 00 52 .........Retry.R
+0C0  65 74 72 69 65 73 00 53 68 6F 72 74 20 48 65 6C etries.Short Hel
+0D0  6C 6F 20 57 6F 72 6C 64 00 63 6F 6E 73 6F 6C 65 lo World.console
+0E0  04 48 65 6C 6C 6F 20 57 6F 72 6C 64 00 48 65 6C .Hello World.Hel
+0F0  6C 6F 20 57 6F 72 6C 64 73 00 63 6F 6E 73 6F 6C lo Worlds.consol
+100  65 04 52 65 74 72 79 00 52 65 74 72 69 65 73 00 e.Retry.Retries.
+110  67 75 69 00 48 65 6C 6C 6F 20 57 6F 72 6C 64 00 gui.Hello World.
+120  67 75 69 04 52 65 74 72 79 00 52 65 74 72 69 65 gui.Retry.Retrie
+130  73 00 50 72 6F 6A 65 63 74 2D 49 64 2D 56 65 72 s.Project-Id-Ver
+140  73 69 6F 6E 3A 20 50 41 43 4B 41 47 45 20 56 45 sion: PACKAGE VE
+
+...  ...                                                  ...
+
+210  63 68 61 72 73 65 74 3D 55 54 46 2D 38 0A 43 6F charset=UTF-8.Co
+220  6E 74 65 6E 74 2D 54 72 61 6E 73 66 65 72 2D 45 ntent-Transfer-E
+230  6E 63 6F 64 69 6E 67 3A 20 38 62 69 74 0A 50 6C ncoding: 8bit.Pl
+240  75 72 61 6C 2D 46 6F 72 6D 73 3A 20 6E 70 6C 75 ural-Forms: nplu
+250  72 61 6C 73 3D 32 3B 20 70 6C 75 72 61 6C 3D 28 rals=2; plural=(
+
+                                   <>
+260  6E 20 21 3D 20 31 29 3B 0A 00 56 65 72 73 75 63 n != 1);..Versuc
+270  68 20 65 72 6E 65 75 74 20 28 73 69 6E 67 75 6C h erneut (singul
+280  61 72 29 00 57 65 69 64 65 72 68 6F 6C 74 20 28 ar).Weiderholt (
+290  70 6C 75 72 61 6C 29 00 6B 75 72 7A 65 73 20 48 plural).kurzes H
+2A0  61 6C 6C 6F 20 57 65 6C 74 00 48 61 6C 6C 6F 20 allo Welt.Hallo
+2B0  57 65 6C 74 20 28 73 69 6E 67 75 6C 61 72 29 20 Welt (singular)
+2C0  69 6E 20 64 65 72 20 43 6F 6E 73 6F 6C 65 00 48 in der Console.H
+2D0  61 6C 6C 6F 20 57 65 6C 74 20 28 70 6C 75 72 61 allo Welt (plura
+2E0  6C 29 20 69 6E 20 64 65 72 20 43 6F 6E 73 6F 6C l) in der Consol
+2F0  65 00 56 65 72 73 75 63 68 20 65 72 6E 65 75 74 e.Versuch erneut
+300  20 28 73 69 6E 67 75 6C 61 72 20 63 6F 6E 73 6F  (singular conso
+310  6C 65 29 00 57 65 69 64 65 72 68 6F 6C 74 20 28 le).Weiderholt (
+320  70 6C 75 72 61 6C 20 63 6F 6E 73 6F 6C 65 29 00 plural console).
+330  48 61 6C 6C 6F 20 57 65 6C 74 20 28 73 69 6E 67 Hallo Welt (sing
+340  75 6C 61 72 29 00 48 61 6C 6C 6F 20 57 65 6C 74 ular).Hallo Welt
+350  20 28 70 6C 75 72 61 6C 29 00 56 65 72 73 75 63  (plural).Versuc
+360  68 20 65 72 6E 65 75 74 20 28 73 69 6E 67 75 6C h erneut (singul
+370  61 72 20 47 55 49 29 00 57 65 69 64 65 72 68 6F ar GUI).Weiderho
+380  6C 74 20 28 70 6C 75 72 61 6C 20 47 55 49 29 00 lt (plural GUI).
+<end of file>
+
+# vim: sw=4 ts=4 wm=4 et ft=po

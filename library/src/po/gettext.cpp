@@ -30,7 +30,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-30
+ * \updates       2024-04-05
  * \license       See above.
  *
  *  https://www.gnu.org/software/gettext/manual/ provides a 300-page manual in
@@ -242,6 +242,8 @@ static std::string current_domain (const std::string & cd = "");
 static std::string old_domain (const std::string & od = "");
 #endif
 
+#if defined USE_MO_MODE
+
 static bool s_use_mo_mode = false;
 
 static void set_use_mo_mode ()
@@ -253,6 +255,8 @@ static bool use_mo_mode ()
 {
     return s_use_mo_mode;
 }
+
+#endif
 
 /**
  *  Indicates which locale directory processing is in force.
@@ -653,7 +657,9 @@ set_locale_info
         }
         else if (is_mo_path(domdirname))
         {
+#if defined USE_MO_MODE
             set_use_mo_mode();
+#endif
         }
         if (! domname.empty() && ! domdirname.empty())
         {
