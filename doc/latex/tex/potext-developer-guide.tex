@@ -6,7 +6,7 @@
 % \library     Documents
 % \author      Chris Ahlstrom
 % \date        2024-02-08
-% \update      2024-03-22
+% \update      2024-04-06
 % \version     $Revision$
 % \license     $XPC_GPL_LICENSE$
 %
@@ -43,7 +43,7 @@
 
 \begin{document}
 
-\title{Potext Developer Guide 0.1}
+\title{Potext Developer Guide 0.2}
 \author{Chris Ahlstrom \\
    (\texttt{ahlstromcj@gmail.com})}
 \date{\today}
@@ -88,7 +88,9 @@
    \texttt{gettext()},
    \texttt{dgettext()},
    \texttt{ngettext()},
-   and others.
+   and others, for translations made via
+   \textsl{GNU PO} files and
+   \textsl{GNU MO} files.
    In addition, some of the details of \textsl{tinygettext} 
    are wrapped so that, other than marking the text to be translated,
    the translation setup is done by calling a single function in
@@ -120,12 +122,16 @@
       \item Support for selecting a domain during the run.
       \item A new class, \texttt{nlsbindings}, to supplement the
          \texttt{language} class.
-      \item An additional test program, test \texttt{.po} files,
-         and upgrades to existing tests.
+      \item Additional test programs, test \texttt{.po} files,
+         test \texttt{.mo} files, and upgrades to existing tests.
       \item Full documentation of architecture and usage.
-      \item Meson \texttt{.wrap} files to use Meson as a subproject.
+      \item \textsl{Meson} \texttt{.wrap} files to use \textsl{Meson}
+         as a subproject.
          A sample application project is stored in the tar-file noted
          below.
+      \item With version 0.2, \textsl{Potext} can also read
+         \textsl{GNU} \texttt{.mo} files for more complete
+         compatibility with \textsl{GNU Gettext}.
    \end{itemize}
 
    With these additions, \textsl{Potext} should be relatively straightforward
@@ -176,8 +182,6 @@
          installation and copying to the user's configuration directory.
       \item Handle capitals, punctuation, etc. without additional
          \texttt{.po} entries.
-      \item Add parsing of \texttt{*.mo} files for more complete
-         compatibility with \textsl{GNU Gettext}.
       \item Get the handling of categories (e.g. \texttt{LC\_TIME}) to
          work. However, note that the category is almost always
          \texttt{LC\_MESSAGES}.

@@ -60,7 +60,7 @@ namespace po
 #if defined _MSC_VER
 using int32_t = __int32;                /* typedef __int32 int32_t;         */
 #else
-#include <stdint.h>
+#include <cstdint>
 #endif
 
 /**

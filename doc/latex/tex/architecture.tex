@@ -6,7 +6,7 @@
 % \library     Documents
 % \author      Chris Ahlstrom
 % \date        2024-03-07
-% \update      2024-03-22
+% \update      2024-04-06
 % \version     $Revision$
 % \license     $XPC_GPL_LICENSE$
 %
@@ -64,7 +64,7 @@
    the \textsl{GNU Gettext} manual (\cite{gettextman}).
 
    The \texttt{dictionarymgr} class handles one or more dictionaries.
-   It has been augmented to hold a new \texttt{nlsbindings} class to
+   It has been augmented to hold a new \texttt{nlsbindings} class toion
    provided support for \texttt{bindtextdomain} and \texttt{textdomain},
    which are \textsl{not} provided by \textsl{Tinygettext}.
 
@@ -84,6 +84,13 @@
 
    The \texttt{poparser} class supports reading and parsing a
    \texttt{.po} file to create a \texttt{dictionary}.
+   It inherits some common code from the
+   \texttt{pomoparserbase} class.
+
+   The \texttt{moparser} class supports reading and parsing a
+   \texttt{.mo} file to create a \texttt{dictionary}.
+   It also inherits some common code from the
+   \texttt{pomoparserbase} class.
 
    The \texttt{iconvert} class supports converting the translations
    to another codeset (besides \texttt{UTF-8}) when creating the
@@ -191,6 +198,21 @@
       \item \texttt{get\_dictionary()}.
    \end{itemize}
 
+\subsection{Pomoparserbase Class}
+\label{subsec:potext_pomoparserbase_class}
+
+   As of version 0.2, some common functionality has been moved into
+   this base class.
+
+\begin{figure}[H]
+   \centering 
+   \includegraphics[scale=0.4]{pomoparserbase.png}
+   \caption{PO/MO Parser Base (po::pomoparserbase)}
+   \label{fig:potext_pomoparserbase}
+\end{figure}
+
+   TODO
+
 \subsection{Poparser Class}
 \label{subsec:potext_poparser_class}
 
@@ -199,7 +221,7 @@
 
 \begin{figure}[H]
    \centering 
-   \includegraphics[scale=1.0]{poparser.png}
+   \includegraphics[scale=0.4]{poparser.png}
    \caption{PO Parser (po::poparser)}
    \label{fig:potext_poparser}
 \end{figure}
@@ -231,6 +253,77 @@
    The \texttt{po::iconvert} class is a reimplementation of the
    \texttt{tinygettext::IConv} class.
    Note that it defines the \texttt{po::iconv\_t} type.
+
+\subsection{Moparser Class}
+\label{subsec:potext_moparser_class}
+
+   The \texttt{po::moparser} class is based on \texttt{pomoparserbase},
+   and adds the ability to parse \texttt{.mo} files.
+   \texttt{tinygettext::POParser} class.
+
+\begin{figure}[H]
+   \centering 
+   \includegraphics[scale=0.4]{moparser.png}
+   \caption{MO Parser (po::moparser)}
+   \label{fig:potext_moparser}
+\end{figure}
+
+   The \texttt{moparser} "connects" a \texttt{.mo} file, an input stream,
+   and a \texttt{dictionary} object in order to populate the dictionary with
+   plural forms, set the character-set, and use it (if needed) to convert the
+   translated message string to the character-set,
+   The static function \texttt{po::moparser::parse\_mo\_file()} is called to
+   create a temporary \texttt{moparser} and use it to
+   read a file and fill in an empty \texttt{dictionary}.
+
+   The format of the \texttt{.mo} file is described in the \texttt{moparser}
+   module's top banner. The format is dissected and described further in the
+   files
+   \texttt{library/tests/mo/es/newt.hex} and
+   \texttt{library/tests/mo/de/helloworld.hex}.
+
+   Note the \texttt{moparser::header} structure, which provides
+   the layout of the first few words in the \texttt{.mo} file.
+   Each \texttt{translation} structure holds the "original" message ID,
+   the "original plural" message ID, the context (if specified),
+   the translated singular string, and a list of plural forms (if specified).
+
+   The \texttt{moparser} class gets the character-set name and the
+   plural-forms description by searching for the key strings to find them.
+   It then searches for original singular strings, original
+   plural strings, context strings, and the list of plural translations.
+   These items are stored in a vector of translations, which is later
+   used to populate a \texttt{dictionary}.
+
+   The process of the binary data is facilitated by the \texttt{extractor}
+   class discussed in the next section.
+
+\subsection{Extractor Class}
+\label{subsec:potext_extractor_class}
+
+   This new class is used internally in the parsing of \texttt{.mo}
+   files. It encapsulates some tricky binary data extraction
+   so that the \texttt{moparser} class is less complex than otherwise.
+   The binary data is represented by a string, which is loaded by the
+   constructor.
+
+\begin{figure}[H]
+   \centering 
+   \includegraphics[scale=0.5]{extractor.png}
+   \caption{Binary Data Extractor (po::extractor)}
+   \label{fig:potext_extractor}
+\end{figure}
+
+   For the most part, the data in the string is accessed by position and
+   length. Offsets and pointers for string or character targets can be
+   found using a starting offset, a length, and perhaps a character delimiter
+   such as a newline, null byte, and the EOT (ASCII 4) character.
+
+   Note the data types of \texttt{byte} and \texttt{word}, here hidden in the
+   extractor class.
+
+   Also included is the \texttt{offset} structure, which is the pair of data
+   items the \texttt{.mo} format uses.
 
 \subsection{Dictionary Class}
 \label{subsec:potext_dictionary_class}

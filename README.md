@@ -1,4 +1,4 @@
-# README for Potext 0.2.0 2024-04-05
+# README for Potext 0.2.0 2024-04-06
 
 __Potext__ is a partial replacement for the __GNU Gettext__ library and a
 refactoring of the __Tinygettext__ library, with some additional features. It
@@ -71,7 +71,7 @@ should needed.
     *   Support reading a single .mo/.po file rather than a whole directory (in
         progress).
     *   Verify that testing and installation work with new version 0.2.0.
-    *   Update Dia diagrams for pomoparser, moparser, and poparser.
+    *   Update Dia diagrams for extractor, pomoparser, moparser, and poparser.
     *   Update the LaTeX documentation to catch up with 0.2.0.
     *   Flesh out and test the Windows support; it still has problems.
     *   Tighten up the nlsbinding class and the dictionarymgr class.
