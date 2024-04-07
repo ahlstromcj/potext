@@ -8,7 +8,7 @@
 # \library    	potext
 # \author     	Chris Ahlstrom
 # \date       	2024-01-25
-# \update     	2024-03-17
+# \update     	2024-04-07
 # \version    	$Revision$
 # \license    	$XPC_SUITE_GPL_LICENSE$
 #
@@ -41,7 +41,7 @@ Usage: ./make_pdf.sh
    The work.sh --clean command removes everything in
    $BUILDDIR.
 
-Version: 2024-03-17
+Version: 2024-04-07
 
 E_O_F
 
@@ -63,7 +63,7 @@ else
 #     fi
 
       if test $? = 0 ; then
-         echo "The PDF is in $PDFDIR/$PDFBASENAME.pdf, copied to doc."
+         echo "The PDF is in $PDFBASENAME.pdf, copied to the doc directory."
          cp $LATEXDIR/*.pdf ../
       else
          echo "PDF build failed, read $PDFDIR/$PDFBASENAME.log"

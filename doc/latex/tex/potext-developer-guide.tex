@@ -101,7 +101,6 @@
    Our main goal is to make it easy and lightweight to internationalize
    an application while sticking with \textsl{GNU Gettext}
    conventions.
-
    The \textsl{GNU Gettext} manual (\cite{gettextman}) is an important
    resource used in writing \textsl{Potext}.
    Also important is the source code at
@@ -110,7 +109,10 @@
    Note that \textsl{Potext} requires the usage of \texttt{C++17}
    and above. It support builds using the \textsl{GNU} and \textsl{Clang}
    compilers.
-   \textsl{Windows} support will be provided, but it is not ready yet.
+   It also requires the use of \textsl{Meson 1.1} and above.
+   See the \texttt{INSTALL} file.
+   \textsl{Windows} support (apart from \textsl{Mingw} and
+   \textsl{Cygwin} will be provided, but it is not ready yet.
 
 \subsection{Additions to Tinygettext}
 \label{subsec:introduction_additions}
@@ -140,10 +142,10 @@
 
    With these additions, \textsl{Potext} should be relatively straightforward
    to use in a new \texttt{C++} application.
-
    The tar-ball
    \texttt{extras/code/mini-potext-test.tar.xz}
-   contains a simple application.
+   contains a simple application using \textsl{Potext} as a sub-project
+   stored in \textsl{GitHub}..
    Unpack the tar-ball into its own directory
    and build it by running its
    \texttt{work.sh} script.
@@ -169,11 +171,16 @@
 \label{subsec:introduction_changes}
 
    \begin{itemize}
-      \item Changed the coding style and naming conventions.
-      \item Use of initializer lists for initializing various containers.
+      \item Changed the coding style and naming conventions for
+         (perhaps) easier reading..
+      \item Use of initializer lists, rather than brute-force
+         assignment statements, for initializing various containers.
       \item Use of the \texttt{auto} keyword in declarations and
          \texttt{for}-loops.
-      \item Many additional \texttt{using} directives.
+      \item Many additional \texttt{using} directives, most hidden
+         in the \texttt{po} namespace or in a class declaration..
+      \item A few additional helper classes have been added to provide
+         new features.
    \end{itemize}
 
    These changes are meant to make the code easier to read and understand.
@@ -183,13 +190,15 @@
 
    \begin{itemize}
       \item Hammer on this code in \textsl{Windows}.
-      \item Work out the installation process; including \texttt{.po} file
-         installation and copying to the user's configuration directory.
+      \item Work out the installation process; including \texttt{.po}
+         and \texttt{.mo} file
+         installation and copying (if desired)
+         to the user's configuration directory.
       \item Handle capitals, punctuation, etc. without additional
-         \texttt{.po} entries.
+         \texttt{.po}/\texttt{.mo} entries.
       \item Get the handling of categories (e.g. \texttt{LC\_TIME}) to
          work. However, note that the category is almost always
-         \texttt{LC\_MESSAGES}.
+         \texttt{LC\_MESSAGES}, so this is a low priority.
       \item Handle the "C" locale as discussed below.
       \item Allow for the user to override the character set via the
          \texttt{OUTPUT\_CHARSET} environment variable.
@@ -271,7 +280,8 @@
          \end{itemize}
             At present, \textsl{Potext} does not support directories of
             \texttt{.mo} files. It might, in the future.
-      \item \texttt{LC\_MESSAGES}. A more common convention for
+      \item \texttt{\$modir} and \texttt{LC\_MESSAGES}.
+            A more common convention for
             \texttt{*.mo} files on \textsl{UNIX} is to put them in
          \begin{itemize}
             \item \texttt{/usr/share/locale/<language>/LC\_MESSAGES/PACKAGE.mo}
@@ -288,7 +298,8 @@
 \label{subsec:introduction_home_potext_configuration}
 
    The \textsl{Potext} library also supports installing the
-   \texttt{*.po} translation files in the user's configuration area.
+   \texttt{*.po} and \texttt{*.mo} translation files in the
+   user's configuration area.
    The conventions we use are:
 
    \begin{itemize}
@@ -323,8 +334,8 @@
          \texttt{PACKAGE.mo} by \texttt{msgunfmt}.
    \end{itemize}
 
-   Also refer to the \textsl{Python} packages \textsl{polib}
-   and \textsl{poedit}.
+   Also refer to the \textsl{Python} packages \textsl{polib} (\cite{polib})
+   and \textsl{poedit} (\cite{poedit}).
 
 %----------------------------------------------------------------------------
 % Additional Chapters

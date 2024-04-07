@@ -6,7 +6,7 @@
 % \library     Documents
 % \author      Chris Ahlstrom
 % \date        2024-02-09
-% \update      2024-03-15
+% \update      2024-04-07
 % \version     $Revision$
 % \license     $XPC_GPL_LICENSE$
 %
@@ -89,11 +89,36 @@
    test program exit.
    Not sure why the latter aren't "flushed" immediately.
 
+   Here are the tests provided:
+
+    \begin{itemize}
+        \item \texttt{helloworld}
+        \item \texttt{hellopotext}
+        \item \texttt{po\_parser\_test}
+        \item \texttt{mo\_parser\_test}
+        \item \texttt{potext\_test}
+    \end{itemize}
+
+   The code is in the \texttt{library/tests} directory, and the
+   executables are written to \texttt{build/library/tests}
+   directory.
+
+\subsection{Hello World}
+\label{subsec:potext_hello_world}
+
+   \texttt{helloworld}.
+   This test is the original from the \textsl{tinygettext} project.
+   Not much done with it; it includes a copy of the
+   \texttt{gettext.h} header file and calls some of the stock
+   \textsl{GNU Gettext} functions.
+
 \subsection{Hello Potext}
 \label{subsec:potext_hello_potext}
 
-   This test is a work in progress.
-   Without arguments, it runs through basic tests of the following
+   \texttt{hellopotext}.
+   This application is a good test of \textsl{potext} from the
+   perspective of a developer wanting to use it in an application.
+   Without arguments, this test runs through basic tests of the following
    functions.
    The main domain is provided to \texttt{po::init\_app\_locale()}
    which should normally be called in the applications's
@@ -155,14 +180,48 @@
    \end{itemize}
 
    Additional arguments can change the default domain.
-   We will document these real soon now.
+   We will document these \textsl{real soon now}.
 
-\subsection{Potext Test Program}
+\subsection{PO Parser Test}
+\label{subsec:potext_Po_parser_test_program}
+
+   \texttt{po\_parser\_test}
+   This small application tests the ability to parse some
+   sample \texttt{.mo} files.
+
+   To run this test, simply supply the name of a \texttt{.po} file and
+   examine the results.
+   Any \texttt{.po} file can be provided.
+
+   Without arguments, this application lists some options and stock
+   test \texttt{.po} files to run.
+
+\subsection{MO Parser Test}
+\label{subsec:potext_mo_parser_test_program}
+
+   \texttt{mo\_parser\_test}
+   This small application tests the ability to parse some
+   sample \texttt{.mo} files.
+
+   To run this test, simply supply the name of a \texttt{.mo} file and
+   examine the results.
+   Any \texttt{.mo} file can be provided.
+
+   Without arguments, this application lists some options and stock
+   test \texttt{.mo} files to run.
+
+   In progress.
+   We need to add some more files to be able to test all of the most
+   important aspects of \texttt{.mo} files.
+
+\subsection{Potext Test}
 \label{subsec:potext_test_program}
 
-   This small application is the best test of \textsl{potext} from the
+   \texttt{potext\_test}
+   This application is another good test of \textsl{potext} from the
    perspective of a developer wanting to use it in an application.
    Running it without any arguments shows a list of 8 tests.
+   These tests are run by supplying the appropriate command-line arguments.
    These are reflected in the following sections.
 
 \subsubsection{Potext Test 'Translate'}

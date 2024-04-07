@@ -175,11 +175,13 @@
          This function scans a directory for \texttt{.po} files
          and creates a \texttt{dictionary} for each one.
       \item \texttt{make\_dictionary()}.
-         This helper function opens a file using \texttt{std::filesystem}
+         This helper function opens a file using the \texttt{std::filesystem}
+         class function \texttt{open\_file}.
          It then creates an \texttt{std::shared\_ptr} for a new
          \texttt{dictionary} and calls the static function
          \texttt{po::poparser::parse\_po\_file()}.
-         Then it calls \texttt{po::nlsbindings::set\_binding\_values()}
+         Then it calls the member function
+         \linebreak \texttt{po::nlsbindings::set\_binding\_values()}
          to create a corresponding binding object.
       \item \texttt{textdomain()}.
          This function sets the current domain to the given domain name.
@@ -206,17 +208,24 @@
 
 \begin{figure}[H]
    \centering 
-   \includegraphics[scale=0.4]{pomoparserbase.png}
+   \includegraphics[scale=0.65]{pomoparserbase.png}
    \caption{PO/MO Parser Base (po::pomoparserbase)}
    \label{fig:potext_pomoparserbase}
 \end{figure}
 
-   TODO
+   For version 0.2, we have moved the file-reading support, dictionary class,
+   and \texttt{iconvert} class
+   into a base class common to the \texttt{moparser} and
+   \texttt{poparser} classes.
+
+   Other than that commonality, the two parser class are somewhat different in
+   how they parse, since the \texttt{.po} file is text, and
+   the \texttt{.mo} file is binary.
 
 \subsection{Poparser Class}
 \label{subsec:potext_poparser_class}
 
-   The \texttt{po::poparser} class is a reimplementation of the
+   The \texttt{po::poparser} class is a serious reimplementation of the
    \texttt{tinygettext::POParser} class.
 
 \begin{figure}[H]
@@ -263,7 +272,7 @@
 
 \begin{figure}[H]
    \centering 
-   \includegraphics[scale=0.4]{moparser.png}
+   \includegraphics[scale=0.65]{moparser.png}
    \caption{MO Parser (po::moparser)}
    \label{fig:potext_moparser}
 \end{figure}
@@ -277,10 +286,13 @@
    read a file and fill in an empty \texttt{dictionary}.
 
    The format of the \texttt{.mo} file is described in the \texttt{moparser}
-   module's top banner. The format is dissected and described further in the
-   files
-   \texttt{library/tests/mo/es/newt.hex} and
-   \texttt{library/tests/mo/de/helloworld.hex}.
+   module's top banner. The format is dissected and described further in these
+   files:
+
+   \begin{verbatim}
+      library/tests/mo/es/newt.hex
+      library/tests/mo/de/helloworld.hex
+   \end{verbatim}
 
    Note the \texttt{moparser::header} structure, which provides
    the layout of the first few words in the \texttt{.mo} file.
@@ -309,7 +321,7 @@
 
 \begin{figure}[H]
    \centering 
-   \includegraphics[scale=0.5]{extractor.png}
+   \includegraphics[scale=0.4]{extractor.png}
    \caption{Binary Data Extractor (po::extractor)}
    \label{fig:potext_extractor}
 \end{figure}

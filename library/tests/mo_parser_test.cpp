@@ -30,7 +30,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-04-02
- * \updates       2024-04-03
+ * \updates       2024-04-07
  * \license       See above.
  *
  */
@@ -75,6 +75,7 @@ po::phraselist s_all_files
     "library/tests/mo/es/colord.mo",
     "library/tests/mo/es/garcon.mo",
     "library/tests/mo/es/new.mo"
+    "library/tests/mo/de/helloworld.mo"
 };
 
 } // namespace
