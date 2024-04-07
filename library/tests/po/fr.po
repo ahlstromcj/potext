@@ -13,8 +13,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/actions/bridger.cxx:48 src/actions/bridger.cxx:232
-#: src/pingu_enums.cxx:40
 msgid "invalid"
 msgstr "ungütig"
 

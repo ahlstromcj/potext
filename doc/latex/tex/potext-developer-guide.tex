@@ -76,8 +76,10 @@
    \textsl{tinygettext} library (\cite{tinygettext}).
    The purpose of that library is to provide a lightweight mechanism
    to do translations using the
-   \textsl{Portable Object} translation files, \texttt{*.po}, directly,
-   rather than \textsl{Machine Object} files, \texttt{*.mo}.
+   \textsl{Portable Object} translation files, \texttt{*.po}, directly.
+   Also incorporated are some elements of the
+   \textsl{simple-gettext} library (\cite{simplegettext})
+   to support handling \textsl{Machine Object} files, \texttt{*.mo}.
 
    The purpose of the \textsl{Potext} library is to provide \texttt{C++}
    functions that mirror the many functions of \textsl{gettext},
@@ -120,27 +122,30 @@
       \item Integration of the functions above with the
          dictionary-manager class.
       \item Support for selecting a domain during the run.
+      \item Support for selecting a \texttt{.po/.mo} file directly
+         and getting domain information from it.
       \item A new class, \texttt{nlsbindings}, to supplement the
          \texttt{language} class.
-      \item Additional test programs, test \texttt{.po} files,
-         test \texttt{.mo} files, and upgrades to existing tests.
       \item Full documentation of architecture and usage.
-      \item \textsl{Meson} \texttt{.wrap} files to use \textsl{Meson}
+      \item \textsl{Meson} \texttt{.wrap} files to use \textsl{Potext}
          as a subproject.
          A sample application project is stored in the tar-file noted
          below.
       \item With version 0.2, \textsl{Potext} can also read
          \textsl{GNU} \texttt{.mo} files for more complete
          compatibility with \textsl{GNU Gettext}.
+      \item Additional test programs, test \texttt{.po} files,
+         test \texttt{.mo} files, and upgrades to existing tests.
    \end{itemize}
 
    With these additions, \textsl{Potext} should be relatively straightforward
    to use in a new \texttt{C++} application.
 
+   The tar-ball
    \texttt{extras/code/mini-potext-test.tar.xz}
    contains a simple application.
-   Unpack the tar-file into its own directory
-   and build it by running the
+   Unpack the tar-ball into its own directory
+   and build it by running its
    \texttt{work.sh} script.
 
 \subsection{Deletions from GNU Gettext}

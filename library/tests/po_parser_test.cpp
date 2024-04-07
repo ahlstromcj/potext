@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-04-03
+ * \updates       2024-04-07
  * \license       See above.
  *
  *  The feaures of this test:
@@ -100,6 +100,12 @@ po::phraselist s_all_files
      */
 
     "library/tests/de.po",
+
+    /*
+     * GNU gettext message catalog, ISO-8859.
+     */
+
+    "library/tests/game/de.po",
 
     /*
      * GNU gettext message catalogue, ASCII text.

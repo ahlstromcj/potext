@@ -13,59 +13,45 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/pingus_main.cxx:760
 msgid "PingusMain: Starting Main: "
 msgstr "PingusMain: Hauptteil wird gestartet: "
 
-#: src/pingus_main.cxx:805
 msgid "PingusMain: Levelfile not found, ignoring: "
 msgstr "PingusMain: Leveldatei nicht gefunden, Fehler wird ignoriert: "
 
-#: src/pingus_main.cxx:909
 msgid "Error caught from ClanLib: "
 msgstr "ClanLib Fehler abgefangen: "
 
-#: src/pingus_main.cxx:913
 msgid "Error caught from Pingus: "
 msgstr "Pingus Fehler wurde abgefangen: "
 
-#: src/pingus_main.cxx:917
 msgid "Pingus: Out of memory!"
 msgstr "Pingus: Speicher ist ausgegangen"
 
-#: src/pingus_main.cxx:921
 msgid "Pingus: Standard exception caught!:\n"
 msgstr "Pingus: Standard Ausnahme abgefangen!:\n"
 
-#: src/pingus_main.cxx:925
 msgid "Pingus: Unknown throw caught!"
 msgstr "Pingus: Unbekannte Ausnahme abgefangen!"
 
-#: src/result_screen.cxx:99 src/start_screen.cxx:111
 msgid "Abort"
 msgstr "Abbruch"
 
-#: src/result_screen.cxx:167
 msgid "Retry"
 msgstr "Versuche erneut"
 
-#: src/result_screen.cxx:175
 msgid "Success!"
 msgstr "Erfolg!"
 
-#: src/result_screen.cxx:182
 msgid "Failure!"
 msgstr "Fehler!"
 
-#: src/result_screen.cxx:191
 msgid "Perfect! You saved everyone possible - great!"
 msgstr "Perfekt! Du hast alle gerettet!"
 
-#: src/result_screen.cxx:193
 msgid "No-one got killed, pretty good work."
 msgstr "Keiner wurde getötet, sehr gute Arbeit."
 
-#: src/result_screen.cxx:195
 msgid ""
 "You saved exactly what you needed - you made it, but\n"
 "maybe you can do better?"
@@ -73,23 +59,18 @@ msgstr ""
 "Du hast so viele gerettet wie nötig. Du hast es\n"
 "geschafft, aber vielleicht kannst Du es noch besser?"
 
-#: src/result_screen.cxx:198
 msgid "Not everybody was saved, but still good work!"
 msgstr "Nicht alle wurden gerettet, aber trotzdem noch gute Arbeit!"
 
-#: src/result_screen.cxx:200
 msgid "What can I say, you made it - congratulations!"
 msgstr "Was soll ich sagen, Du hast es geschafft. Gratuliere!"
 
-#: src/result_screen.cxx:205
 msgid "You killed everybody, not good."
 msgstr "Du hast alle getötet, nicht gut."
 
-#: src/result_screen.cxx:207
 msgid "No-one got saved - I know you can do better."
 msgstr "Keiner wurde gerettet, ich weiß, dass du es besser kannst."
 
-#: src/result_screen.cxx:209
 msgid ""
 "You didn't save enough, but you saved a few.  Next\n"
 "time you might do better."
@@ -97,84 +78,64 @@ msgstr ""
 "Du hast nicht genug gerettet, aber immerhin ein paar.\n"
 "Nächstes Mal machst du es bestimmt besser."
 
-#: src/result_screen.cxx:212
 msgid "Only one more and you would have made it - try again!"
 msgstr "Einer mehr und du hast es, versuch es nochmal!"
 
-#: src/result_screen.cxx:214
 msgid "Only a handful more and you would have made it - try again!"
 msgstr "Nur ein paar mehr und du hättest es, versuch es nochmal!"
 
-#: src/result_screen.cxx:216
 msgid "Better luck next time!"
 msgstr "Mehr Glück fürs nächste Mal!"
 
-#: src/result_screen.cxx:232
 msgid "Saved: "
 msgstr "Gerettet: "
 
-#: src/result_screen.cxx:236
 msgid "Died: "
 msgstr "Getötet: "
 
-#: src/result_screen.cxx:240
 msgid "Time left: "
 msgstr "Verbliebene Zeit: "
 
-#: src/screenshot.cxx:45
 msgid "Screenshot: Saving screenshot to: "
 msgstr "Screenshot: Speichere Screenshot als: "
 
-#: src/screenshot.cxx:47
 msgid "Screenshot: Screenshot is done."
 msgstr "Screenshot: Screenshot wurde erstellt."
 
-#: src/screenshot.cxx:53
 msgid "Screenshot: Couldn't save screenshot"
 msgstr "Screenshot: Screenshot konnte nicht gespeichert werden"
 
-#: src/screenshot.cxx:138
 msgid "Screenshot: Couldn't write file: "
 msgstr "Screenshot: Datei konnte nicht geschrieben werden: "
 
-#: src/spot_map.cxx:286
 #, c-format
 msgid "Image has wrong color depth: %d"
 msgstr "Bild hat falsche Farbtiefe: %d"
 
-#: src/start_screen.cxx:75
 msgid "Ok"
 msgstr "Ok"
 
-#: src/start_screen.cxx:158
 msgid "Number of Pingus: "
 msgstr "Anzahl an Pingus: "
 
-#: src/start_screen.cxx:161
 msgid "Number to Save: "
 msgstr "Zu rettende Pingus: "
 
-#: src/start_screen.cxx:164
 msgid "Time: "
 msgstr "Zeit: "
 
-#: src/start_screen.cxx:167
 msgid "Difficulty:"
 msgstr "Schwierigkeitsgrad:"
 
-#: src/start_screen.cxx:175
 msgid "Author: "
 msgstr "Autor: "
 
-#: src/start_screen.cxx:178
 msgid "Filename: "
 msgstr "Dateiname: "
 
-#: src/story.cxx:41
 msgid "The Journey Continues"
 msgstr "Die Reise geht weiter"
 
-#: src/story.cxx:46
 msgid ""
 "Now after you and the Pingus have learned the basics and\n"
 "practiced a bit it is time to move on and begin the journey into\n"
@@ -190,7 +151,6 @@ msgstr ""
 "halten wird, müssen die Pingus etwas anderes finden, um sie auf der\n"
 "Reise zu begleiten.\n"
 
-#: src/story.cxx:58
 msgid ""
 "But as the eldest have said, the Tutorial Island provides not\n"
 "only a good way to practice, but it is also the starting point into\n"
@@ -203,7 +163,6 @@ msgstr ""
 "die Welt, denn das Holz der Bäume am Ende der Insel liefert\n"
 "gutes Material, um ein Floß zu bauen.\n"
 
-#: src/story.cxx:69
 msgid ""
 "So the Pingus set out and constructed some large rafts, enough\n"
 "to carry them all. After also packing a bunch of provisions\n"
@@ -216,7 +175,6 @@ msgstr ""
 "beginnen, den bekannten Bereich zu verlassen und die unbekannten\n"
 "Bereiche der Welt zu betreten.\n"
 
-#: src/story.cxx:79
 msgid ""
 "So the Pingus sit on their raft, worrying about what's to come and\n"
 "where to go, while floating into the sunset.\n"
@@ -228,11 +186,9 @@ msgstr ""
 "\n"
 "Fortsetzung folgt..."
 
-#: src/story.cxx:91
 msgid "The Journey Begins"
 msgstr "Die Reise beginnt"
 
-#: src/story.cxx:96
 msgid ""
 "For a long time, the Pingus have lived happily in peace on the\n"
 "South Pole along with all the other animals. Everything was in\n"
@@ -244,7 +200,6 @@ msgstr ""
 "es schien, als könnte nichts ihren Frieden stören. Die Pingus waren\n"
 "glücklich und es schien, als würde dies niemals enden.\n"
 
-#: src/story.cxx:106
 msgid ""
 "But then one day, things began to change slowly: the sky got darker\n"
 "and the earth got warmer. Firstly, they thought this was just a\n"
@@ -256,7 +211,6 @@ msgstr ""
 "wäre nur eine normale Schwankung im Klima, aber es wurde von Jahr \n"
 "zu Jahr immer schlimmer."
 
-#: src/story.cxx:117
 msgid ""
 "The snow began to melt away in a few areas and food became an\n"
 "issue. Other animals tried to leave the region to search\n"
@@ -269,7 +223,6 @@ msgstr ""
 "dass dies nicht helfen würde, sie wussten, es musste etwas gegen\n"
 "dieses Problem getan werden."
 
-#: src/story.cxx:127
 msgid ""
 "So the circle of the eldest came together to decide what to do\n"
 "about it. They decided to send out an expedition around the world\n"
@@ -281,7 +234,6 @@ msgstr ""
 "zu senden, um den Grund für die Erwärmung zu finden. Die Expedition\n"
 "bestand aus hunderten der mutigsten Pingus des ganzen Südpols."
 
-#: src/story.cxx:137
 msgid ""
 "And they picked you to lead them on their journey around the\n"
 "world. Since the journey will be dangerous and difficult, your\n"
@@ -295,7 +247,6 @@ msgstr ""
 "zufolge war diese Insel immer der erste Anlaufpunkt für Pingus,\n"
 "die in die Welt gesandt wurden."
 
-#: src/story.cxx:148
 msgid ""
 "The island consists of many areas that are ideal to teach the\n"
 "Pingus their abilities. The Pingus can learn to build\n"
@@ -308,7 +259,6 @@ msgstr ""
 "trainieren, die sie sicher auf der langen und gefährlichen Reise\n"
 "benötigen werden."
 
-#: src/story.cxx:158
 msgid ""
 "While there, you can practice your abilities in commanding\n"
 "and guiding the Pingus. You can also get familiar with\n"
@@ -322,7 +272,6 @@ msgstr ""
 "erlernen, sie zu meistern, denn du wirst sie sicher alle auf der\n"
 "Reise um die Welt benötigen."
 
-#: src/story.cxx:169
 msgid ""
 "Now that you and the Pingus have arrived at Tutorial Island it\n"
 "is time to take command and begin your mission.\n"
@@ -334,36 +283,28 @@ msgstr ""
 "\n"
 "Viel Glück!"
 
-#: src/system.cxx:273
 msgid "Environment variable $HOME not set, fix that and start again."
 msgstr ""
 "Umgebungs Variable $HOME ist nicht gesetzt. Setze sie und starte erneut."
 
-#: src/worldmap/level_dot.cxx:174 src/worldmap/level_dot.cxx:184
 msgid "locked"
 msgstr "gesperrt"
 
-#: src/worldmap/manager.cxx:103
 msgid "Show Ending?"
 msgstr "Ende anzeigen?"
 
-#: src/worldmap/manager.cxx:133
 msgid "Show Story?"
 msgstr "Story zeigen?"
 
-#: src/worldmap/manager.cxx:161
 msgid "Leave?"
 msgstr "Verlassen?"
 
-#: src/worldmap/manager.cxx:201
 msgid "Enter?"
 msgstr "Betreten?"
 
-#: src/worldmap/worldmap.cxx:77
 msgid "WorldMap: File not found: "
 msgstr "Worldmap: Datei nicht gefunden: "
 
-#: src/worldmap/worldmap.cxx:261
 msgid "...walking..."
 msgstr "...laufe..."
 

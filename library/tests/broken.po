@@ -15,11 +15,9 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: helloworld.cpp:7
 msgid "Short Hello World"
 msgstr "kurzes Hallo Welt
 
-#: helloworld.cpp:8 helloworld.cpp:14
 #, fuzzy
 msgid "Hello World"
 msgid_plural "Hello Worlds"
@@ -27,7 +25,6 @@ msgstr[0] "Hallo Welt (singular)"
 msgstr[1] "Hallo Welt (plural)"
 msgstr[10] "Hallo Welt (plural)"
 
-#: helloworld.cpp:10 helloworld.cpp:16
 #, fuzzy
 msgctxt ""
 msgid "Hello World"
@@ -35,20 +32,17 @@ msgid_plural "Hello Worlds"
 msgstr[0] Hallo Welt (singular) mit leerem Kontext"
 msgstr[1] "Hallo Welt (plural) mit leerem Kontext"
 
-#: helloworld.cpp:11 helloworld.cpp:17
 msgctxt "console"
 msgid "Hello World"
 msgid_plural "Hello Worlds"
 msgstr[0]"Hallo Welt (singular) in der Console"
 msgstr[1] "Hallo Welt (plural) in der Console"
 
-#: helloworld.cpp:13
 msgid "gui"
 msgid_plural "Hello World"
 msgstr[0]	"Hallo Welt (singular)"
 msgstr[1] "Hallo Welt (plural)"
 
-#: helloworld.cpp:18
 #, fuzzy
 msgctxt "gui"
 msgid "Hello World"
