@@ -54,6 +54,10 @@
 namespace
 {
 
+/**
+ *  Provides the --help option.
+ */
+
 static void
 print_usage (const std::string & arg0)
 {

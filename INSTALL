@@ -1,6 +1,6 @@
 INSTALL for Potext v. 0.2.0 and above
 Chris Ahlstrom
-2024-02-15 to 2024-03-26
+2024-02-15 to 2024-04-08
 
 Meson is the build system for the Potext library. Meson 1.1 and above is
 required. The 'meson.options' file replaces 'meson_options.txt'.
@@ -50,6 +50,12 @@ Subproject:
     -   Copy the desired '.wrap' file from the 'extras/wraps' directory
         into 'subprojects'.
     -   Build!
+
+    An example is included: copy the file extras/code/mini-potext-test.tar.xz
+    to a safe place (such as a temp directory). In that directory, do:
+
+        $ tar xf mini-potext-test.tar.xz
+        $ cd hellopotext
 
 Build tools:
 

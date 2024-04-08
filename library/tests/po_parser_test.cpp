@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-04-07
+ * \updates       2024-04-08
  * \license       See above.
  *
  *  The feaures of this test:
@@ -44,14 +44,14 @@
 #include <cerrno>                       /* errno                            */
 #include <cstdlib>                      /* EXIT_SUCCESS, EXIT_FAILURE       */
 #include <cstring>                      /* std::strerror()                  */
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <stdexcept>
+#include <string>                       /* std::string                      */
+#include <fstream>                      /* std::ifstream                    */
+#include <iostream>                     /* std:cout and cerr                */
+#include <stdexcept>                    /* std::runtime_error               */
 
-#include "po/poparser.hpp"
-#include "po/potext.hpp"
-#include "po/logstream.hpp"
+#include "po/poparser.hpp"              /* po::poparser class               */
+#include "po/potext.hpp"                /* Potext header files              */
+#include "po/logstream.hpp"             /* po::logstream class              */
 
 /*
  *  The usage of an anonymous namespace is essentially the same as using
@@ -155,7 +155,7 @@ po::phraselist s_all_files
  *  Some tests are designed to fail. So failure is success.`
  */
 
-bool
+static bool
 deliberate_error (const std::string & filename)
 {
     return
@@ -214,7 +214,6 @@ main (int argc, char * argv [])
 
         po::logstream::callbacks_set_all(my_log_callback);
         result = EXIT_SUCCESS;
-        for (int i = 1; i < argc; ++i)
         for (const auto & fname : s_all_files)
         {
             std::ifstream in(fname);
