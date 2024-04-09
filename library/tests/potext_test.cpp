@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-04
+ * \updates       2024-04-09
  * \license       See above.
  *
  */
@@ -50,12 +50,32 @@ namespace
 {
 
 static void
-print_msg (const std::string & msgid, const po::phraselist & msgstrs)
+print_msg
+(
+    const std::string & msgid,
+    const std::string & msgid_plural,
+    const po::phraselist & msgstrs
+)
 {
-    std::cout << "Msgid: " << msgid << std::endl;
-    for (auto i = msgstrs.begin(); i != msgstrs.end(); ++i)
+    std::cout << "msgid \"" << msgid << "\""<< std::endl;
+    if (msgstrs.size() > 1)
     {
-        std::cout << *i << std::endl;
+        std::size_t count = 0;
+        if (! msgid_plural.empty())
+            std::cout << "msgid_plural \"" << msgid_plural << "\"\n";
+
+        for (const auto & msg : msgstrs)
+        {
+            std::cout << "msgstr[" << count++ << "] \""
+                << msg << "\""
+                << std::endl
+                ;
+        }
+    }
+    else
+    {
+        for (const auto & msg : msgstrs)
+            std::cout << "msgstr \"" << msg << "\"" << std::endl;
     }
 }
 
@@ -64,17 +84,12 @@ print_msg_ctxt
 (
     const std::string & ctxt,
     const std::string & msgid,
+    const std::string & msgid_plural,
     const po::phraselist & msgstrs
 )
 {
-    std::cout
-        << "Msgctxt: " << ctxt << "\n"
-        << "Msgid: " << msgid << std::endl
-        ;
-    for (auto i = msgstrs.begin(); i != msgstrs.end(); ++i)
-    {
-        std::cout << *i << std::endl;
-    }
+    std::cout << "msgctxt \"" << ctxt << "\"\n";
+    print_msg(msgid, msgid_plural, msgstrs);
 }
 
 static void

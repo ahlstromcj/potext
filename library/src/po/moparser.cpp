@@ -29,7 +29,7 @@
  * \library       potext
  * \author        simple-gettext; refactoring by Chris Ahlstrom
  * \date          2024-03-25
- * \updates       2024-04-05
+ * \updates       2024-04-08
  * \license       See above.
  *
  * Format of the .mo File:
@@ -298,10 +298,10 @@ moparser::parse_mo_file
                 std::string converted = cvt.convert(tquad.translated);
                 result = dic.add(msgid, converted);
 
-#if defined PLATFORM_DEBUG
+#if defined PLATFORM_DEBUG_TMI
                 std::cout
                     << "Added: '" << tquad.original << "' and '"
-                    << converted
+                    << converted << "'"
                     << std::endl
                     ;
 #endif

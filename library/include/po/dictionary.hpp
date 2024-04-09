@@ -33,7 +33,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-27
+ * \updates       2024-04-09
  * \license       See above.
  *
  */
@@ -60,7 +60,19 @@ class dictionary
 
 private:
 
-    using entries = std::unordered_map<std::string, phraselist>;
+    using entry = struct
+    {
+        std::string msgid_plural;
+        phraselist phrase_list;
+    };
+
+    /*
+     * Replacing this with a construct that lets us capture the msgid_plural
+     *
+     *      using entries = std::unordered_map<std::string, phraselist>;
+     */
+
+    using entries = std::unordered_map<std::string, entry>;
     using ctxtentries = std::unordered_map<std::string, entries>;
 
     /**
@@ -209,6 +221,7 @@ public:
      *      void func
      *      (
      *          const std::string & msgid,
+     *          const std::string & msgid_plural,
      *          const std::vector<std::string> & msgstrs
      *      )
      *
@@ -218,9 +231,9 @@ public:
     template<class FUNC>
     FUNC foreach (FUNC func)
     {
-        for (const auto & i : m_entries)
+        for (const auto & e : m_entries)
         {
-            func(i.first, i.second);
+            func(e.first, e.second.msgid_plural, e.second.phrase_list);
         }
         return func;
     }
@@ -243,7 +256,11 @@ public:
         {
             for (const auto & j : i.second)
             {
-                func(i.first, j.first, j.second);
+                func
+                (
+                    i.first, j.first, j.second.msgid_plural,
+                    j.second.phrase_list
+                );
             }
         }
         return func;

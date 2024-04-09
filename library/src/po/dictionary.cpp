@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-29
+ * \updates       2024-04-09
  * \license       See above.
  *
  */
@@ -124,19 +124,28 @@ dictionary::clear ()
     m_ctxt_entries.clear();
 }
 
+/**
+ *  Translate an entry in this dictionary. Short overload.
+ */
+
 std::string
 dictionary::translate (const std::string & msgid) const
 {
     return translate(m_entries, msgid);
 }
 
+/**
+ *  Translate an entry in this dictionary without regard to context or plural
+ *  forms.
+ */
+
 std::string
-dictionary::translate (const entries & dict, const std::string & msgid) const
+dictionary::translate (const entries & ents, const std::string & msgid) const
 {
-    entries::const_iterator i = dict.find(msgid);
-    if (i != dict.end() && !i->second.empty())
+    entries::const_iterator it = ents.find(msgid);
+    if (it != ents.end() && ! it->second.phrase_list.empty())
     {
-        return i->second[0];
+        return it->second.phrase_list[0];
     }
     else
     {
@@ -215,7 +224,7 @@ dictionary::translate_plural
     if (it != dict.end())
     {
         unsigned n = m_plural_forms.get_plural(N);
-        const phraselist & msgstrs = it->second;
+        const phraselist & msgstrs = it->second.phrase_list;
         if (n >= unsigned(msgstrs.size()))
         {
             logstream::error()
@@ -254,6 +263,9 @@ dictionary::translate_plural
  *  different meaning. For example "exit" might mean to quit doing
  *  something or it might refer to a door that leads outside (i.e.
  *  'Ausgang' vs 'Beenden' in german).
+ *
+ *  In translate(it->second, msgid), the iterator points to a ctxtentry,
+ *  and second is an entries map.
  */
 
 std::string
@@ -263,10 +275,10 @@ dictionary::translate_ctxt
     const std::string & msgid
 ) const
 {
-    auto i = m_ctxt_entries.find(msgctxt);
-    if (i != m_ctxt_entries.end())
+    auto it = m_ctxt_entries.find(msgctxt);
+    if (it != m_ctxt_entries.end())
     {
-        return translate(i->second, msgid);
+        return translate(it->second, msgid);
     }
     else
     {
@@ -288,10 +300,10 @@ dictionary::translate_ctxt_plural
     int num
 ) const
 {
-    auto i = m_ctxt_entries.find(msgctxt);
-    if (i != m_ctxt_entries.end())
+    auto it = m_ctxt_entries.find(msgctxt);
+    if (it != m_ctxt_entries.end())
     {
-        return translate_plural(i->second, msgid, msgidplural, num);
+        return translate_plural(it->second, msgid, msgidplural, num);
     }
     else
     {
@@ -362,9 +374,9 @@ dictionary::add
     }
     else
     {
-        phraselist msgstrs;
-        msgstrs.push_back(msgstr);
-        m_entries[msgid] = msgstrs;
+        entry en;                       /* empty plural ID plus phrase list */
+        en.phrase_list.push_back(msgstr);
+        m_entries[msgid] = en;
         result = true;
 #if defined PLATFORM_DEBUG_TMI
         show_pair(msgid, msgstr);
@@ -424,7 +436,10 @@ dictionary::add
     }
     else
     {
-        m_entries[msgid] = msgstrs;
+        entry en;                       /* empty plural ID plus phrase list */
+        en.msgid_plural = msgid_plural;
+        en.phrase_list = msgstrs;
+        m_entries[msgid] = en;
         result = true;
 #if defined PLATFORM_DEBUG_TMI
         show_pair(msgid, msgid_plural);
@@ -446,7 +461,7 @@ dictionary::add
     const std::string & msgstr
 )
 {
-    phraselist & phrases = m_ctxt_entries[msgctxt][msgid];
+    phraselist & phrases = m_ctxt_entries[msgctxt][msgid].phrase_list;
     if (phrases.empty())
     {
         phrases.push_back(msgstr);
@@ -495,7 +510,7 @@ dictionary::add
     const phraselist & msgstrs
 )
 {
-    phraselist & phrases = m_ctxt_entries[msgctxt][msgid];
+    phraselist & phrases = m_ctxt_entries[msgctxt][msgid].phrase_list;
     if (phrases.empty())
     {
         phrases = msgstrs;
