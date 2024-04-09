@@ -39,12 +39,18 @@
  */
 
 #include <string>
-#include <unordered_map>
 
 #include "c_macros.h"                   /* not_nullptr() macro function     */
 #include "platform_macros.h"            /* OS & debug macroes etc.          */
+#include "po_build_macros.h"            /* feature macros with explanations */
 #include "po/po_types.hpp"              /* po::phraselist string-vector     */
 #include "po/pluralforms.hpp"           /* po::pluralforms class            */
+
+#if defined POTEXT_USE_UNORDERED_DICTIONARY
+#include <unordered_map>
+#else
+#include <map>
+#endif
 
 namespace po
 {
@@ -60,6 +66,11 @@ class dictionary
 
 private:
 
+    /**
+     *  We want to be able to store the plural message ID. So instead
+     *  of just a phrase list, we add that string and use this structure.
+     */
+
     using entry = struct
     {
         std::string msgid_plural;
@@ -67,13 +78,19 @@ private:
     };
 
     /*
-     * Replacing this with a construct that lets us capture the msgid_plural
+     * Replacing this with a construct that lets us capture the
+     * msgid_plural.
      *
      *      using entries = std::unordered_map<std::string, phraselist>;
      */
 
+#if defined POTEXT_USE_UNORDERED_DICTIONARY
     using entries = std::unordered_map<std::string, entry>;
     using ctxtentries = std::unordered_map<std::string, entries>;
+#else
+    using entries = std::map<std::string, entry>;
+    using ctxtentries = std::map<std::string, entries>;
+#endif
 
     /**
      *  Holds a set of phraselists, each of which is a vector of message

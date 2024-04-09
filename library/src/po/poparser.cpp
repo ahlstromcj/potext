@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-31
+ * \updates       2024-04-09
  * \license       See above.
  *
  */
@@ -312,6 +312,11 @@ poparser::parse_header (const std::string & header)
         warning(_("No Content-Type header detected"));
 
     std::string::size_type pluralpos = header.find("Plural-Forms");
+
+    /*
+     * TODO TODO TODO: increment to get to nplurals.
+     */
+
     if (pluralpos != std::string::npos)
     {
         std::string::size_type slashpos = header.find_first_of
@@ -325,7 +330,7 @@ poparser::parse_header (const std::string & header)
             pluralforms plural_forms = pluralforms::from_string(plurals);
             if (! plural_forms)
             {
-                warning(_("Unknown Plural-Forms"));
+                warning(_("Unknown .po Plural-Forms"));
                 /*
                  * TODO: m_plural_forms = "nplurals=1; plural=0";
                  */
@@ -610,10 +615,9 @@ next:
             }
             if (msgctxt.empty())
             {
-                /*
-                 * TODO: convert the msglist.
-                 */
-
+#if defined USE_CONVERT_LIST
+                msglist = convert_list(msglist);
+#endif
                 (void) dict().add(msgid, msgid_plural, msglist);
             }
             else
@@ -622,10 +626,9 @@ next:
                 if (msgctxt != MSGCTXT_EMPTY_FLAG)
                     ctxt = msgctxt;
 
-                /*
-                 * TODO: convert the msglist.
-                 */
-
+#if defined USE_CONVERT_LIST
+                msglist = convert_list(msglist);
+#endif
                 (void) dict().add(ctxt, msgid, msgid_plural, msglist);
             }
         }
@@ -644,16 +647,14 @@ next:
         {
             std::string msgconversion = converter().convert(msglist[i]);
             std::cout
-                << "msgstr[" << i << "] \"" << msgconvertsion
+                << "msgstr[" << i << "] \"" << msgconversion
                 << "\""
                 << std::endl
                 ;
-#if defined PLATFORM_DEBUG_TMI
             if (msgconversion.empty())
             {
                 std::cout << "ERROR in " << m_filename << std::endl;
             }
-#endif
         }
         std::cout << std::endl;
 #endif
@@ -661,8 +662,55 @@ next:
     return result;
 }
 
+#if defined USE_FIX_HEADER_MO
+
 /**
- *  Message context and message ID.
+ *  Fixes the header as parsed earlier by changing backlashes to newlines
+ *  (0x0A). This matches what is stored in a .mo file.
+ */
+
+static std::string
+fix_header_mo (const std::string & header)
+{
+    std::string result;
+    for (auto ch : header)
+    {
+        if (ch == '\\')
+            result += '\n';
+        else
+            result += ch;
+    }
+    return result;
+}
+
+#endif  // defined USE_FIX_HEADER_MO
+
+/**
+ *  Fixes the header as parsed earlier by changing backlashes to the
+ *  string "\n" and adding quotes.  This matches what is stored in a
+ *  .po file.
+ */
+
+static std::string
+fix_header_po (const std::string & header)
+{
+    std::string result = "\"";          /* start with a double-quote char   */
+    for (auto ch : header)
+    {
+        result += ch;
+        if (ch == '\\')                 /* essentially an end-of-liner      */
+            result += "n\"\n\"";      /* Add \n" plus newline and next "  */
+    }
+    if (result.back() == '"')
+        result.pop_back();              /* remove last quote character      */
+
+    return result;
+}
+
+/**
+ *  Message context and message ID. This function, as of version 0.2,
+ *  stores the header with the first (empty) message ID, similar to
+ *  the moparser processing.
  */
 
 bool
@@ -678,6 +726,11 @@ poparser::get_msgstr
     if (msgid.empty())
     {
         result = parse_header(msgstr);
+        if (result)
+        {
+            msgstr = fix_header_po(msgstr);
+            (void) dict().add(msgid, msgstr);
+        }
     }
     else if (msgstr.empty())
     {

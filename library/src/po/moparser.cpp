@@ -29,7 +29,7 @@
  * \library       potext
  * \author        simple-gettext; refactoring by Chris Ahlstrom
  * \date          2024-03-25
- * \updates       2024-04-08
+ * \updates       2024-04-09
  * \license       See above.
  *
  * Format of the .mo File:
@@ -474,16 +474,34 @@ moparser::load_plural_form_name ()
     else
     {
         m_plural_forms_parsed = true;
+
+        /*
+         * TODO TODO TODO:
+         *
+         *      Make this match .po plural forms, and peel off
+         *      "Plural-Forms:"
+         */
+
         std::size_t pos = xtract.find_offset(s_plural_forms);
         if (xtract.valid_offset(pos))
         {
             std::string pftemp = xtract.get_delimited(pos + s_plural_size);
             if (! pftemp.empty())
             {
-                m_plural_forms = pftemp;
+                /**
+                 * Remove spaces from plural-forms description string.
+                 * This matches the behavior in the poparser class.
+                 */
+
+                m_plural_forms.clear();
+                for (auto c : pftemp)
+                {
+                    if (! std::isspace(c))
+                        m_plural_forms += c;
+                }
             }
             else
-                m_plural_forms = "nplurals=1; plural=0";
+                m_plural_forms = "nplurals=1;plural=0";
 
             result = m_plural_forms;
             if (! result.empty())
@@ -491,7 +509,7 @@ moparser::load_plural_form_name ()
                 pluralforms plural_forms = pluralforms::from_string(result);
                 if (! plural_forms)
                 {
-                    warning(_("Unknown Plural-Forms"));
+                    warning(_("Unknown .mo Plural-Forms"));
                 }
                 else
                 {

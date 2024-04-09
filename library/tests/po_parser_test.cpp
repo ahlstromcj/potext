@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-04-08
+ * \updates       2024-04-09
  * \license       See above.
  *
  *  The feaures of this test:
@@ -108,7 +108,9 @@ po::phraselist s_all_files
     "library/tests/game/de.po",
 
     /*
-     * GNU gettext message catalogue, ASCII text.
+     * GNU gettext message catalogue, ASCII text. It has one stanza with
+     * an empty msgctxt string. It has one with a msgid of "gui" and
+     * a msgid_plural of "Hello World" (singular!).
      */
 
     "library/tests/helloworld/de.po",

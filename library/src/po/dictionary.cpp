@@ -262,7 +262,7 @@ dictionary::translate_plural
  *  is a way to disambiguate msgids that contain the same letters, but
  *  different meaning. For example "exit" might mean to quit doing
  *  something or it might refer to a door that leads outside (i.e.
- *  'Ausgang' vs 'Beenden' in german).
+ *  'Ausgang' vs 'Beenden' in German).
  *
  *  In translate(it->second, msgid), the iterator points to a ctxtentry,
  *  and second is an entries map.
@@ -450,7 +450,7 @@ dictionary::add
 }
 
 /**
- *  Message context.
+ *  Message context. The new entry has an empty msgid_plural string.
  */
 
 bool
@@ -461,7 +461,8 @@ dictionary::add
     const std::string & msgstr
 )
 {
-    phraselist & phrases = m_ctxt_entries[msgctxt][msgid].phrase_list;
+    entry & ent = m_ctxt_entries[msgctxt][msgid];
+    phraselist & phrases = ent.phrase_list;
     if (phrases.empty())
     {
         phrases.push_back(msgstr);
@@ -484,6 +485,10 @@ dictionary::add
  *  message ID) for that context string. Then m_ctxt_entries[ctxt][id]
  *  is the list of phrases for that context and message ID.
  *
+ *      entries & cents = m_ctxt_entries[msgctxt];
+ *      entry & ent = m_ctxt_entries[msgctxt][msgid];
+ *      phraselist & phrases = m_ctxt_entries[msgctxt][msgid].phrase_list;
+ *
  * \param msgctxt
  *      Provides the context string to use to select the proper translation.
  *
@@ -491,14 +496,14 @@ dictionary::add
  *      The English form of the message.
  *
  * \param msgid_plural
- *      Used only for warning output, same as in tinygettext. It refers to the
- *      English version of the plural. The selection of the plural form(s) is
- *      triggered by explicit function calls. Only the singular form takes
- *      part in the lookup.
+ *      No longer only for warning output, as done in tinygettext. It refers
+ *      to the English version of the plural. The selection of the plural
+ *      form(s) is triggered by explicit function calls. Only the singular
+ *      form takes part in the lookup.
  *
  * \param msgstrs
- *      Provides a list of the various plural forms translations of the plural
- *      message ID.
+ *      Provides a list of the singular form plus the various plural forms
+ *      translations of the plural message ID.
  */
 
 bool
@@ -510,9 +515,11 @@ dictionary::add
     const phraselist & msgstrs
 )
 {
-    phraselist & phrases = m_ctxt_entries[msgctxt][msgid].phrase_list;
-    if (phrases.empty())
+    entry & ent = m_ctxt_entries[msgctxt][msgid];
+    phraselist & phrases = ent.phrase_list;
+    if (phrases.empty())                    /* i.e. a new ctxt/msgid combo  */
     {
+        ent.msgid_plural = msgid_plural;
         phrases = msgstrs;
     }
     else if (phrases != msgstrs)

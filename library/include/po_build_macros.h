@@ -27,13 +27,13 @@
 /**
  * \file          po_build_macros.h
  *
- *      Macros that depend upon the decisions select to build the
+ *      Macros that depend upon the features selected to build the
  *      library.
  *
  * \library       potext
  * \author        Gary P. Scavone; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-04-01
+ * \updates       2024-04-09
  * \license       See above.
  *
  * Introduction:
@@ -42,6 +42,7 @@
  *      This file presents features that depend upon the build platform, and
  *      build options that might be considered permanent.
  *
+ *      These could also be provided in the meson.options configuration file.
  */
 
 #include "platform_macros.h"            /* generic detecting of OS platform */
@@ -69,7 +70,7 @@
 
 /**
  *  For the "po" text source code, enable/disable the addition of all
- *  languages that can be support. Undefine for testing,  to
+ *  languages that can be support. Undefine for testing, to
  *  support the most prevalent languages using the ABC alphabet.
  */
 
@@ -83,13 +84,10 @@
 #undef POTEXT_BUILD_CATEGORY_SUPPORT
 
 /**
- *  If true, support handling wide-string directory names, etc.  If false, all
- *  functions with std::wstring parameters are commented out. If true, in most
- *  cases we try to use std::codecvt etc. We wonder how much extra code this
- *  brings in.
+ *  Use the SDL library?  What is dat? We'll leave it undefined.
  */
 
-#define POTEXT_WIDE_STRING_SUPPORT
+#undef POTEXT_PO_WITH_SDL
 
 /**
  *  We do not need to use operator = () to set up some static
@@ -99,10 +97,24 @@
 #undef POTEXT_USE_BRUTE_FORCE_INITIALIZATION
 
 /**
- *  Use the SDL library?  What is dat? We'll leave it undefined.
+ *  The tinygettext project used std::unordered_map in the dictionary
+ *  for speed. However, we want to use ordered pairs of message IDs
+ *  and message strings. Makes for nicer output when writing out the
+ *  dictionary.
+ *
+ *  Define this macro if you care more about speed.
  */
 
-#undef POTEXT_PO_WITH_SDL
+#undef POTEXT_USE_UNORDERED_DICTIONARY
+
+/**
+ *  If true, support handling wide-string directory names, etc.  If false, all
+ *  functions with std::wstring parameters are commented out. If true, in most
+ *  cases we try to use std::codecvt etc. We wonder how much extra code this
+ *  brings in.
+ */
+
+#define POTEXT_WIDE_STRING_SUPPORT
 
 /**
  *  To do: improve the naming.
