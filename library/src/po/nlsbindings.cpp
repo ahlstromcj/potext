@@ -25,7 +25,7 @@
 /**
  * \file          nlsbindings.cpp
  *
- *  Macros that depend upon the build platform.
+ *      A reimplementation of gettext domain/directory binding functions.
  *
  * \library       potext
  * \author        gettext; refactoring by Chris Ahlstrom

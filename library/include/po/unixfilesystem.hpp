@@ -28,7 +28,8 @@
 /**
  * \file          unixfilesystem.hpp
  *
- *  Macros that depend upon the build platform.
+ *      A class for dealing with reading directories and files using the
+ *      facility of std::filesystem.
  *
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
@@ -36,6 +37,7 @@
  * \updates       2024-03-05
  * \license       See above.
  *
+ *      This code requires C++17 and above.
  */
 
 #include "filesystem.hpp"               /* po::filesystem v std::filesystem */

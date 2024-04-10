@@ -23,9 +23,9 @@
  */
 
 /**
- * \file          language.hpp
+ * \file          language.cpp
  *
- *  Macros that depend upon the build platform.
+ *      Provides support for language lookups.
  *
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom

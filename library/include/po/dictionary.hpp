@@ -28,7 +28,7 @@
 /**
  * \file          dictionary.hpp
  *
- *  Macros that depend upon the build platform.
+ *      Provides a searchable repository for message translations.
  *
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom

@@ -25,7 +25,7 @@
 /**
  * \file          gettextex.cpp
  *
- *  Macros that depend upon the build platform.
+ *      Extra gettext functions; unused.
  *
  * \library       potext
  * \author        GNU gettext.h; refactoring by Chris Ahlstrom

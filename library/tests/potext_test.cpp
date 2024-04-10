@@ -25,12 +25,12 @@
 /**
  * \file          potext_test.cpp
  *
- *  Macros that depend upon the build platform.
+ *      A large set of tests for various aspects of the Potext library.
  *
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-04-09
+ * \updates       2024-04-10
  * \license       See above.
  *
  */
@@ -42,9 +42,11 @@
 #include <stdexcept>                    /* std::runtime_error               */
 
 #include "po/logstream.hpp"             /* po::logstream::get_test_error()  */
+#include "po/moparser.hpp"              /* po::moparser class               */
 #include "po/poparser.hpp"              /* po::poparser class               */
 #include "po/potext.hpp"                /* #includes three header files     */
 #include "po/unixfilesystem.hpp"        /* po::unixfilesystem               */
+#include "po/wstrfunctions.hpp"         /* po::is_po_file(), is_mo_file()   */
 
 namespace
 {
@@ -131,8 +133,22 @@ read_dictionary (const std::string & filename, po::dictionary & dict)
     }
     else
     {
-        bool ok = po::poparser::parse_po_file(filename, in, dict);
-        in.close();
+        bool ok = false;
+        if (po::is_po_file(filename))
+        {
+            ok = po::poparser::parse_po_file(filename, in, dict);
+        }
+        else if (po::is_mo_file(filename))
+        {
+            ok = po::moparser::parse_mo_file(filename, in, dict);
+        }
+
+        /*
+         * Done in destructor.
+         *
+         * in.close();
+         */
+
         if (! ok)
             throw std::runtime_error("Could not parse " + filename);
     }

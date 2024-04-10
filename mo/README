@@ -1,0 +1,14 @@
+MO Directory for the Potext Library
+Chris Ahlstrom
+2024-04-10 to 2024-04-10
+
+This directory will contain the *.mo files specific to the potext library,
+to translate its text output.
+
+For now, it contains some of the stock files from the gettext-runtime/po
+directory, but translated by "msgfmt" to *.mo files.
+
+Note that these *.mo files are distinguished from the ones in
+library/tests.
+
+# vim: sw=4 ts=4 wm=8 et ft=sh

@@ -28,7 +28,7 @@
 /**
  * \file          languagespecs.hpp
  *
- *  Macros that depend upon the build platform.
+ *      Provides a structure to hold the characteristics of a language.
  *
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom

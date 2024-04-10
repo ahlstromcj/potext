@@ -23,7 +23,7 @@
  */
 
 /**
- * \file          po_parser_test.hpp
+ * \file          po_parser_test.cpp
  *
  *      Simple test of parsing .po files.
  *
@@ -90,7 +90,8 @@ my_log_callback (const std::string & err)
 po::phraselist s_all_files
 {
     /*
-     * GNU gettext message catalogue, ASCII text.
+     * GNU gettext message catalogue, ASCII text. It is deliberately
+     * erroneous: no closing quote at line 19.
      */
 
     "library/tests/broken.po",              /* erroneous, no closing quote  */
@@ -206,9 +207,12 @@ main (int argc, char * argv [])
     }
     if (runtest)
     {
-        if (arg1 != "--all")
+        if (arg1 == "--all")
         {
             runall = true;
+        }
+        else
+        {
             s_all_files.clear();
             for (int i = 1; i < argc; ++i)
             {

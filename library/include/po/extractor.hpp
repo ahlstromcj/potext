@@ -28,7 +28,7 @@
 /**
  * \file          extractor.hpp
  *
- *      A class to process binary data.
+ *      A class to process binary data present in .mo files.
  *
  * \library       potext
  * \author        Chris Ahlstrom

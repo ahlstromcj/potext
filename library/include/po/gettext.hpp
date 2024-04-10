@@ -22,7 +22,7 @@
 /**
  * \file          gettext.hpp
  *
- *  Universal types for the potext library
+ *      Declares reimplementations of gettext functions in the po namespace.
  *
  * \library       potext
  * \author        Chris Ahlstrom

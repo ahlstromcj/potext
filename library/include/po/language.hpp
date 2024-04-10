@@ -28,7 +28,7 @@
 /**
  * \file          language.hpp
  *
- *  Macros that depend upon the build platform.
+ *      Provides a representation for languages used in translation.
  *
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom

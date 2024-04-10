@@ -472,7 +472,6 @@ moparser::load_plural_form_name ()
      * static std::size_t s_plural_size{s_plural_forms.length()};      // 23
      */
 
-    static std::string s_plural_forms{"nplurals="};
     extractor xtract(m_mo_data);                    /* binary data access   */
     if (m_swapped_bytes)
         xtract.set_swapped_bytes();
@@ -484,6 +483,7 @@ moparser::load_plural_form_name ()
     }
     else
     {
+        static std::string s_plural_forms{"nplurals="};
         std::size_t pos = xtract.find_offset(s_plural_forms);
         if (xtract.valid_offset(pos))
         {

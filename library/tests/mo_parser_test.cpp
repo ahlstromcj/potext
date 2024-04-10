@@ -23,7 +23,7 @@
  */
 
 /**
- * \file          mo_parser_test.hpp
+ * \file          mo_parser_test.cpp
  *
  *      Simple test of parsing .mo files.
  *

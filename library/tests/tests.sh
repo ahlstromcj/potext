@@ -50,54 +50,81 @@ POTEXT="potext"
 POTEXT_TEST_BINARY_DIR="./build/library/tests"
 POTEXT_TEST="$POTEXT_TEST_BINARY_DIR/potext_test"
 HELLO_POTEXT="$POTEXT_TEST_BINARY_DIR/hellopotext"
+MO_PARSER_TEST="$POTEXT_TEST_BINARY_DIR/mo_parser_test"
 PO_PARSER_TEST="$POTEXT_TEST_BINARY_DIR/po_parser_test"
 POTEXT_TEST_DIR="./library/tests"
 POTEXT_TEST_LINES="$POTEXT_TEST_DIR/testlines.list"
 COUNTER=0
-LASTRESULT="PASSED"
 RESULT="PASSED"
 
 echo "test.sh run started at"
 date
+
+#----------------------------------------------------------------------------
+
 echo
 echo "$HELLO_POTEXT:"
 echo
+LASTRESULT="PASSED"
 $HELLO_POTEXT
 if test $? != 0 ; then
    LASTRESULT="FAILED"
    RESULT="FAILED"
 fi
-echo "[$LASTRESULT] hellopotext $INLINE"
+echo "[$LASTRESULT] hellopotext"
+
+#----------------------------------------------------------------------------
+
+echo
+echo "$PO_PARSER_TEST --all:"
+echo
 LASTRESULT="PASSED"
-echo
-echo "$PO_PARSER_TEST:"
-echo
 $PO_PARSER_TEST --all
 if test $? != 0 ; then
    LASTRESULT="FAILED"
    RESULT="FAILED"
 fi
-echo "[$LASTRESULT] potext_test $INLINE"
+echo "[$LASTRESULT] po_parser_text"
+
+#----------------------------------------------------------------------------
+
+echo
+echo "$MO_PARSER_TEST --all:"
+echo
 LASTRESULT="PASSED"
+$MO_PARSER_TEST --all
+if test $? != 0 ; then
+   LASTRESULT="FAILED"
+   RESULT="FAILED"
+fi
+echo "[$LASTRESULT] mo_parser_text"
+
+#----------------------------------------------------------------------------
+
 echo
-echo "$POTEXT_TEST:"
+echo "$POTEXT_TEST tests from $POTEXT_TEST_LINES:"
 echo
+LASTRESULT="PASSED"
 while IFS= read -r INLINE
 do
     FIRST=$(printf %.1s "$INLINE")
     if test "$FIRST" != "#" -a "$FIRST" != "" ; then
-        echo "$POTEXT_TEST $INLINE"
-        $POTEXT_TEST $INLINE
-        if test $? != 0 ; then
-            LASTRESULT="FAILED"
-            RESULT="FAILED"
-            echo "TEST FAILED: $INLINE"
-        fi
-        echo "  $COUNTER [$LASTRESULT] potext_test $INLINE"
-         LASTRESULT="PASSED"
-        COUNTER=$((COUNTER+1))
+      echo "$POTEXT_TEST $INLINE"
+      $POTEXT_TEST $INLINE
+      if test $? != 0 ; then
+         LASTRESULT="FAILED"
+         RESULT="FAILED"
+         echo "TEST FAILED: $INLINE"
+      fi
+      echo "  $COUNTER [$LASTRESULT] potext_test $INLINE"
+      LASTRESULT="PASSED"
+      COUNTER=$((COUNTER+1))
     fi
 done < $POTEXT_TEST_LINES
+
+#----------------------------------------------------------------------------
+
+echo
 echo "OVERALL RESULT: $RESULT"
 
 #******************************************************************************

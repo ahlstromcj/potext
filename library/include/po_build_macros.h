@@ -97,11 +97,11 @@
 #undef POTEXT_PO_WITH_SDL
 
 /**
- *  We do not need to use operator = () to set up some static
- *  arrays. We'll keep this around just in case.
+ *  We do not need to use operator = () to set up some static arrays
+ *  . We'll keep this around just in case someone really needs it.
  */
 
-#define POTEXT_BRUTE_FORCE_INITIALIZER
+#undef POTEXT_BRUTE_FORCE_INITIALIZER
 
 /**
  *  The tinygettext project used std::unordered_map in the dictionary

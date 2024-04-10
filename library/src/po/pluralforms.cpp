@@ -23,9 +23,9 @@
  */
 
 /**
- * \file          pluralforms.hpp
+ * \file          pluralforms.cpp
  *
- *  Macros that depend upon the build platform.
+ *      Support for looking up .po/.mo Plural-Forms and applying them.
  *
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
@@ -118,11 +118,20 @@ plural2_mk_2 (int n)
 }
 
 static unsigned
+plural3_es (int n)
+{
+    return static_cast<unsigned>
+    (
+        n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2
+    );
+}
+
+static unsigned
 plural3_lv (int n)
 {
     return static_cast<unsigned>
     (
-        n % 10 ==1 && n % 100 != 11 ? 0 : n != 0 ? 1 : 2
+        n % 10 == 1 && n % 100 != 11 ? 0 : n != 0 ? 1 : 2
     );
 }
 
@@ -353,12 +362,12 @@ pluralforms::from_string (const std::string & str)
     /*
      * Note that the plural forms here shouldn't contain any spaces.
      * Also note we use the C/C++ feature of string concatenation.
+     * Lastly, note that we could also replace all of the explicit static
+     * functions with lambda functions. A job for when we feel ambitious.
      */
 
 #if defined POTEXT_BRUTE_FORCE_INITIALIZER
-
 #include "po/bfplurals.hpp"             /* brute-force initialization       */
-
 #else
 
     static map s_plural_forms
@@ -386,6 +395,16 @@ pluralforms::from_string (const std::string & str)
         {
             PF "2" PE "(n%10==1&&n%100!=11)?0:1;",
             pluralforms(2, plural2_mk_2)
+        },
+
+        /*
+         * New for version 0.2. Found in the files
+         * library/tests/mo/es/colord.mo and garcon.mo.
+         */
+
+        {
+            PF "3" PE "n==1?0:n!=0&&n%1000000==0?1:2;",
+            pluralforms(2, plural3_es)
         },
         {
             PF "3" PE "n%10==1&&n%100!=11?0:n!=0?1:2);",
@@ -482,17 +501,20 @@ pluralforms::from_string (const std::string & str)
 #endif
 
     /**
-     * Remove spaces from string before lookup.
+     * Remove spaces from string before lookup. Also, .mo files do not
+     * terminate the plural-form with a semi-colon, so we restore it here.
      */
 
-    std::string space_less_str;
+    std::string spaceless_str;
     for (auto c : str)
     {
         if (! std::isspace(c))
-            space_less_str += c;
+            spaceless_str += c;
     }
+    if (spaceless_str.back() != ';')
+        spaceless_str += ';';
 
-    map::const_iterator it = s_plural_forms.find(space_less_str);
+    map::const_iterator it = s_plural_forms.find(spaceless_str);
     return it != s_plural_forms.end() ? it->second : pluralforms() ;
 }
 

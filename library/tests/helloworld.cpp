@@ -23,7 +23,7 @@
  */
 
 /**
- * \file          helloworld.hpp
+ * \file          helloworld.cpp
  *
  *      This test program uses GNU gettext itself, along with associated
  *      macroes found in the copy of gettext.h in the potext/library/include

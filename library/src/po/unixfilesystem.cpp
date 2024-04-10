@@ -25,7 +25,7 @@
 /**
  * \file          unixfilesystem.cpp
  *
- *  Macros that depend upon the build platform.
+ *      Provides access to std::filesystem.
  *
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom

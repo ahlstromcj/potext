@@ -28,7 +28,7 @@
 /**
  * \file          gettextex.hpp
  *
- *  Universal types for the potext library
+ *      Additional functions for the potext library; unused.
  *
  * \library       potext
  * \author        Chris Ahlstrom

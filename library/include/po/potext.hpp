@@ -28,7 +28,7 @@
 /**
  * \file          potext.hpp
  *
- *  Replaces tinygettext.hpp for use in applications.
+ *      Replaces tinygettext.hpp for use in applications.
  *
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom

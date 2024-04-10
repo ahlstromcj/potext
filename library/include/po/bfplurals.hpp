@@ -35,10 +35,9 @@
  * \updates       2024-04-10
  * \license       See above.
  *
- *  This file is needed only if one needs to support compilers to old to
- *  support static initializers.
- *
- *  This module is best edited in wide-screen.
+ *      This file is needed only if one needs to support compilers to old to
+ *      support static initializers.  This module is best edited in
+ *      wide-screen.
  */
 
 /**

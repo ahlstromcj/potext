@@ -25,7 +25,8 @@
 /**
  * \file          gettext.cpp
  *
- *  Macros that depend upon the build platform.
+ *      Provides a set of free functions in the po namespace that
+ *      reimplement a number of GNU gettext functions.
  *
  * \library       potext
  * \author        Chris Ahlstrom

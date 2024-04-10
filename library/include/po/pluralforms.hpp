@@ -28,7 +28,7 @@
 /**
  * \file          pluralforms.hpp
  *
- *  Macros that depend upon the build platform.
+ *      Provides a class for working with plural-forms in translations.
  *
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom

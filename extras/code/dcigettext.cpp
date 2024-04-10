@@ -25,7 +25,7 @@
 /**
  * \file          dcigettext.cpp
  *
- *  Macros that depend upon the build platform.
+ *      Sample function for potext; unused.
  *
  * \library       potext
  * \author        GNU gettext.h; refactoring by Chris Ahlstrom

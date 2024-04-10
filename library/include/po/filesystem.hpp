@@ -28,7 +28,7 @@
 /**
  * \file          filesystem.hpp
  *
- *  Macros that depend upon the build platform.
+ *      Provides code for working with file-systems and streams.
  *
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom

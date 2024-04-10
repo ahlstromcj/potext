@@ -28,7 +28,7 @@
 /**
  * \file          iconvert.hpp
  *
- *      Macros that depend upon the build platform.
+ *      A reimplementation of tinygettext::IConv.
  *
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom

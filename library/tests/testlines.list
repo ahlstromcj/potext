@@ -6,13 +6,19 @@
 # \library        potext
 # \author         Chris Ahlstrom
 # \date           2024-02-14
-# \update         2024-02-15
+# \update         2024-04-10
 # \version        $Revision$
 #
-#   Provides a list of tests for the potext library.
+#   Provides a list of tests for the potext library, specifically the
+#   test program ./build/library/tests/potext_test.
+#
+#   Run the script ./library/tests/tests.sh to exercise all of these
+#   tests and get the result.
 #
 #   We cannot use quoted phrases in this list of test files because the
 #   shell will not handle them correctly. So these are all one-word tests.
+#
+#   We are slowly adding test to this list.
 #
 #------------------------------------------------------------------------------
 
@@ -59,6 +65,9 @@ translate ./library/tests/helloworld/de.po gui Retry Retries 1
 #------------------------------------------------------------------------------
 # [h] Create a dictionary from 'file' and print the messages and contexts
 #------------------------------------------------------------------------------
+
+list-msgstrs ./library/tests/po/de_AT.po
+list-msgstrs ./library/tests/mo/es/newt.mo
 
 #------------------------------------------------------------------------------
 # Tests [8-11] The original tests from tinygettext; the last three fail.
