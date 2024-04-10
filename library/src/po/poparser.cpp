@@ -288,35 +288,35 @@ bool
 poparser::parse_header (const std::string & header)
 {
     std::string from_charset;
-    std::string::size_type contentpos = header.find
+    std::string::size_type pos = header.find
     (
         "Content-Type: text/plain; charset="
     );
-    if (contentpos != std::string::npos)
+    if (pos != std::string::npos)
     {
-        contentpos = header.find_first_of("=", contentpos + 1);
-        if (contentpos != std::string::npos)
+        pos = header.find_first_of("=", pos + 1);
+        if (pos != std::string::npos)
         {
-            std::string::size_type slashpos = header.find_first_of
-            (
-                "\\", contentpos + 1
-            );
+            ++pos;
+
+            std::string::size_type slashpos = header.find_first_of( "\\", pos);
             if (slashpos != std::string::npos)
             {
-                std::string::size_type count = slashpos - contentpos;
-                from_charset = header.substr(contentpos, count);
+                std::string::size_type count = slashpos - pos;
+                from_charset = header.substr(pos, count);
             }
         }
     }
     else
         warning(_("No Content-Type header detected"));
 
-    std::string::size_type pluralpos = header.find("Plural-Forms");
-
     /*
-     * TODO TODO TODO: increment to get to nplurals.
+     *  We're going right to nplurals instead of this.
+     *
+     *      std::string::size_type pluralpos = header.find("Plural-Forms");
      */
 
+    std::string::size_type pluralpos = header.find("nplurals=");
     if (pluralpos != std::string::npos)
     {
         std::string::size_type slashpos = header.find_first_of

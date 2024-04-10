@@ -130,7 +130,10 @@ po::phraselist s_all_files
 
     /*
      * GNU gettext message catalogue, ISO-8859 text, but specifies
-     * "charset=UTF-8".
+     * "charset=UTF-8". Since the default to-character-set is "UTF-8",
+     * no conversions are made, they are disabled. At present, the Potext
+     * library does not try to analyze the file to find out what the character
+     * set really is.
      */
 
     "library/tests/po/de.po",               /* erroneous, multibyte bad     */

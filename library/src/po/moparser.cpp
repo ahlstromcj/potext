@@ -29,7 +29,7 @@
  * \library       potext
  * \author        simple-gettext; refactoring by Chris Ahlstrom
  * \date          2024-03-25
- * \updates       2024-04-09
+ * \updates       2024-04-10
  * \license       See above.
  *
  * Format of the .mo File:
@@ -406,6 +406,13 @@ moparser::parse ()
  *      Plural-Forms: nplurals=2; plural=(n != 1);
  *
  *  The offset structure holds the length of a string and "pointer" to it.
+ *
+ *  "ebcdic-international-500+euro" is the longest character-set name we
+ *  found at
+ *
+ *      https://www.iana.org/assignments/character-sets/character-sets.xhtml
+ *
+ *  It's 29 characters.
  */
 
 std::string
@@ -432,9 +439,7 @@ moparser::load_charset_name ()
             if (! cstemp.empty())
             {
                 if (m_charset == "CHARSET")
-                {
                     m_charset = "UTF-8";
-                }
                 else
                     m_charset = cstemp;
 
@@ -460,8 +465,14 @@ moparser::load_charset_name ()
 std::string
 moparser::load_plural_form_name ()
 {
-    static std::string s_plural_forms{"Plural-Forms: nplurals="};
-    static std::size_t s_plural_size{s_plural_forms.length()};      /* 23   */
+    /*
+     *  Too much.
+     *
+     * static std::string s_plural_forms{"Plural-Forms: nplurals="};
+     * static std::size_t s_plural_size{s_plural_forms.length()};      // 23
+     */
+
+    static std::string s_plural_forms{"nplurals="};
     extractor xtract(m_mo_data);                    /* binary data access   */
     if (m_swapped_bytes)
         xtract.set_swapped_bytes();
@@ -473,19 +484,16 @@ moparser::load_plural_form_name ()
     }
     else
     {
-        m_plural_forms_parsed = true;
-
-        /*
-         * TODO TODO TODO:
-         *
-         *      Make this match .po plural forms, and peel off
-         *      "Plural-Forms:"
-         */
-
         std::size_t pos = xtract.find_offset(s_plural_forms);
         if (xtract.valid_offset(pos))
         {
-            std::string pftemp = xtract.get_delimited(pos + s_plural_size);
+            /*
+             * We want to grab the "nplurals=" as well
+             *
+             * std::string pftemp = xtract.get_delimited(pos + s_plural_size);
+             */
+
+            std::string pftemp = xtract.get_delimited(pos);
             if (! pftemp.empty())
             {
                 /**
@@ -531,6 +539,7 @@ moparser::load_plural_form_name ()
                 }
             }
         }
+        m_plural_forms_parsed = true;
     }
     return result;
 }

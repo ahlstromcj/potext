@@ -33,7 +33,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-26
+ * \updates       2024-04-10
  * \license       See above.
  *
  */
@@ -48,7 +48,7 @@
 #include <iconv.h>
 #endif
 
-#define USE_FLUXBOX_RECODE_FUNCTION
+#define POTEXT_FLUXBOX_RECODE_FUNCTION
 
 namespace po
 {
@@ -129,6 +129,14 @@ private:
     std::string m_from_charset;
 
     /**
+     *  If true, we do not have a valid character-set for conversions,
+     *  so just disable conversions and the resultant flood of error
+     *  messages.
+     */
+
+    bool m_conversion_disabled;
+
+    /**
      *  Conversion descriptor.
      */
 
@@ -153,7 +161,7 @@ public:
 
 private:
 
-#if defined USE_FLUXBOX_RECODE_FUNCTION
+#if defined POTEXT_FLUXBOX_RECODE_FUNCTION
     std::string recode (iconv_t cd, const std::string & in) const;
 #endif
 

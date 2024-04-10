@@ -1,3 +1,5 @@
+#if defined POTEXT_BRUTE_FORCE_INITIALIZER
+
 /*
  *  This file is part of potext.
  *
@@ -30,20 +32,26 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-16
- * \updates       2024-02-16
+ * \updates       2024-04-10
  * \license       See above.
  *
- *  This file is needed only if we decide to support compilers that do not
+ *  This file is needed only if one needs to support compilers to old to
  *  support static initializers.
  *
  *  This module is best edited in wide-screen.
  */
 
+/**
+ *  A set of plural forms.
+ */
 
-#define PF  "Plural-Forms:nplurals="
-#define PE  ";plural="
+static pluralforms::map s_plural_forms;
 
-static pluralformsmap s_plural_forms;
+/**
+ *  Set up the forms by brute-force assignements. Note that PF and PE
+ *  are defined in the pluralforms module.
+ */
+
 if (s_plural_forms.empty())
 {
     s_plural_forms[PF "1" PE "0;"] = pluralforms(1, plural1);
@@ -72,6 +80,8 @@ if (s_plural_forms.empty())
     s_plural_forms[PF "5" PE "(n==1?0:n==2?1:n<7?2:n<11?3:4)"] = pluralforms(5, plural5_ga);
     s_plural_forms[PF "6" PE "n==0?0:n==1?1:n==2?2:n%100>=3&&n%100<=10?3:n%100>=11?4:5"] = pluralforms(6, plural6_ar);
 }
+
+#endif          // defined POTEXT_BRUTE_FORCE_INITIALIZER
 
 /*
  * bfplurals.hpp

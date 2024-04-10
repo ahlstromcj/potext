@@ -32,7 +32,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-24
- * \updates       2024-04-03
+ * \updates       2024-04-10
  * \license       See above.
  *
  */
@@ -193,18 +193,7 @@ extractor::get (std::size_t start, std::size_t len) const
 }
 
 /**
- *  The value 86 is one larger than the Microsoft macro
- *  LOCALE_NAME_MAX_LENGTH, which includes a terminating null. Sounds like
- *  a good sanity check.
- *
- *      static const std::size_t s_max_locale_length = 86;
- *
- *  "ebcdic-international-500+euro" is the longest character-set name we
- *  found at
- *
- *      https://www.iana.org/assignments/character-sets/character-sets.xhtml
- *
- *  It's 29 characters; we will use 32 as a sanity check.
+ *  Gets character from the start to the first delimiter encountered.
  *
  * \param start
  *      The position at which to start looking.
@@ -221,14 +210,12 @@ extractor::get_delimited
     const std::string & delimiters
 ) const
 {
-    static const std::size_t s_max_charset_length = 32;
     std::string result;
     std::string::size_type pos = m_data.find_first_of(delimiters, start);
     if (pos != std::string::npos)
     {
         std::size_t count = pos - start;            /* stop at delimiter    */
-        if (count < s_max_charset_length)
-            result = get(start, count);
+        result = get(start, count);
     }
     return result;
 }
@@ -326,6 +313,10 @@ brute_force_test ()
 }
 
 #endif      // TEST_BRUTE_FORCE
+
+/**
+ *  Conditionally reverses the bytes in a word.
+ */
 
 extractor::word
 extractor::swap (word ui)

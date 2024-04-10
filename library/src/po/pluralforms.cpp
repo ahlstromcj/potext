@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-02-16
+ * \updates       2024-04-10
  * \license       See above.
  *
  *  https://www.gnu.org/software/gettext/manual/
@@ -46,9 +46,8 @@
  */
 
 #include <cctype>                       /* std::isspace() function          */
-#include <unordered_map>                /* std::unordered_map<> template    */
 
-#include "po/pluralforms.hpp"
+#include "po/pluralforms.hpp"           /* po::pluralforms class            */
 
 namespace po
 {
@@ -337,31 +336,32 @@ pluralforms::pluralforms (unsigned nplural, function plural) :
     // no code
 }
 
+/**
+ *  Macros to save space and improve readability.
+ */
+
+#define PF  "nplurals="                 /* "Plural-Forms:nplurals="     */
+#define PE  ";plural="
+
+/**
+ *  Picks a plural-forms function based an string representing it.
+ */
+
 pluralforms
 pluralforms::from_string (const std::string & str)
 {
-    using pluralformsmap = std::unordered_map<std::string, pluralforms>;
-
     /*
      * Note that the plural forms here shouldn't contain any spaces.
      * Also note we use the C/C++ feature of string concatenation.
-     *
-     * TODO:
-     *
-     *      Optimize out the redundant PF information to reduce the memory
-     *      usage.
      */
 
-#if defined POTEXT_USE_BRUTE_FORCE_INITIALIZATION
+#if defined POTEXT_BRUTE_FORCE_INITIALIZER
 
-#include "po/bfplurals.hpp"             /* brute-force initialization */
+#include "po/bfplurals.hpp"             /* brute-force initialization       */
 
 #else
 
-#define PF  "Plural-Forms:nplurals="
-#define PE  ";plural="
-
-    static pluralformsmap s_plural_forms
+    static map s_plural_forms
     {
         {
             PF "1" PE "0;",
@@ -492,7 +492,7 @@ pluralforms::from_string (const std::string & str)
             space_less_str += c;
     }
 
-    pluralformsmap::const_iterator it = s_plural_forms.find(space_less_str);
+    map::const_iterator it = s_plural_forms.find(space_less_str);
     return it != s_plural_forms.end() ? it->second : pluralforms() ;
 }
 

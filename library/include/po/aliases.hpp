@@ -30,13 +30,15 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-06
- * \updates       2024-02-13
+ * \updates       2024-04-09
  * \license       See above.
  *
  */
 
 #include <string>
 #include <unordered_map>
+
+#include "po_build_macros.h"            /* POTEXT_BRUTE_FORCE_INITIALIZER   */
 
 namespace po
 {
@@ -53,7 +55,7 @@ resolve_language_alias (const std::string & name)
 {
     using aliases = std::unordered_map<std::string, std::string>;
 
-#if defined POTEXT_USE_BRUTE_FORCE_INITIALIZATION
+#if defined POTEXT_BRUTE_FORCE_INITIALIZER
 
     static aliases s_languages_aliases;
     if (s_languages_aliases.empty())

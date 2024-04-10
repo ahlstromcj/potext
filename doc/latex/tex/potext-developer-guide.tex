@@ -6,7 +6,7 @@
 % \library     Documents
 % \author      Chris Ahlstrom
 % \date        2024-02-08
-% \update      2024-04-06
+% \update      2024-04-10
 % \version     $Revision$
 % \license     $XPC_GPL_LICENSE$
 %
@@ -43,7 +43,7 @@
 
 \begin{document}
 
-\title{Potext Developer Guide 0.2}
+\title{Potext Developer Guide 0.2.0}
 \author{Chris Ahlstrom \\
    (\texttt{ahlstromcj@gmail.com})}
 \date{\today}
@@ -199,11 +199,13 @@
       \item Get the handling of categories (e.g. \texttt{LC\_TIME}) to
          work. However, note that the category is almost always
          \texttt{LC\_MESSAGES}, so this is a low priority.
-      \item Handle the "C" locale as discussed below.
       \item Allow for the user to override the character set via the
          \texttt{OUTPUT\_CHARSET} environment variable.
       \item Add support to assist a \textsl{Potext}-using project with the
          installation of the \texttt{.po} files.
+      \item Try to analyze the translation file to determine if the
+         actual character-set matches the specified character-set.
+      \item Handle the "C" locale as discussed below.
    \end{itemize}
 
    Ignore \texttt{LANGUAGE} and its system-dependent analog if the locale is

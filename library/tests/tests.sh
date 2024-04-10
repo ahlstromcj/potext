@@ -8,7 +8,7 @@
 # \library        potext
 # \author         Chris Ahlstrom
 # \date           2024-02-14
-# \update         2024-03-16
+# \update         2024-04-10
 # \version        $Revision$
 # \license        $XPC_SUITE_GPL_LICENSE$
 #
@@ -39,13 +39,12 @@
 #
 #        iconv (GNU libc) 2.39 (Arch, copyright 2024)
 #
-#
 #------------------------------------------------------------------------------
 
 LANG=C
 export LANG
-POTEXT_SCRIPT_EDIT_DATE="2024-03-16"
-POTEXT_LIBRARY_API_VERSION="0.1"
+POTEXT_SCRIPT_EDIT_DATE="2024-04-10"
+POTEXT_LIBRARY_API_VERSION="0.2"
 POTEXT_LIBRARY_VERSION="$POTEXT_LIBRARY_API_VERSION.0"
 POTEXT="potext"
 POTEXT_TEST_BINARY_DIR="./build/library/tests"
@@ -87,6 +86,7 @@ while IFS= read -r INLINE
 do
     FIRST=$(printf %.1s "$INLINE")
     if test "$FIRST" != "#" -a "$FIRST" != "" ; then
+        echo "$POTEXT_TEST $INLINE"
         $POTEXT_TEST $INLINE
         if test $? != 0 ; then
             LASTRESULT="FAILED"

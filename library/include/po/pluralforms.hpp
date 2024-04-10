@@ -33,14 +33,15 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-11
+ * \updates       2024-04-10
  * \license       See above.
  *
  */
 
 #include <string>
+#include <unordered_map>                /* std::unordered_map<> template    */
 
-#include "platform_macros.h"            /* OS & debug macroes etc.          */
+#include "po_build_macros.h"            /* POTEXT_BRUTE_FORCE_INITIALIZER   */
 
 namespace po
 {
@@ -60,7 +61,17 @@ class pluralforms
 
 public:
 
+    /**
+     *  Provides the function signature of a plural-forms selection function.
+     */
+
     using function = unsigned (*) (int n);
+
+    /**
+     *  A list of pluralforms objects keyed by plural-forms descriptors.
+     */
+
+    using map = std::unordered_map<std::string, pluralforms>;
 
 private:
 

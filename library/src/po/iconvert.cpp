@@ -23,14 +23,14 @@
  */
 
 /**
- * \file          iconvert.hpp
+ * \file          iconvert.cpp
  *
  *      A refactoring of the tinygettext::IConv class.
  *
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-16
+ * \updates       2024-04-10
  * \license       See above.
  *
  *  To do: Handle the following:
@@ -54,7 +54,7 @@
 #include "po/iconvert.hpp"              /* po::iconvert (iconv) class       */
 #include "po/logstream.hpp"             /* po::logstream::error() etc.      */
 
-#if defined USE_FLUXBOX_RECODE_FUNCTION
+#if defined POTEXT_FLUXBOX_RECODE_FUNCTION
 #include <vector>                       /* std::vector for output array     */
 #endif
 
@@ -81,7 +81,7 @@ static iconv_t iconv_open
 );
 static int iconv_close (iconv_t cdescriptor);
 
-#if ! defined USE_FLUXBOX_RECODE_FUNCTION
+#if ! defined POTEXT_FLUXBOX_RECODE_FUNCTION
 
 static size_t iconv
 (
@@ -112,10 +112,16 @@ iconvert::iconvert (const std::string & filename) :
     m_filename              (filename),
     m_to_charset            (),
     m_from_charset          (),
+    m_conversion_disabled   (false),
     m_conversion_descriptor (nullptr)
 {
     // no code
 }
+
+/**
+ *  This construction opens a conversion descriptor. If that fails, then
+ *  conversion is disabled.
+ */
 
 iconvert::iconvert
 (
@@ -125,9 +131,10 @@ iconvert::iconvert
     m_filename              (),
     m_to_charset            (),
     m_from_charset          (),
+    m_conversion_disabled   (false),
     m_conversion_descriptor (nullptr)
 {
-    set_charsets(from_charset, to_charset); /* opens conversion descriptor  */
+    (void) set_charsets(from_charset, to_charset);
 }
 
 iconvert::~iconvert ()
@@ -167,6 +174,7 @@ iconvert::set_charsets
     if (m_to_charset == m_from_charset)
     {
         m_conversion_descriptor = nullptr;
+        m_conversion_disabled = true;
     }
     else
     {
@@ -177,6 +185,7 @@ iconvert::set_charsets
         if (m_conversion_descriptor == reinterpret_cast<iconv_t>(-1))
         {
             result = false;
+            m_conversion_disabled = true;
             if (errno == EINVAL)
             {
                 po::logstream::error()
@@ -185,6 +194,7 @@ iconvert::set_charsets
                     << from_charset
                     << "' " << _("to") << " '" << to_charset
                     << "' " << _("unavailable")
+                    << std::endl
                 ;
             }
             else
@@ -192,6 +202,7 @@ iconvert::set_charsets
                 po::logstream::error()
                     << "set_charsets() " << _("failed") << ": "
                     << std::strerror(errno)
+                    << std::endl
                     ;
             }
         }
@@ -212,27 +223,23 @@ iconvert::set_charsets
  *      std::vector<char> outbuf{outbytesleft, 'X'};
  */
 
-#if defined USE_FLUXBOX_RECODE_FUNCTION
+#if defined POTEXT_FLUXBOX_RECODE_FUNCTION
 
 std::string
 iconvert::convert (const std::string & text) const
 {
-    if (! m_conversion_descriptor)
-    {
+    if (m_conversion_disabled)
         return text;
-    }
     else
-    {
         return recode(m_conversion_descriptor, text);
-    }
 }
 
-#else           // ! defined USE_FLUXBOX_RECODE_FUNCTION
+#else           // ! defined POTEXT_FLUXBOX_RECODE_FUNCTION
 
 std::string
 iconvert::convert (const std::string & text) const
 {
-    if (! m_conversion_descriptor)
+    if (m_conversion_disabled)
     {
         return text;
     }
@@ -314,7 +321,7 @@ iconvert::convert (const std::string & text) const
     }
 }
 
-#endif          // defined USE_FLUXBOX_RECODE_FUNCTION
+#endif          // defined POTEXT_FLUXBOX_RECODE_FUNCTION
 
 /**
  *  Free functions in the po namespace.
@@ -388,7 +395,7 @@ iconv_close (iconv_t cd)
  *      in some way an ::errno is set. See man page iconv(3) for details.
  */
 
-#if defined USE_FLUXBOX_RECODE_FUNCTION
+#if defined POTEXT_FLUXBOX_RECODE_FUNCTION
 
 /**
  *  Recodes the text from one encoding to another assuming cd is correct. This
@@ -435,12 +442,12 @@ iconvert::recode (iconv_t cd, const std::string & in) const
             {
                 again = false;
 #if defined POTEXT_PO_WITH_SDL
-                rc = SDL_iconv
+                rc = ::SDL_iconv
                 (
                     cd, in.data(), &inbytesleft, &out_ptr, &outbytesleft
                 );
 #else
-                rc = iconv
+                rc = ::iconv
                 (
                     cd, detail::constptrhack(&in_ptr),
                     &inbytesleft, &out_ptr, &outbytesleft
@@ -518,7 +525,7 @@ iconvert::recode (iconv_t cd, const std::string & in) const
     return result;
 }
 
-#else           // ! defined USE_FLUXBOX_RECODE_FUNCTION
+#else           // ! defined POTEXT_FLUXBOX_RECODE_FUNCTION
 
 static size_t
 iconv
@@ -541,7 +548,7 @@ iconv
 #endif
 }
 
-#endif          // defined USE_FLUXBOX_RECODE_FUNCTION
+#endif          // defined POTEXT_FLUXBOX_RECODE_FUNCTION
 
 }               // namespace po
 

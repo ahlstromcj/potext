@@ -33,7 +33,7 @@
  * \library       potext
  * \author        Gary P. Scavone; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-04-09
+ * \updates       2024-04-10
  * \license       See above.
  *
  * Introduction:
@@ -84,6 +84,13 @@
 #undef POTEXT_BUILD_CATEGORY_SUPPORT
 
 /**
+ *  Rather than use the iconv() function directly, use iconvert::recode(),
+ *  which is based on code obtained from the Fluxbox window manager project.
+ */
+
+#define POTEXT_FLUXBOX_RECODE_FUNCTION
+
+/**
  *  Use the SDL library?  What is dat? We'll leave it undefined.
  */
 
@@ -94,7 +101,7 @@
  *  arrays. We'll keep this around just in case.
  */
 
-#undef POTEXT_USE_BRUTE_FORCE_INITIALIZATION
+#define POTEXT_BRUTE_FORCE_INITIALIZER
 
 /**
  *  The tinygettext project used std::unordered_map in the dictionary
