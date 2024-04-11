@@ -32,9 +32,11 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-24
- * \updates       2024-04-10
+ * \updates       2024-04-11
  * \license       See above.
  *
+ *      This class is actually more generally useful than just its usage
+ *      in the Potext library.
  */
 
 #include <cstring>                      /* std::strlen() etc.               */
@@ -151,7 +153,7 @@ extractor::find_character
         std::string::size_type pos = m_data.find(target, start);
         if (pos != std::string::npos)
         {
-            if (pos < rangelength)
+            if (pos <= rangelength)
                 result = std::size_t(pos);
         }
     }

@@ -29,7 +29,7 @@
  * \library       potext
  * \author        simple-gettext; refactoring by Chris Ahlstrom
  * \date          2024-03-25
- * \updates       2024-04-10
+ * \updates       2024-04-11
  * \license       See above.
  *
  * Format of the .mo File:
@@ -459,19 +459,22 @@ moparser::load_charset_name ()
 }
 
 /**
- *  Obtain the Plural-Forms string. It comes three lines after "Content-Type,
+ *  Obtain the Plural-Forms string. It comes three lines after "Content-Type".
+ *
+ *  The nplurals value (we'll call it "Np" here) specifies how many plural
+ *  forms the language supports. (Or does it? Other contexts indicate that it
+ *  specifies the number of forms. Read circa page 130 in the PDF GNU Gettext
+ *  manual.
+ *
+ *  Too much.
+ *
+ *      static std::string s_plural_forms{"Plural-Forms: nplurals="};
+ *      static std::size_t s_plural_size{s_plural_forms.length()};
  */
 
 std::string
 moparser::load_plural_form_name ()
 {
-    /*
-     *  Too much.
-     *
-     * static std::string s_plural_forms{"Plural-Forms: nplurals="};
-     * static std::size_t s_plural_size{s_plural_forms.length()};      // 23
-     */
-
     extractor xtract(m_mo_data);                    /* binary data access   */
     if (m_swapped_bytes)
         xtract.set_swapped_bytes();
@@ -582,8 +585,9 @@ moparser::find (const std::string & target)
 bool
 moparser::load_translations ()
 {
-    static const char s_NUL = 0x00;
-    static const char s_EOT = 0x04;
+    static const char s_NUL = 0x00;                 /* NUL character        */
+    static const char s_EOT = 0x04;                 /* EOT character        */
+    static std::string s_str_NUL{1, s_NUL};         /* NUL, string version  */
     bool result = true;
     extractor xtract(m_mo_data);                    /* translation data     */
     if (m_swapped_bytes)
@@ -646,10 +650,16 @@ moparser::load_translations ()
         /*
          *  Get the original string and the first (singular) translation.
          *  If the length of the translation is less than the specified
-         *  length of the translation, then get the plural-forms.
+         *  length of the translation, then get the plural-forms. The
+         *  following will grab text beyond the singular translated message.
+         *
+         *      std::string translated = xtract.get(toffset, tlength);
+         *
+         *  The default delimiter is a newline, so we need to specify a null
+         *  here to get only the first translation, which is singular.
          */
 
-        std::string translated = xtract.get(toffset, tlength);  /* singular */
+        std::string translated = xtract.get_delimited(toffset, s_str_NUL);
         int translength = int(translated.length());
         if (translength > 0)
         {
@@ -657,8 +667,9 @@ moparser::load_translations ()
             if (translength < tlength)
             {
                 phraselist & plist{tranquad.plurals};
-                toffset += translength + 1;
-                tlength -= translength + 1;
+                ++translength;                      /* count the NUL char   */
+                toffset += translength;             /* skip the singular    */
+                tlength -= translength;
                 for (;;)
                 {
                     std::size_t range_end = std::size_t(toffset + tlength);
@@ -666,7 +677,7 @@ moparser::load_translations ()
                     (
                         s_NUL, toffset, tlength
                     );
-                    if (nulpos < range_end)
+                    if (nulpos <= range_end)
                     {
                         std::size_t len = nulpos - toffset;
                         std::string plural = xtract.get(toffset, len);
@@ -675,9 +686,9 @@ moparser::load_translations ()
                         else
                             plist.push_back(plural);
 
-                        translength = int(plural.length());
-                        toffset += translength + 1;
-                        tlength -= translength + 1;
+                        translength = int(plural.length() + 1); /* plus NUL */
+                        toffset += translength;
+                        tlength -= translength;
                     }
                     else
                         break;

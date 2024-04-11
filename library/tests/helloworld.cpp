@@ -150,7 +150,7 @@ main (int argc, char * argv [])
             << _("Hello Worlds") << "\n"
             << pgettext("", "Hello World") << "\n"
             << pgettext("console", "Hello World") << "\n"
-            << ngettext("gui", "Hello World", 1) << "\n"
+            << ngettext("gui", "Hello World", 1) << "\n"    /* weird */
             << ngettext("Hello World", "Hello Worlds", 5) << "\n"
             << npgettext("", "Hello World", "Hello Worlds", 5) << "\n"
             << npgettext("console", "Hello World", "Hello Worlds", 5) << "\n"

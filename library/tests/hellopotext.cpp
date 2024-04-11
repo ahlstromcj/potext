@@ -25,7 +25,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-02-24
- * \updates       2024-04-10
+ * \updates       2024-04-11
  * \license       See above.
  *
  *  This program is meant to be a real-life usage of the potext library.
@@ -37,6 +37,9 @@
  *  in some way, such as "File" being converted to a French verb instead
  *  of a French noun. But we're merely testing lookup here. If it bugs you,
  *  fix it and make a pull request.
+ *
+ *  On another note, since we know that strings like "FAILED" are not
+ *  in any dictionary, we do not use the _() marker with them.
  */
 
 #include <cstdlib>                      /* EXIT_SUCCESS, EXIT_FAILURE       */
@@ -80,7 +83,6 @@ print_usage (const std::string & arg0)
  *  poparser::error() [called by pretty much any function in poparser].
  *  The dictionarymgr calls parse_po_file(), but it catches the exceptions
  *  and returns bogus return value.
- *
  */
 
 static bool
@@ -98,7 +100,7 @@ gettext_smoke_test (const std::string & dom_name)
     if (! ok)
     {
         result = false;
-        std::cout << " " << _("FAILED");
+        std::cout << " " << "FAILED";
     }
     std::cout << std::endl;
 
@@ -113,7 +115,7 @@ gettext_smoke_test (const std::string & dom_name)
     if (! ok)
     {
         result = false;
-        std::cout << " " << _("FAILED");
+        std::cout << " " << "FAILED";
     }
     std::cout << std::endl;
     return result;
@@ -143,7 +145,7 @@ dgettext_smoke_test
 
     bool result = smoketest == expected;
     if (! result)
-        std::cout << " " << _("FAILED");
+        std::cout << " " << "FAILED";
 
     std::cout << std::endl;
     return result;
@@ -184,11 +186,11 @@ ngettext_smoke_test (const std::string & dom_name)
         << dom_name << "'] = '" << smoketest << "'"
         ;
 
-    bool ok = smoketest == "Archivo";
+    bool ok = smoketest == "Archivos";
     if (! ok)
     {
         result = false;
-        std::cout << " " << _("FAILED");
+        std::cout << " " << "FAILED";
     }
     std::cout << std::endl;
     smoketest = po::ngettext("File", "Files", 2);
@@ -196,11 +198,11 @@ ngettext_smoke_test (const std::string & dom_name)
         << "ngettext('File', 'Files', 2) [" << _("domain") << " '"
         << dom_name << "'] = '" << smoketest << "'"
         ;
-    ok = smoketest == "Archivos";
+    ok = smoketest == "Archivo";
     if (! ok)
     {
         result = false;
-        std::cout << " " << _("FAILED");
+        std::cout << " " << "FAILED";
     }
     std::cout << std::endl;
     smoketest = po::ngettext("Person", "People", 1);
@@ -212,7 +214,7 @@ ngettext_smoke_test (const std::string & dom_name)
     if (! ok)
     {
         result = false;
-        std::cout << " " << _("FAILED");
+        std::cout << " " << "FAILED";
     }
     std::cout << std::endl;
     smoketest = po::ngettext("Person", "People", 2);
@@ -224,7 +226,7 @@ ngettext_smoke_test (const std::string & dom_name)
     if (! ok)
     {
         result = false;
-        std::cout << " " << _("FAILED");
+        std::cout << " " << "FAILED";
     }
     std::cout << std::endl;
     return result;
@@ -249,7 +251,7 @@ dngettext_smoke_test
     if (! ok)
     {
         result = false;
-        std::cout << " " << _("FAILED");
+        std::cout << " " << "FAILED";
     }
     std::cout << std::endl;
     smoketest = po::dngettext(dom_name, "File", "Files", 2);
@@ -261,7 +263,7 @@ dngettext_smoke_test
     if (! ok)
     {
         result = false;
-        std::cout << " " << _("FAILED");
+        std::cout << " " << "FAILED";
     }
     std::cout << std::endl;
     return result;
@@ -286,7 +288,7 @@ dngettext_smoke_test_2
     if (! ok)
     {
         result = false;
-        std::cout << " " << _("FAILED");
+        std::cout << " " << "FAILED";
     }
     std::cout << std::endl;
     smoketest = po::dngettext(dom_name, "Person", "People", 2);
@@ -298,7 +300,7 @@ dngettext_smoke_test_2
     if (! ok)
     {
         result = false;
-        std::cout << " " << _("FAILED");
+        std::cout << " " << "FAILED";
     }
     std::cout << std::endl;
     return result;
@@ -344,7 +346,7 @@ pgettext_smoke_test
     if (! ok)
     {
         result = false;
-        std::cout << " " << _("FAILED");
+        std::cout << " " << "FAILED";
     }
     std::cout << std::endl;
     smoketest = po::pgettext("failure", "Congratulations!");
@@ -356,7 +358,7 @@ pgettext_smoke_test
     if (! ok)
     {
         result = false;
-        std::cout << " " << _("FAILED");
+        std::cout << " " << "FAILED";
     }
     std::cout << std::endl;
     return result;
@@ -381,8 +383,6 @@ pgettext_smoke_test
 
 #endif
 
-#if defined THIS_CODE_IS_READY
-
 /*
  *  Here we set the default domain for po::gettext() to "es".
  *  Then we pass alternate domains ("fr" or "de") to
@@ -398,27 +398,28 @@ directory_test
 )
 {
     bool result = true;
-
-    std::string arg0 = std::string(argv[0]);
-    std::string dom_name = "es";
     std::string dir_name = po::init_app_locale  /* returns "po" dir */
     (
-        arg0, "hellopotext", domain, "po"
+        arg0, "hellopotext", domain, dirname
     );
-    std::cout << arg0 << " " << domain << " po" << std::endl;
+    std::cout
+        << arg0 << ": " << _("domain") << " " << domain
+        << " " << _("directory") << " " << dirname
+        << std::endl
+        ;
     if (dir_name.empty())
     {
         result = false;
         std::cerr << _("Could not process domain") << " '"
             << domain << "' and directory '" << dirname << "'"
-            std::endl
+            << std::endl
             ;
     }
     else
     {
         bool ok = gettext_smoke_test(domain);
         if (! ok)
-            success = false;
+            result = false;
 
         /*
          * Smoke tests for dgettext().
@@ -427,22 +428,22 @@ directory_test
         std::string expected = "Hay un error desconocido del sistema";
         ok = dgettext_smoke_test(domain, expected);
         if (! ok)
-            success = false;
+            result = false;
 
         expected = "Erreur système non identifiée";
         ok = dgettext_smoke_test("fr", expected);
         if (! ok)
-            success = false;
+            result = false;
 
         expected = "Unbekannter Systemfehler";
         ok = dgettext_smoke_test("de", expected);
         if (! ok)
-            success = false;
+            result = false;
 
         expected = "Unknown system error";
         ok = dgettext_smoke_test("xx", expected);
         if (! ok)
-            success = false;
+            result = false;
 
         /*
          * dcgettext() is not ready, and currently just calls
@@ -459,7 +460,7 @@ directory_test
 
         ok = ngettext_smoke_test(domain);
         if (! ok)
-            success = false;
+            result = false;
 
         /**
          * dngettext_smoke_test() tests plurals in the given domain.
@@ -474,49 +475,49 @@ directory_test
         expected = "Archivo";
         ok = dngettext_smoke_test("es", expected, plural);
         if (! ok)
-            success = false;
+            result = false;
 
         plural = "Des dossiers";
         expected = "Déposer";
         ok = dngettext_smoke_test("fr", expected, plural);
         if (! ok)
-            success = false;
+            result = false;
 
         plural = "Dateien";
         expected = "Datei";
         ok = dngettext_smoke_test("de", expected, plural);
         if (! ok)
-            success = false;
+            result = false;
 
         plural = "File";
         expected = "File";
         ok = dngettext_smoke_test("xx", expected, plural);
         if (! ok)
-            success = false;
+            result = false;
 
         plural = "Gente";
         expected = "Persona";
         ok = dngettext_smoke_test_2(domain, expected, plural);
         if (! ok)
-            success = false;
+            result = false;
 
         plural = "Personnes";
         expected = "Personne";
         ok = dngettext_smoke_test_2("fr", expected, plural);
         if (! ok)
-            success = false;
+            result = false;
 
         plural = "Menschen";
         expected = "Person";
         ok = dngettext_smoke_test_2("de", expected, plural);
         if (! ok)
-            success = false;
+            result = false;
 
         plural = "Person";
         expected = "Person";
         ok = dngettext_smoke_test_2("xx", expected, plural);
         if (! ok)
-            success = false;
+            result = false;
         /*
          *  This function is not ready.
          */
@@ -544,22 +545,20 @@ directory_test
 
         ok = pgettext_smoke_test("es", expected1, expected2);
         if (! ok)
-            success = false;
+            result = false;
 
         expected1 = "Toutes nos félicitations!";
         expected2 = "Super boulot mec!";                /* sarcasm  */
         ok = pgettext_smoke_test("fr", expected1, expected2);
         if (! ok)
-            success = false;
+            result = false;
 
         expected1 = "Glückwunsch!";
         expected2 = "Tolle Arbeit, Alter!";             /* sarcasm  */
         ok = pgettext_smoke_test("de", expected1, expected2);
         if (! ok)
-            success = false;
+            result = false;
 #endif  // 0
-
-#endif          // defined THIS_CODE_IS_READY
 
 /*
  *  The main routine.
@@ -579,168 +578,10 @@ main (int argc, char * argv [])
     {
         if (argc == 1)
         {
-            /*
-             *  Here we set the default domain for po::gettext() to "es".
-             *  Then we pass alternate domains ("fr" or "de") to
-             *  po::dgettext().
-             */
-
             std::string arg0 = std::string(argv[0]);
             std::string dom_name = "es";
-            std::string dir_name = po::init_app_locale  /* returns "po" dir */
-            (
-                arg0, "hellopotext", dom_name, "po"
-            );
-            std::cout << arg0 << " " << dom_name << " po" << std::endl;
-            if (dir_name.empty())
-            {
-                result = EXIT_FAILURE;
-                std::cerr << _("Could not process") << " po/es.po" <<
-                    std::endl
-                    ;
-            }
-            else
-            {
-                bool ok = gettext_smoke_test(dom_name);
-                if (! ok)
-                    success = false;
-
-                /*
-                 * Smoke tests for dgettext().
-                 */
-
-                std::string expected = "Hay un error desconocido del sistema";
-                ok = dgettext_smoke_test(dom_name, expected);
-                if (! ok)
-                    success = false;
-
-                expected = "Erreur système non identifiée";
-                ok = dgettext_smoke_test("fr", expected);
-                if (! ok)
-                    success = false;
-
-                expected = "Unbekannter Systemfehler";
-                ok = dgettext_smoke_test("de", expected);
-                if (! ok)
-                    success = false;
-
-                expected = "Unknown system error";
-                ok = dgettext_smoke_test("xx", expected);
-                if (! ok)
-                    success = false;
-
-                /*
-                 * dcgettext() is not ready, and currently just calls
-                 * dgettext(), already tested above. Handling categories
-                 * requires some extra hard work.
-                 */
-
-                (void) dcgettext_smoke_test(dom_name);
-
-                /*
-                 * ngettext_smoke_test() tests plurals in the default domain.
-                 * The responses are easy to check in the test function.
-                 */
-
-                ok = ngettext_smoke_test(dom_name);
-                if (! ok)
-                    success = false;
-
-                /**
-                 * dngettext_smoke_test() tests plurals in the given domain.
-                 *
-                 * dcngettext_smoke_test() tests plurals in the given domain
-                 * and category. We have to provide the translations to the
-                 * test function (or we could check the domain and get its
-                 * expected results.
-                 */
-
-                std::string plural = "Archivos";
-                expected = "Archivo";
-                ok = dngettext_smoke_test(dom_name, expected, plural);
-                if (! ok)
-                    success = false;
-
-                plural = "Des dossiers";
-                expected = "Déposer";
-                ok = dngettext_smoke_test("fr", expected, plural);
-                if (! ok)
-                    success = false;
-
-                plural = "Dateien";
-                expected = "Datei";
-                ok = dngettext_smoke_test("de", expected, plural);
-                if (! ok)
-                    success = false;
-
-                plural = "File";
-                expected = "File";
-                ok = dngettext_smoke_test("xx", expected, plural);
-                if (! ok)
-                    success = false;
-
-                plural = "Gente";
-                expected = "Persona";
-                ok = dngettext_smoke_test_2(dom_name, expected, plural);
-                if (! ok)
-                    success = false;
-
-                plural = "Personnes";
-                expected = "Personne";
-                ok = dngettext_smoke_test_2("fr", expected, plural);
-                if (! ok)
-                    success = false;
-
-                plural = "Menschen";
-                expected = "Person";
-                ok = dngettext_smoke_test_2("de", expected, plural);
-                if (! ok)
-                    success = false;
-
-                plural = "Person";
-                expected = "Person";
-                ok = dngettext_smoke_test_2("xx", expected, plural);
-                if (! ok)
-                    success = false;
-                /*
-                 *  This function is not ready.
-                 */
-
-                (void) dcngettext_smoke_test(dom_name);
-
-                /**
-                 *  pgettext() test. This was a macro in GNU Gettext but
-                 *  is a function in the Potext library.
-                 */
-
-                std::string expected1 = "¡Felicidades!";
-                std::string expected2 = "¡Gran trabajo amigo!"; /* sarcasm  */
-                ok = pgettext_smoke_test(dom_name, expected1, expected2);
-                if (! ok)
-                    success = false;
-
-#if 0
-                /*
-                 *  The pgettext() function does not have a domain parameter.
-                 */
-
-                ok = pgettext_smoke_test("es", expected1, expected2);
-                if (! ok)
-                    success = false;
-
-                expected1 = "Toutes nos félicitations!";
-                expected2 = "Super boulot mec!";                /* sarcasm  */
-                ok = pgettext_smoke_test("fr", expected1, expected2);
-                if (! ok)
-                    success = false;
-
-                expected1 = "Glückwunsch!";
-                expected2 = "Tolle Arbeit, Alter!";             /* sarcasm  */
-                ok = pgettext_smoke_test("de", expected1, expected2);
-                if (! ok)
-                    success = false;
-#endif  // 0
-            }
+            std::string dir_name = "po";
+            result = directory_test(arg0, dom_name, dir_name);
         }
         else if (argc == 2)
         {
@@ -759,6 +600,8 @@ main (int argc, char * argv [])
 
                 std::string arg0 = std::string(argv[0]);
                 std::string domain = std::string(argv[1]);
+                result = directory_test(arg0, domain, "po");
+#if defined USE_THIS_TEST
                 std::string dom_name = po::init_app_locale
                 (
                     arg0, "hellopotext", domain, "po"
@@ -777,7 +620,15 @@ main (int argc, char * argv [])
                         << std::endl
                         ;
                 }
+#endif
             }
+        }
+        else if (argc == 3)
+        {
+            std::string arg0 = std::string(argv[0]);
+            std::string domain = std::string(argv[1]);
+            std::string dirname = std::string(argv[2]);
+            result = directory_test(arg0, domain, dirname);
         }
     }
     catch (const std::exception & err)

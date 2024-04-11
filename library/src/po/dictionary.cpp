@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-04-09
+ * \updates       2024-04-11
  * \license       See above.
  *
  */
@@ -195,6 +195,8 @@ dictionary::translate_plural
  *      msgstr[0] "Hallo Welt (singular)"
  *      msgstr[1] "Hallo Welt (plural)"
  *
+ *  Note that the number of translations in the phrase list.......
+ *
  * \param dict
  *      The list of phraselists to use to do the lookup. See the
  *      translate_plural() overload above.
@@ -206,7 +208,7 @@ dictionary::translate_plural
  *      Provides the plural form of the message ID.
  *
  * \param N
- *      This count parameter starts at 1, not 0. and indicates which plural
+ *      This count parameter starts at 1, not 0, and indicates which plural
  *      form is desired. If no message catalog is found, msgid is returned
  *      if N == 1, otherwise msgid_plural is returned.
  */
@@ -225,10 +227,11 @@ dictionary::translate_plural
     {
         unsigned n = m_plural_forms.get_plural(N);
         const phraselist & msgstrs = it->second.phrase_list;
-        if (n >= unsigned(msgstrs.size()))
+        unsigned sz = unsigned(msgstrs.size());
+        if (n >= sz)
         {
             logstream::error()
-                << _("Plural index exceeds existing translations")
+                << _("Plural index exceeds translation count")
                 << ": '"
                 << msgid << ", #" << n << std::endl
                 ;
