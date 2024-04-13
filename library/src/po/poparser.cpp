@@ -172,27 +172,38 @@ poparser::get_string_line (std::ostringstream & out, std::size_t skip)
             ++i;
             if (i >= line().size())
                 error(_("missing/incomplete '\\' code"), m_line_number);
+            else
+                c = line(i);
 
+            char outc = c;
             switch (c)
             {
-            case 'a':  out << '\a'; break;
-            case 'b':  out << '\b'; break;
-            case 'v':  out << '\v'; break;
-            case 'n':  out << '\n'; break;
-            case 't':  out << '\t'; break;
-            case 'r':  out << '\r'; break;
-            case '"':  out << '"';  break;
-            case '?':  out << '?';  break;
-            case '\'': out << '\''; break;
-            case '\\': out << '\\'; break;
+            case 'a':  outc = '\a'; break;
+            case 'b':  outc = '\b'; break;
+            case 'v':  outc = '\v'; break;
+            case 'n':  outc = '\n'; break;
+            case 't':  outc = '\t'; break;
+            case 'r':  outc = '\r'; break;
+            case '"':  outc = '"';  break;
+            case '?':  outc = '?';  break;
+            case '\'': outc = '\''; break;
+            case '\\': outc = '\\'; break;
             default:
 
                 std::ostringstream err;
-                err << _("Unhandled escape") << " '\\" << line(i) << "'";
+                err << _("Unhandled escape") << " '\\" << c << "'";
                 warning(err.str());
                 out << line(i-1) << line(i);
                 break;
             }
+#if defined PLATFORM_DEBUG_TMI
+            std::string m = "Escape char \\";
+            if (outc > ' ')
+                std::cout << m << c << "= '" << outc << "'" << std::endl;
+            else
+                std::cout << m << c << "= '" << int(outc) << "'" << std::endl;
+#endif
+            out << outc;
         }
         else
             out << c;
@@ -299,27 +310,25 @@ next:
     org>\\MIME-Version: 1.0\\Content-Type: text/plain; charset=UTF-8\\
     Content-Transfer-Encoding: 8bit\\"
 \endverbatim
+ *
+ *  Belay that! That was a bug that changed "\n" to "\\". The end character is
+ *  a newline.
  */
 
 bool
 poparser::parse_header (const std::string & header)
 {
     std::string from_charset;
-    std::string::size_type pos = header.find
-    (
-        "Content-Type: text/plain; charset="
-    );
+    auto pos = header.find("Content-Type: text/plain; charset=");
     if (pos != std::string::npos)
     {
         pos = header.find_first_of("=", pos + 1);
         if (pos != std::string::npos)
         {
-            ++pos;
-
-            std::string::size_type slashpos = header.find_first_of( "\\", pos);
+            auto slashpos = header.find_first_of("\n", ++pos);
             if (slashpos != std::string::npos)
             {
-                std::string::size_type count = slashpos - pos;
+                auto count = slashpos - pos;
                 from_charset = header.substr(pos, count);
             }
         }
@@ -333,16 +342,13 @@ poparser::parse_header (const std::string & header)
      *      std::string::size_type pluralpos = header.find("Plural-Forms");
      */
 
-    std::string::size_type pluralpos = header.find("nplurals=");
+    auto pluralpos = header.find("nplurals=");
     if (pluralpos != std::string::npos)
     {
-        std::string::size_type slashpos = header.find_first_of
-        (
-            "\\", pluralpos + 1                 /* ends with "\n" string    */
-        );
+        auto slashpos = header.find_first_of("\n", pluralpos + 1);
         if (slashpos != std::string::npos)
         {
-            std::string::size_type count = slashpos - pluralpos;
+            auto count = slashpos - pluralpos;
             std::string plurals = header.substr(pluralpos, count);
             pluralforms plural_forms = pluralforms::from_string(plurals);
             if (! plural_forms)
@@ -520,7 +526,7 @@ poparser::parse ()
                 if (prefix_match("msgid"))
                 {
                     msgid = get_string(5);      /* gets next line plural    */
-#if defined PLATFORM_DEBUG
+#if defined PLATFORM_DEBUG_TMI
                     bool fmt = msgid.find_first_of("%") != std::string::npos;
                     if (fmt)
                         std::cout << "Found printf() flag." << std::endl;
@@ -717,17 +723,19 @@ fix_header_mo (const std::string & header)
  *  Fixes the header as parsed earlier by changing backlashes to the
  *  string "\n" and adding quotes.  This matches what is stored in a
  *  .po file.
+ *
+ *      std::string result = "\"";  // start with a double-quote char
  */
 
 static std::string
-fix_header_po (const std::string & header)
+fix_po_header (const std::string & header)
 {
-    std::string result = "\"";          /* start with a double-quote char   */
+    std::string result;
     for (auto ch : header)
     {
         result += ch;
         if (ch == '\\')                 /* essentially an end-of-liner      */
-            result += "n\"\n\"";      /* Add \n" plus newline and next "  */
+            result += "n\"\n\"";        /* Add \n" plus newline and next "  */
     }
     if (result.back() == '"')
         result.pop_back();              /* remove last quote character      */
@@ -756,7 +764,7 @@ poparser::get_msgstr
         result = parse_header(msgstr);
         if (result)
         {
-            msgstr = fix_header_po(msgstr);
+            msgstr = fix_po_header(msgstr);
             (void) dict().add(msgid, msgstr);
         }
     }

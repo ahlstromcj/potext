@@ -418,18 +418,29 @@ enquote_string (const std::string & msg)
 }
 
 /**
- *  Converts a newline to the \n escape sequence, in place.
+ *  Converts a newline to the \n escape sequence, in place. Also prepends
+ *  a backslash to each double-quote character.
+ *
+ *  These changes are needed to match what a pofile should contain.
  */
 
 static void
-fix_newline (std::string & msg)
+fix_escapes (std::string & msg)
 {
     if (! msg.empty())
     {
         if (msg.back() == '\n')
+        {
             msg.pop_back();
+            msg += "\\n";
+        }
 
-        msg += "\\n";
+        auto qpos = msg.find_first_of("\"");
+        while (qpos != std::string::npos)
+        {
+            msg.insert(qpos, 1, '\\');          /* moves the quote up one   */
+            qpos = msg.find_first_of("\"", qpos + 2);
+        }
     }
 }
 
@@ -449,12 +460,12 @@ dictionary::message_entry
     std::string msgid_plural{ent.msgid_plural};
     const po::phraselist & msgstrs{ent.phrase_list};
     std::string result{"msgid \""};
-    fix_newline(msgid_copy);
+    fix_escapes(msgid_copy);
     result += msgid_copy;
     result += "\"\n";
     if (! msgid_plural.empty())
     {
-        fix_newline(msgid_plural);
+        fix_escapes(msgid_plural);
         result += "msgid_plural \"";
         result += msgid_plural;
         result += "\"\n";
@@ -467,14 +478,14 @@ dictionary::message_entry
             if (msgid.empty())
             {
                 result += "msgstr \"\"\n";
-                if (mo_file_mode())
+//              if (mo_file_mode())
                     msgstr = enquote_string(msgstr);
 
                 result += msgstr;
             }
             else
             {
-                fix_newline(msgstr);
+                fix_escapes(msgstr);
                 result += "msgstr \"";
                 result += msgstr;
                 result += "\"\n";
@@ -485,7 +496,7 @@ dictionary::message_entry
             std::size_t count = 0;
             for (auto msg : msgstrs)        /* makes a copy */
             {
-                fix_newline(msg);
+                fix_escapes(msg);
                 result += "msgstr[";
                 result += std::to_string(count++);
                 result += "] \"";
