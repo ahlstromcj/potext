@@ -25,7 +25,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-26
- * \updates       2024-04-04
+ * \updates       2024-04-12
  * \license       See above.
  *
  */
@@ -63,6 +63,10 @@ namespace po
 
 bool pomoparserbase::sm_pedantic = true;
 
+/**
+ *  Constructor.
+ */
+
 pomoparserbase::pomoparserbase
 (
     const std::string & filename,
@@ -78,6 +82,10 @@ pomoparserbase::pomoparserbase
 {
     // no code
 }
+
+/**
+ *  Writes an error to the error logstream, and then throws a parser_error().
+ */
 
 void
 pomoparserbase::error (const std::string & msg, std::size_t pos)
@@ -98,6 +106,11 @@ pomoparserbase::error (const std::string & msg, std::size_t pos)
     throw parser_error(msg);
 }
 
+/**
+ *  Writes an error to the warning logstream, and then throws a
+ *  parser_error().
+ */
+
 void
 pomoparserbase::warning (const std::string & msg, std::size_t pos)
 {
@@ -116,15 +129,52 @@ pomoparserbase::warning (const std::string & msg, std::size_t pos)
     }
 }
 
+/**
+ *  Applies the iconvert character-set conversion to all of the phrases
+ *  in the phrase-list. Also calls fix_message() in case there are
+ *  "\n" characters in the phrases.
+ */
+
 phraselist
 pomoparserbase::convert_list (const phraselist & source)
 {
     phraselist result;
     for (const auto & msg : source)
     {
-        std::string cmsg = converter().convert(msg);
+        std::string cmsg = converter().convert(fix_message(msg));
         result.push_back(cmsg);
     }
+    return result;
+}
+
+/**
+ *  Fixes a message string by look for "\\n" sequences and changing them
+ *  to actual newlines. This should be used on both the original message and
+ *  the translated message.
+ *
+ *  Currently this is used in poparser, which converts the string "\n" to
+ *  the the single-character string "\".
+ */
+
+std::string
+pomoparserbase::fix_message (const std::string & msg)
+{
+    std::string result = msg;
+    auto nlpos = result.find("\\");                     /* length is one    */
+#if defined PLATFORM_DEBUG_TMI
+    bool show = (msg.length() > 50 && nlpos != std::string::npos);
+    if (show)
+       std::cout << "Message in: '" << msg << std::endl;
+#endif
+    while (nlpos != std::string::npos)
+    {
+        result.replace(nlpos, 1, 1, '\n');              /* set to newline   */
+        nlpos = result.find("\\", nlpos + 1);           /* find next po sep */
+    }
+#if defined PLATFORM_DEBUG_TMI
+    if (show)
+       std::cout << "Message out: '" << result << std::endl;
+#endif
     return result;
 }
 

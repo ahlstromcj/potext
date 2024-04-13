@@ -33,7 +33,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-04-09
+ * \updates       2024-04-13
  * \license       See above.
  *
  */
@@ -63,6 +63,26 @@ namespace po
 
 class dictionary
 {
+
+public:
+
+    /**
+     *  Indicates what kind of message catalog was used to populate this
+     *  dictionary.  We could later add support for json and qm files.
+     */
+
+    enum class mode
+    {
+        none,
+        po,
+        mo,
+
+        /*
+         * json, qm, ...?,
+         */
+
+        max
+    };
 
 private:
 
@@ -118,6 +138,14 @@ private:
      */
 
     pluralforms m_plural_forms;
+
+    /**
+     *  Indicates the type of file encoded, currenty either mode::po or
+     *  mode::mo. The default is mode::none, when the dictionary is
+     *  instantiated but not filled with translations.
+     */
+
+    mode m_file_mode;
 
     /**
      *  Indicates whether a fall-back dictionary has been logged, or not.
@@ -181,6 +209,21 @@ public:
         return m_plural_forms;
     }
 
+    void file_mode (mode m)
+    {
+        m_file_mode = m;
+    }
+
+    mode file_mode () const
+    {
+        return m_file_mode;
+    }
+
+    bool mo_file_mode () const
+    {
+        return m_file_mode == mode::mo;
+    }
+
     std::string translate (const std::string & msgid) const;
     std::string translate_plural
     (
@@ -232,6 +275,28 @@ public:
         return m_has_fallback;
     }
 
+#if defined POTEXT_DICTIONARY_CREATE_PO_DUMP
+
+public:
+
+    std::string create_po_dump () const;
+
+private:
+
+    std::string message_entry
+    (
+        const std::string & msgid,
+        const entry & ent
+    ) const;
+    std::string message_ctxt_entry
+    (
+        const std::string & ctxt,
+        const std::string & msgid,
+        const entry & ent
+    ) const;
+
+#else
+
     /**
      *  Iterate over all messages, FUNC is of type:
      *
@@ -282,6 +347,8 @@ public:
         }
         return func;
     }
+
+#endif
 
 private:
 

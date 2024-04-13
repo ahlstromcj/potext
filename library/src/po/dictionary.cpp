@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-04-11
+ * \updates       2024-04-13
  * \license       See above.
  *
  */
@@ -41,6 +41,11 @@
 
 #if defined PLATFORM_DEBUG_TMI
 #include <iostream>                     /* std::cout                        */
+#endif
+
+#if defined POTEXT_DICTIONARY_CREATE_PO_DUMP
+#include <cstring>                      /* std::memset()                    */
+#include <ctime>                        /* std::strftime()                  */
 #endif
 
 /**
@@ -107,6 +112,7 @@ dictionary::dictionary (const std::string & charset) :
     m_ctxt_entries      (),
     m_charset           (charset),
     m_plural_forms      (),
+    m_file_mode         (mode::none),
     m_has_fallback      (false),
     m_fallback          ()
 {
@@ -120,6 +126,7 @@ dictionary::dictionary (const std::string & charset) :
 void
 dictionary::clear ()
 {
+    m_file_mode = mode::none;
     m_entries.clear();
     m_ctxt_entries.clear();
 }
@@ -231,8 +238,9 @@ dictionary::translate_plural
         if (n >= sz)
         {
             logstream::error()
-                << _("Plural index exceeds translation count")
-                << ": '"
+                << _("Plural index") << " " << n << " "
+                << _("exceeds translation count")
+                << " " << sz << ": '"
                 << msgid << ", #" << n << std::endl
                 ;
             return msgid;
@@ -351,6 +359,197 @@ show_phraselist (const phraselist & msgstrs)
 }
 
 #endif
+
+#if defined POTEXT_DICTIONARY_CREATE_PO_DUMP
+
+/**
+ *  Gets the current date/time. Copped from
+ *
+ *          seq66/libseq66/src/util/filefunctions.cpp
+ *
+ * \return
+ *      Returns the current date and time as a string.
+ */
+
+static std::string
+current_date_time ()
+{
+    static char s_temp[64];
+    static const char * const s_format = "%Y-%m-%d %H:%M:%S";
+    time_t t;
+    std::memset(s_temp, 0, sizeof s_temp);
+    time(&t);
+
+    struct tm * tm = localtime(&t);
+    std::strftime(s_temp, sizeof s_temp - 1, s_format, tm);
+    return std::string(s_temp);
+}
+
+/**
+ *  The first message ID is empty and the translations is the header
+ *  information in a .po or .mo file. In the .po file the first msgid
+ *  and msgstr are empty, and the header follows, with each line quoted
+ *  and ending with the literal escape-sequence string "\n".
+ *
+ *  Here we add a double-quote at the beginning of each line, and
+ *  we insert the literal string '\n"' before the newline character.
+ */
+
+static std::string
+enquote_string (const std::string & msg)
+{
+    auto nlpos = msg.find_first_of("\n");
+    if (nlpos != std::string::npos)
+    {
+        std::string result;
+        std::string::size_type index = 0;
+        while (nlpos != std::string::npos)
+        {
+            result += "\"";                         /* add starting quote   */
+            result += msg.substr(index, nlpos - index);
+            result += "\\n\"\n";                    /* append '\n"' + "\n"  */
+            index = nlpos + 1;
+            nlpos = msg.find_first_of("\n", index);
+        }
+        return result;
+    }
+    else
+        return msg;
+}
+
+/**
+ *  Converts a newline to the \n escape sequence, in place.
+ */
+
+static void
+fix_newline (std::string & msg)
+{
+    if (! msg.empty())
+    {
+        if (msg.back() == '\n')
+            msg.pop_back();
+
+        msg += "\\n";
+    }
+}
+
+/**
+ *  Writes a single translation stanza (entry) to a string. The items
+ *  are quoted. Any newlines are converted to the "\n" escape sequence.
+ */
+
+std::string
+dictionary::message_entry
+(
+    const std::string & msgid,
+    const entry & ent
+) const
+{
+    std::string msgid_copy{msgid};
+    std::string msgid_plural{ent.msgid_plural};
+    const po::phraselist & msgstrs{ent.phrase_list};
+    std::string result{"msgid \""};
+    fix_newline(msgid_copy);
+    result += msgid_copy;
+    result += "\"\n";
+    if (! msgid_plural.empty())
+    {
+        fix_newline(msgid_plural);
+        result += "msgid_plural \"";
+        result += msgid_plural;
+        result += "\"\n";
+    }
+    if (! msgstrs.empty())
+    {
+        if (msgstrs.size() == 1)
+        {
+            std::string msgstr = msgstrs[0];
+            if (msgid.empty())
+            {
+                result += "msgstr \"\"\n";
+                if (mo_file_mode())
+                    msgstr = enquote_string(msgstr);
+
+                result += msgstr;
+            }
+            else
+            {
+                fix_newline(msgstr);
+                result += "msgstr \"";
+                result += msgstr;
+                result += "\"\n";
+            }
+        }
+        else
+        {
+            std::size_t count = 0;
+            for (auto msg : msgstrs)        /* makes a copy */
+            {
+                fix_newline(msg);
+                result += "msgstr[";
+                result += std::to_string(count++);
+                result += "] \"";
+                result += msg;
+                result += "\"\n";
+            }
+        }
+    }
+    return result;
+}
+
+/**
+ *  Writes a single translation stanza (entry) with context to a string.
+ */
+
+std::string
+dictionary::message_ctxt_entry
+(
+    const std::string & ctxt,
+    const std::string & msgid,
+    const entry & ent
+) const
+{
+    std::string result{"msgctxt \""};
+    result += ctxt;
+    result += "\"\n";
+    message_entry(msgid, ent);
+    return result;
+}
+
+/**
+ *  Iterates through the dictionary entries, appending them, with
+ *  suitable modification, to a string. This provides a reasonable
+ *  recreation of a .po file.
+ *
+ *  Tested in library/tests/potext_test using the "list-msgstrs" ("lm"
+ *  for short) option.
+ */
+
+std::string
+dictionary::create_po_dump () const
+{
+    std::string result{"# Data created by dictionary::create_po_dump()\n"};
+    result += "# ";
+    result += current_date_time();
+    result += "\n\n";
+    for (const auto & e : m_entries)
+    {
+        result += message_entry(e.first, e.second);
+        result += "\n";
+    }
+
+    for (const auto & i : m_ctxt_entries)               /* ctxtentries list */
+    {
+        for (const auto & j : i.second)                 /* entries list     */
+        {
+            message_ctxt_entry(i.first, j.first, j.second);
+            result += "\n";
+        }
+    }
+    return result;
+}
+
+#endif  // defined POTEXT_DICTIONARY_CREATE_PO_DUMP
 
 /**
  *  Add a translation from \a msgid to \a msgstr to the dictionary.

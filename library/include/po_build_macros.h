@@ -33,7 +33,7 @@
  * \library       potext
  * \author        Gary P. Scavone; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-04-10
+ * \updates       2024-04-13
  * \license       See above.
  *
  * Introduction:
@@ -82,6 +82,14 @@
  */
 
 #undef POTEXT_BUILD_CATEGORY_SUPPORT
+
+/**
+ *  This macro adds code to be able to recreate a .po file from the
+ *  translations stored in a po::dictionary.  Undefine this macro
+ *  if you don't care about that.
+ */
+
+#define POTEXT_DICTIONARY_CREATE_PO_DUMP
 
 /**
  *  Rather than use the iconv() function directly, use iconvert::recode(),

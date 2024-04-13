@@ -27,7 +27,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-26
- * \updates       2024-04-05
+ * \updates       2024-04-12
  * \license       See above.
  *
  */
@@ -195,12 +195,15 @@ public:
         return m_use_fuzzy;
     }
 
+protected:
+
     iconvert & converter ()
     {
         return m_converter;
     }
 
     phraselist convert_list (const phraselist & source);
+    std::string fix_message (const std::string & msg);
 
 };              // class pomoparserbase
 

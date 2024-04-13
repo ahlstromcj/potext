@@ -30,8 +30,16 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-04-10
+ * \updates       2024-04-13
  * \license       See above.
+ *
+ * Dicionary add() statuses:
+ *
+ *      dict().add(msgid, msgstr); [header version]
+ *      dict().add(msg0, msg1);
+ *      dict().add(msg0, msgplural, msglist2);
+ *      dict().add(ctxt, msg0, msg1);
+ *      dict().add(ctxt, msg0, msgplural, msglist2);
  *
  */
 
@@ -95,7 +103,11 @@ poparser::parse_po_file
 )
 {
     poparser parser(filename, in, dic);
-    return parser.parse();
+    bool result = parser.parse();
+    if (result)
+        dic.file_mode(dictionary::mode::po);
+
+    return result;
 }
 
 bool
@@ -106,22 +118,25 @@ poparser::next_line ()
     {
         return true;
     }
+    else
     {
         m_eof = true;
         return false;
     }
 }
 
-static unsigned char
-uchar_cast (char c)
-{
-    return static_cast<unsigned char>(c);
-}
-
 /**
  *  Examines the current line, skipping the specified number of characters.
  *  If that number is too much, or the character is not the expected
  *  double-quote character, an error is thrown.
+ *
+ *  Fix needed. Some messages (e.g. po/es.po) contain strings like
+ *
+ *      \"%s\"
+ *
+ *  There are two problems with this: (1) The \" gets converted to a
+ *  \ instead of a "; (2) quotes before the end-of-line could bump us
+ *  out of the loop prematurely.
  */
 
 void
@@ -138,7 +153,7 @@ poparser::get_string_line (std::ostringstream & out, std::size_t skip)
     for (i = skip + 1; line(i) != '"'; ++i)
     {
         char c = line(i);
-        unsigned char uc = uchar_cast(c);
+        unsigned char uc = static_cast<unsigned char>(c);
         if (m_big5 && uc >= 0x81 && uc <= 0xfe)
         {
             out << c;
@@ -167,6 +182,8 @@ poparser::get_string_line (std::ostringstream & out, std::size_t skip)
             case 't':  out << '\t'; break;
             case 'r':  out << '\r'; break;
             case '"':  out << '"';  break;
+            case '?':  out << '?';  break;
+            case '\'': out << '\''; break;
             case '\\': out << '\\'; break;
             default:
 
@@ -503,6 +520,11 @@ poparser::parse ()
                 if (prefix_match("msgid"))
                 {
                     msgid = get_string(5);      /* gets next line plural    */
+#if defined PLATFORM_DEBUG
+                    bool fmt = msgid.find_first_of("%") != std::string::npos;
+                    if (fmt)
+                        std::cout << "Found printf() flag." << std::endl;
+#endif
                     got_a_tag = true;
                 }
                 if (prefix_match("msgid_plural"))
@@ -613,26 +635,30 @@ next:
                 if (msglist.size() != dict().get_plural_forms().get_nplural())
                     warning(_("msgstr[n] count != Plural-Forms.nplural"));
             }
+
+            std::string msg0 = fix_message(msgid);
+            std::string msgplural = fix_message(msgid_plural);
+            phraselist msglist2 = convert_list(msglist);
             if (msgctxt.empty())
             {
-#if defined USE_CONVERT_LIST
-                msglist = convert_list(msglist);
-#endif
-                (void) dict().add(msgid, msgid_plural, msglist);
+                (void) dict().add(msg0, msgplural, msglist2);
             }
             else
             {
+                /*
+                 * Should this be moved before the if?
+                 */
+
                 std::string ctxt;
                 if (msgctxt != MSGCTXT_EMPTY_FLAG)
                     ctxt = msgctxt;
 
-#if defined USE_CONVERT_LIST
-                msglist = convert_list(msglist);
-#endif
-                (void) dict().add(ctxt, msgid, msgid_plural, msglist);
+                (void) dict().add(ctxt, msg0, msgplural, msglist2);
             }
         }
+
 #if defined PLATFORM_DEBUG_TMI
+
         std::cout
             << (fuzzy ? _("fuzzy") : _("not fuzzy")) << "\n" << "msgid \""
             << msgid << "\"\n" << "msgid_plural \"" << msgid_plural << "\""
@@ -657,7 +683,9 @@ next:
             }
         }
         std::cout << std::endl;
+
 #endif
+
     }
     return result;
 }
@@ -666,7 +694,7 @@ next:
 
 /**
  *  Fixes the header as parsed earlier by changing backlashes to newlines
- *  (0x0A). This matches what is stored in a .mo file.
+ *  (0x0A). Not needed for .mo files, though.
  */
 
 static std::string
@@ -740,9 +768,11 @@ poparser::get_msgstr
     {
         if (use_fuzzy() || ! fuzzy)
         {
+            std::string msg0 = fix_message(msgid);
+            std::string msg1 = converter().convert(fix_message(msgstr));
             if (msgctxt.empty())
             {
-                (void) dict().add(msgid, converter().convert(msgstr));
+                (void) dict().add(msg0, msg1);
             }
             else
             {
@@ -750,7 +780,7 @@ poparser::get_msgstr
                 if (msgctxt != MSGCTXT_EMPTY_FLAG)
                     ctxt = msgctxt;
 
-                (void) dict().add(ctxt, msgid, converter().convert(msgstr));
+                (void) dict().add(ctxt, msg0, msg1);
             }
         }
 #if defined PLATFORM_DEBUG_TMI

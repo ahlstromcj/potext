@@ -58,7 +58,7 @@
  *  the "static" keyword here, except it can also hide type declarations.
  */
 
-namespace
+namespace                               /* anonymous namespace for statics  */
 {
 
 /**
@@ -161,7 +161,7 @@ po::phraselist s_all_files
  *  Some tests are designed to fail. So failure is success.`
  */
 
-static bool
+bool
 deliberate_error (const std::string & filename)
 {
     return
@@ -172,7 +172,7 @@ deliberate_error (const std::string & filename)
     );
 }
 
-} // namespace
+}       // anonymous namespace
 
 /*
  * Main routine.

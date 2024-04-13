@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-04-11
+ * \updates       2024-04-12
  * \license       See above.
  *
  *  https://www.gnu.org/software/gettext/manual/
@@ -59,7 +59,7 @@
 
 #include "po/pluralforms.hpp"           /* po::pluralforms class            */
 
-namespace po
+namespace                               /* anonymous namespace for statics  */
 {
 
 /**
@@ -81,7 +81,7 @@ namespace po
  *  The "plural rules" is empty.
  */
 
-static unsigned
+unsigned
 plural1 (int)
 {
     return 0;
@@ -115,7 +115,7 @@ plural1 (int)
  *          "the apples" = "az almak"
  */
 
-static unsigned
+unsigned
 plural2_1 (int n)
 {
     return n != 1 ? 1 : 0 ;
@@ -129,7 +129,7 @@ plural2_1 (int n)
  *      Brazilian, Portuguese, French etc.
  */
 
-static unsigned
+unsigned
 plural2_2 (int n)
 {
     return n > 1 ? 1 : 0 ;
@@ -141,25 +141,26 @@ plural2_2 (int n)
  *  https://www.gnu.org/software/gettext/manual/html_node/Plural-forms.html
  */
 
-static unsigned
+unsigned
 plural2_mk (int n)
 {
     return n == 1 || n % 10 == 1 ? 0 : 1 ;
 }
 
-static unsigned
+unsigned
 plural2_mk_2 (int n)
 {
     return (n % 10 == 1 && n % 100 != 11) ? 0 : 1 ;
 }
 
 /**
+ *  Found in mo/es.mo.
  */
 
-static unsigned
+unsigned
 plural3_es (int n)
 {
-    n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2 ;
+    return n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2 ;
 }
 
 /**
@@ -170,10 +171,10 @@ plural3_es (int n)
  *      Baltic family, Latvian
  */
 
-static unsigned
+unsigned
 plural3_lv (int n)
 {
-    n % 10 == 1 && n % 100 != 11 ? 0 : n != 0 ? 1 : 2 ;
+    return n % 10 == 1 && n % 100 != 11 ? 0 : n != 0 ? 1 : 2 ;
 }
 
 /**
@@ -184,125 +185,126 @@ plural3_lv (int n)
  *      Celtic, Gaeilge (Irish)
  */
 
-static unsigned
+unsigned
 plural3_ga (int n)
 {
     return n == 1 ? 0 : n == 2 ? 1 : 2 ;
 }
 
-static unsigned
+unsigned
 plural3_lt (int n)
 {
-    n % 10 == 1 && n % 100 != 11 ?
+    return n % 10 == 1 && n % 100 != 11 ?
         0 : n % 10 >= 2 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2 ;
 }
 
-static unsigned
+unsigned
 plural3_1 (int n)
 {
-    n % 10 == 1 && n % 100 != 11 ?
+    return n % 10 == 1 && n % 100 != 11 ?
         0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 ||
             n % 100 >= 20) ? 1 : 2 ;
 }
 
-static unsigned
+unsigned
 plural3_sk (int n)
 {
     return n == 1 ? 0 : (n >= 2 && n <= 4) ? 1 : 2 ;
 }
 
-static unsigned
+unsigned
 plural3_pl (int n)
 {
-    n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 &&
+    return n == 1 ? 0 : n % 10 >= 2 && n % 10 <= 4 &&
         (n % 100 < 10 || n % 100 >= 20) ? 1 : 2 ;
 }
 
-static unsigned
+unsigned
 plural3_ro (int n)
 {
-    n == 1 ? 0 : ((n % 100 > 19) || ((n % 100 == 0) && (n != 0))) ? 2 : 1 ;
+    return n == 1 ?
+        0 : ((n % 100 > 19) || ((n % 100 == 0) && (n != 0))) ? 2 : 1 ;
 }
 
 /*
  * What a screwy implementation!
  */
 
-static unsigned
+unsigned
 plural3_sl (int n)
 {
-    n % 100 == 1 ? 0 : n % 100 == 2 ?
+    return n % 100 == 1 ? 0 : n % 100 == 2 ?
         1 : n % 100 == 3 || n % 100 == 4 ? 2 : 3 ;
 }
 
-static unsigned
+unsigned
 plural4_be (int n)
 {
-    n % 10 == 1 && n % 100 != 11 ?
+    return n % 10 == 1 && n % 100 != 11 ?
         0 : n % 10 >= 2 && n % 10 <= 4 &&
             (n % 100 < 12 || n % 100 > 14) ?
                 1 : n % 10 == 0 || (n % 10 >= 5 && n % 10 <= 9) ||
                     (n % 100 >= 11 && n % 100 <= 14) ? 2 : 3 ;
 }
 
-static unsigned
+unsigned
 plural4_cs (int n)
 {
-    (n == 1 && n % 1 == 0) ?
+    return (n == 1 && n % 1 == 0) ?
         0 : (n >= 2 && n <= 4 && n % 1 == 0) ?
             1 : (n % 1 != 0 ) ? 2 : 3 ;
 }
 
-static unsigned
+unsigned
 plural4_cy (int n)
 {
-    n == 1 ? 0 : (n == 2) ? 1 : (n != 8 && n != 11) ? 2 : 3 ;
+    return n == 1 ? 0 : (n == 2) ? 1 : (n != 8 && n != 11) ? 2 : 3 ;
 }
 
-static unsigned
+unsigned
 plural4_gd (int n)
 {
-    (n == 1 || n == 11) ?
+    return (n == 1 || n == 11) ?
         0 : (n == 2 || n == 12) ? 1 : (n > 2 && n < 20) ? 2 : 3 ;
 }
 
-static unsigned
+unsigned
 plural4_he (int n)
 {
-    (n == 1 && n % 1 == 0) ?
+    return (n == 1 && n % 1 == 0) ?
         0 : (n == 2 && n % 1 == 0) ?
             1 : (n % 10 == 0 && n % 1 == 0 && n > 10) ? 2 : 3 ;
 }
 
-static unsigned
+unsigned
 plural4_lt (int n)
 {
-    n % 10 == 1 && (n % 100 > 19 || n % 100 < 11) ?
+    return n % 10 == 1 && (n % 100 > 19 || n % 100 < 11) ?
         0 : (n % 10 >= 2 && n % 10 <= 9) &&
             (n % 100 > 19 || n % 100 < 11) ? 1 : n % 1 != 0 ? 2 : 3 ;
 }
 
-static unsigned
+unsigned
 plural4_pl (int n)
 {
-    n == 1 ? 0 : (n % 10 >= 2 && n % 10 <= 4) &&
+    return n == 1 ? 0 : (n % 10 >= 2 && n % 10 <= 4) &&
         (n % 100 < 12 || n % 100 > 14) ?
             1 : (n != 1 && (n % 10 >= 0 && n % 10 <= 1)) ||
                 (n % 10 >= 5 && n % 10 <= 9) ||
                     (n % 100 >= 12 && n % 100 <= 14) ? 2 : 3 ;
 }
 
-static unsigned
+unsigned
 plural4_sk (int n)
 {
-    n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n >= 2 && n <= 4 ?
+    return n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n >= 2 && n <= 4 ?
         1 : n % 1 != 0 ? 2 : 3 ;
 }
 
-static unsigned
+unsigned
 plural4_uk (int n)
 {
-    n % 1 == 0 && n % 10 == 1 && n % 100 != 11 ?
+    return n % 1 == 0 && n % 10 == 1 && n % 100 != 11 ?
         0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 &&
             (n % 100 < 12 || n % 100 > 14) ?
                 1 : n % 1 == 0 &&
@@ -310,18 +312,24 @@ plural4_uk (int n)
                         (n % 100 >= 11 && n % 100 <= 14)) ? 2 : 3 ;
 }
 
-static unsigned
+unsigned
 plural5_ga (int n)
 {
-    n == 1 ? 0 : n == 2 ? 1 : n < 7 ? 2 : n < 11 ? 3 : 4 ;
+    return n == 1 ? 0 : n == 2 ? 1 : n < 7 ? 2 : n < 11 ? 3 : 4 ;
 }
 
-static unsigned
+unsigned
 plural6_ar (int n)
 {
-    n == 0 ? 0 : n == 1 ?  1 : n == 2 ? 2 : n % 100 >= 3 && n % 100 <= 10 ?
-        3 : n % 100 >= 11 ? 4 : 5 ;
+    return n == 0 ? 0 : n == 1 ?  1 : n == 2 ?
+        2 : n % 100 >= 3 && n % 100 <= 10 ?
+            3 : n % 100 >= 11 ? 4 : 5 ;
 }
+
+}           // anonymous namespace
+
+namespace po
+{
 
 /**
  *  The constructors.
@@ -366,7 +374,7 @@ pluralforms::from_string (const std::string & str)
 #include "po/bfplurals.hpp"             /* brute-force initialization       */
 #else
 
-    static map s_plural_forms
+    static map s_plural_forms           /* po::pluralforms::map             */
     {
         {
             PF "1" PE "0;",

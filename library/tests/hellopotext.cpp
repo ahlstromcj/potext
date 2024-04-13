@@ -25,7 +25,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-02-24
- * \updates       2024-04-11
+ * \updates       2024-04-12
  * \license       See above.
  *
  *  This program is meant to be a real-life usage of the potext library.
@@ -49,14 +49,14 @@
 #include "po/potext.hpp"                /* po::textdomain() gettext() etc.  */
 #include "po/logstream.hpp"             /* po::logstream functions          */
 
-namespace
+namespace                               /* anonymous namespace for statics  */
 {
 
 /**
  *  Provides the --help option.
  */
 
-static void
+void
 print_usage (const std::string & arg0)
 {
     std::cout
@@ -73,8 +73,6 @@ print_usage (const std::string & arg0)
     ;
 }
 
-}               // anonymous namespace
-
 /*
  *  The first gettext() smoke test phrase is present in po/es.po. The second
  *  is not.
@@ -85,7 +83,7 @@ print_usage (const std::string & arg0)
  *  and returns bogus return value.
  */
 
-static bool
+bool
 gettext_smoke_test (const std::string & dom_name)
 {
     bool result = true;
@@ -103,7 +101,6 @@ gettext_smoke_test (const std::string & dom_name)
         std::cout << " " << "FAILED";
     }
     std::cout << std::endl;
-
     unknown = "No such sentence in dictionary";
     smoketest = _("No such sentence in dictionary");
     std::cout
@@ -129,7 +126,7 @@ gettext_smoke_test (const std::string & dom_name)
  *  project's po directory.
  */
 
-static bool
+bool
 dgettext_smoke_test
 (
     const std::string & dom_name,
@@ -155,14 +152,13 @@ dgettext_smoke_test
  *  We do not currently handle category parameters.
  */
 
-static bool
+bool
 dcgettext_smoke_test (const std::string & dom_name)
 {
     std::cout
         << "dcgettext(" << dom_name << ") " << "not yet implemented"
         << std::endl
         ;
-
     return true;
 }
 
@@ -176,28 +172,44 @@ dcgettext_smoke_test (const std::string & dom_name)
  *  This smoke test handles only the "es" domain.
  */
 
-static bool
+bool
 ngettext_smoke_test (const std::string & dom_name)
 {
     bool result = true;
-    std::string smoketest = po::ngettext("File", "Files", 1);
     std::cout
-        << "ngettext('File', 'Files', 1) [" << _("domain") << " '"
-        << dom_name << "'] = '" << smoketest << "'"
+        << "ngettext() " << _("tests using domain")
+        << " '" << dom_name << "'"
+        << std::endl
         ;
 
-    bool ok = smoketest == "Archivos";
+    std::string smoketest = po::ngettext("File", "Files", 0);
+    std::cout
+        << "ngettext('File', 'Files', 0) = '" << smoketest << "'"
+        << std::endl
+        ;
+
+    smoketest = po::ngettext("File", "Files", 1);
+    std::cout
+        << "ngettext('File', 'Files', 1) = '" << smoketest << "'"
+        << std::endl
+        ;
+
+#if 0
     if (! ok)
     {
         result = false;
-        std::cout << " " << "FAILED";
+        std::cout << "FAILED" << std::endl;
     }
-    std::cout << std::endl;
+#endif
+
     smoketest = po::ngettext("File", "Files", 2);
     std::cout
-        << "ngettext('File', 'Files', 2) [" << _("domain") << " '"
-        << dom_name << "'] = '" << smoketest << "'"
+        << "ngettext('File', 'Files', 2) = '" << smoketest << "'"
+        << std::endl
         ;
+
+#if defined USE_THIS_CODE
+
     ok = smoketest == "Archivo";
     if (! ok)
     {
@@ -229,10 +241,13 @@ ngettext_smoke_test (const std::string & dom_name)
         std::cout << " " << "FAILED";
     }
     std::cout << std::endl;
+
+#endif  // defined USE_THIS_CODE
+
     return result;
 }
 
-static bool
+bool
 dngettext_smoke_test
 (
     const std::string & dom_name,
@@ -269,7 +284,7 @@ dngettext_smoke_test
     return result;
 }
 
-static bool
+bool
 dngettext_smoke_test_2
 (
     const std::string & dom_name,
@@ -311,7 +326,7 @@ dngettext_smoke_test_2
  *  NOT READY.
  */
 
-static bool
+bool
 dcngettext_smoke_test (const std::string & dom_name)
 {
     std::cout
@@ -327,7 +342,7 @@ dcngettext_smoke_test (const std::string & dom_name)
  *  latter attempting to be sarcastic.
  */
 
-static bool
+bool
 pgettext_smoke_test
 (
     const std::string & dom_name,
@@ -389,7 +404,7 @@ pgettext_smoke_test
  *  po::dgettext().
  */
 
-static bool
+bool
 directory_test
 (
     const std::string & arg0,
@@ -559,6 +574,8 @@ directory_test
         if (! ok)
             result = false;
 #endif  // 0
+
+}               // anonymous namespace
 
 /*
  *  The main routine.

@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-04-10
+ * \updates       2024-04-13
  * \license       See above.
  *
  */
@@ -50,6 +50,8 @@
 
 namespace
 {
+
+#if ! defined POTEXT_DICTIONARY_CREATE_PO_DUMP
 
 static void
 print_msg
@@ -93,6 +95,8 @@ print_msg_ctxt
     std::cout << "msgctxt \"" << ctxt << "\"\n";
     print_msg(msgid, msgid_plural, msgstrs);
 }
+
+#endif  // ! defined POTEXT_DICTIONARY_CREATE_PO_DUMP
 
 static void
 print_usage (const std::string & arg0)
@@ -408,8 +412,13 @@ main (int argc, char * argv [])
                 const char * filename = argv[2];
                 po::dictionary dict;
                 read_dictionary(filename, dict);
+#if defined POTEXT_DICTIONARY_CREATE_PO_DUMP
+                std::string dump = dict.create_po_dump();
+                std::cout << dump << std::endl;
+#else
                 dict.foreach(print_msg);
                 dict.foreach_ctxt(print_msg_ctxt);
+#endif
             }
             else
             {

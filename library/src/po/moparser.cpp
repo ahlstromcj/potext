@@ -29,7 +29,7 @@
  * \library       potext
  * \author        simple-gettext; refactoring by Chris Ahlstrom
  * \date          2024-03-25
- * \updates       2024-04-11
+ * \updates       2024-04-13
  * \license       See above.
  *
  * Format of the .mo File:
@@ -113,6 +113,14 @@
  *      byte. The length which appears in the string descriptor includes
  *      both. However, only the singular of the original string takes part in
  *      the hash table lookup.
+ *
+ * Dicionary add() statuses:
+ *
+ *      add(msgid, converted);
+ *      add(msgid, pluralmsgid, msglist);
+ *      add(ctxt, msgid, msgstr);
+ *      add(ctxt, msgid, pluralmsgid, msglist);
+ *
  */
 
 #include <iostream>                     /* std::istream, std::ostream       */
@@ -163,7 +171,7 @@ static const size_t c_file_size_sanity_check = 100;
  *  numbers: 0x950412de and 0xde120495.
  */
 
-const moparser::word moparser::sm_magic    = 0x950412de;
+const moparser::word moparser::sm_magic         = 0x950412de;
 const moparser::word moparser::sm_magic_swapped = 0xde120495;
 
 /**
@@ -196,12 +204,10 @@ moparser::clear ()
 {
     m_mo_data.clear();
     m_charset.clear();
-    m_mo_header.magic = 0;                  /* anything better than this?   */
-    m_swapped_bytes = false;
-    m_charset_parsed = false;
-    m_plural_forms_parsed = false;
     m_translations.clear();
-    m_ready = false;
+    m_mo_header.magic = 0;
+    m_swapped_bytes = m_charset_parsed =
+        m_plural_forms_parsed = m_ready = false;
 }
 
 /**
@@ -310,6 +316,9 @@ moparser::parse_mo_file
             }
         }
     }
+    if (result)
+        dic.file_mode(dictionary::mode::mo);
+
     return result;
 }
 
@@ -663,10 +672,10 @@ moparser::load_translations ()
         int translength = int(translated.length());
         if (translength > 0)
         {
-            tranquad.translated = translated;
             if (translength < tlength)
             {
                 phraselist & plist{tranquad.plurals};
+                plist.push_back(translated);
                 ++translength;                      /* count the NUL char   */
                 toffset += translength;             /* skip the singular    */
                 tlength -= translength;
@@ -694,6 +703,8 @@ moparser::load_translations ()
                         break;
                 }
             }
+            else
+                tranquad.translated = translated;
         }
         m_translations.push_back(tranquad);
     }
