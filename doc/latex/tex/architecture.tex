@@ -6,7 +6,7 @@
 % \library     Documents
 % \author      Chris Ahlstrom
 % \date        2024-03-07
-% \update      2024-04-06
+% \update      2024-04-14
 % \version     $Revision$
 % \license     $XPC_GPL_LICENSE$
 %
@@ -198,6 +198,10 @@
          It is used in the \texttt{gettext} module to
          implement the \texttt{bind\_textdomain\_codeset()} function.
       \item \texttt{get\_dictionary()}.
+         This function returns a reference to the current dictionary
+         object.
+         It is used in the \texttt{gettext} module to access the main
+         dictionary to use it in the various gettext-like functions.
    \end{itemize}
 
 \subsection{Pomoparserbase Class}
@@ -380,7 +384,18 @@
    look up the dictionary associated with the desired domain, 
    and use the appropriate translate function.
 
-   The \texttt{pluralforms} class deserves its own small section.
+   A new function \texttt{create\_po\_dump()} generates a string
+   the is a reasonable representation of a \texttt{.po} file.
+   It can be used to convert a \texttt{.mo} file to a \texttt{.po}
+   file. An example is its usage in the \texttt{potext\_test list-msgstrs}
+   command.
+
+   If one does not need this functionality, undefine this macro in
+   the \texttt{po\_build\_macros.h} header file:
+
+   \begin{verbatim}
+      POTEXT_DICTIONARY_CREATE_PO_DUMP
+   \end{verbatim}
 
 \subsection{Pluralforms Class}
 \label{subsec:potext_pluralforms_class}

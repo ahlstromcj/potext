@@ -6,7 +6,7 @@
 % \library     Documents
 % \author      Chris Ahlstrom
 % \date        2024-02-08
-% \update      2024-04-10
+% \update      2024-04-14
 % \version     $Revision$
 % \license     $XPC_GPL_LICENSE$
 %
@@ -145,25 +145,29 @@
    The tar-ball
    \texttt{extras/code/mini-potext-test.tar.xz}
    contains a simple application using \textsl{Potext} as a sub-project
-   stored in \textsl{GitHub}..
+   stored in \textsl{GitHub}.
    Unpack the tar-ball into its own directory
    and build it by running its
    \texttt{work.sh} script.
 
-\subsection{Deletions from GNU Gettext}
+\subsection{Unused GNU Gettext Features}
 \label{subsec:introduction_deletions}
 
+   For ease of use, some features of \textsl{GNU Gettext} are not
+   implemented:
+
    \begin{itemize}
-      \item Locking has been removed from some \texttt{gettext()}-like
-         functions; locking can be put back once testing reveals
-        it necessary for the use-cases that \textsl{Potext} supports.
+      \item Thread locks in \texttt{gettext()}-like functions;
+         locking can be added if testing reveals
+         it necessary for the use-cases that \textsl{Potext} supports.
       \item Determining if the binary is running SUID root.
+      \item All kinds of \texttt{C} macros to choose build options.
+      \item Detecting changes to localization and character conversion
+         environment variables.
    \end{itemize}
 
-   Currently \textsl{Potext} is meant to be set up once during
+   Currently \textsl{Potext} is meant to be set up once at the start of
    the run of an application.
-   It currently does not detect changes to the environment variables
-   related to localization and character conversions.
    It assumes that once the setup is made, no localization changes
    will be made. Keeps it simple.
 
@@ -172,18 +176,19 @@
 
    \begin{itemize}
       \item Changed the coding style and naming conventions for
-         (perhaps) easier reading..
+         (perhaps) easier reading.
       \item Use of initializer lists, rather than brute-force
          assignment statements, for initializing various containers.
       \item Use of the \texttt{auto} keyword in declarations and
          \texttt{for}-loops.
       \item Many additional \texttt{using} directives, most hidden
-         in the \texttt{po} namespace or in a class declaration..
+         in the \texttt{po} namespace or in a class declaration.
       \item A few additional helper classes have been added to provide
          new features.
    \end{itemize}
 
-   These changes are meant to make the code easier to read and understand.
+   These changes are meant to make the code easier to read, understand,
+   and modify.
 
 \subsection{Future Work}
 \label{subsec:introduction_future}
@@ -194,6 +199,8 @@
          and \texttt{.mo} file
          installation and copying (if desired)
          to the user's configuration directory.
+         Add support to assist a \textsl{Potext}-using project with the
+         installation of the \texttt{.po} files.
       \item Handle capitals, punctuation, etc. without additional
          \texttt{.po}/\texttt{.mo} entries.
       \item Get the handling of categories (e.g. \texttt{LC\_TIME}) to
@@ -201,9 +208,7 @@
          \texttt{LC\_MESSAGES}, so this is a low priority.
       \item Allow for the user to override the character set via the
          \texttt{OUTPUT\_CHARSET} environment variable.
-      \item Add support to assist a \textsl{Potext}-using project with the
-         installation of the \texttt{.po} files.
-      \item Try to analyze the translation file to determine if the
+      \item Analyze the translation file to determine if the
          actual character-set matches the specified character-set.
       \item Support the "//IGNORE" and "//TRANSLIT" flags for character-set
          conversions.
@@ -318,8 +323,14 @@
          \textsl{Windows}:
          \texttt{C:/Users/user/AppData/Local/PACKAGE}.
          Again, the \texttt{*.po} files are in a
-         subdirectory called \texttt{po}.
+         subdirectory called \texttt{po},
+         and the \texttt{*.mo} files are in a
+         subdirectory called \texttt{mo}.
+         or \texttt{locale}.
    \end{itemize}
+
+   We are still working out details of how best to manage
+   translations for an application.
 
    Also, for reference, we mention some of the files used by
    \textsl{GNU Gettext}.

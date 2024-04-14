@@ -11,7 +11,7 @@
 % \license     $XPC_GPL_LICENSE$
 %
 %     Provides a pointed description of some tests, which also helps understand
-%     usage of the potext library, a replacement for the tinygettext library..
+%     usage of the potext library, a replacement for the tinygettext library.
 %
 %-------------------------------------------------------------------------------
 
@@ -437,6 +437,11 @@
    \begin{verbatim}
       $ ./build/library/tests/potext_test list-msgstrs <file>
    \end{verbatim}
+
+   The "file" parameter can be a \texttt{.po} file or a
+   \texttt{.mo} file.
+   This test takes the dictionary read in from that file and
+   basically writes a \texttt{.po} file to the console.
 
 %-------------------------------------------------------------------------------
 % vim: ts=3 sw=3 et ft=tex

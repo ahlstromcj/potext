@@ -62,7 +62,7 @@ project('potext', 'cpp',
    meson_version: '>=1.1.0',
    default_options: [
       'cpp_std=c++17', 'warning_level=3',
-      'default_library=static'            # static for debug, both otherwise
+      'default_library=both'          # 'static' for debug, 'both' otherwise
       ]
    )
 

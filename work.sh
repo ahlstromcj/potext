@@ -8,7 +8,7 @@
 # \library        potext
 # \author         Chris Ahlstrom
 # \date           2024-02-06
-# \update         2024-03-31
+# \update         2024-04-14
 # \version        $Revision$
 # \license        $XPC_SUITE_GPL_LICENSE$
 #
@@ -30,7 +30,7 @@ LANG=C
 export LANG
 CYGWIN=binmode
 export CYGWIN
-export POTEXT_SCRIPT_EDIT_DATE="2024-03-31"
+export POTEXT_SCRIPT_EDIT_DATE="2024-04-14"
 export POTEXT_LIBRARY_API_VERSION="0.2"
 export POTEXT_LIBRARY_VERSION="$POTEXT_LIBRARY_API_VERSION.0"
 export POTEXT="potext"
@@ -324,10 +324,10 @@ if test "$DOMAKE" = "yes" ; then
    if test "$NINJA_EXISTS" = "no" ; then
       echo "New configuration, creating $MAKEFILE, etc...."
       if test "$DODEBUG" = "yes" ; then
-         meson setup build/ --buildtype=debug
+         meson setup --buildtype=debug --default-library=static build/
          echo "... for debugging"
       else
-         meson setup build/ --buildtype=release
+         meson setup --buildtype=release build/
          echo "... for release"
       fi
    fi

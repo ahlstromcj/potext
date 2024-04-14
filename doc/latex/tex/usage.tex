@@ -6,7 +6,7 @@
 % \library     Documents
 % \author      Chris Ahlstrom
 % \date        2024-03-19
-% \update      2024-03-22
+% \update      2024-04-14
 % \version     $Revision$
 % \license     $XPC_GPL_LICENSE$
 %
@@ -61,7 +61,8 @@
    An application using "gettext" internationaliztion generally needs
    to call \texttt{setlocale()},
    \texttt{textdomain()}, and \texttt{bindtextdomain()}.
-   The following function wraps up these functions in one call.
+   The following function declared in the \texttt{gettext.hpp}
+   header file wraps up these functions in one call.
 
    \begin{verbatim}
       std::string init_app_locale
@@ -70,7 +71,8 @@
           const std::string & pkgname,
           const std::string & domainname,
           const std::string & dirname,
-          int category
+          const std::wstring & wdirname = L"",
+          int category = (-1)
       )
    \end{verbatim}
 
@@ -104,6 +106,12 @@
    for in \texttt{/home/user/.config/package/} or
    \texttt{C:/Users/user/AppData/Local}, instead of some
    place in the system.
+  
+   \texttt{wdirname}.
+   The wide-string version of the locale directory name, most useful
+   in \textsl{Windows}.
+   The use of the wide-string parameter is optional,
+   and not well tested yet.
 
    \texttt{category}.
    The area that is covered, such as
