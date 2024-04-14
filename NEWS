@@ -1,10 +1,10 @@
 NEWS for Potext 0.2.0
 Chris Ahlstrom
-2024-03-19 to 2024-04-10
+2024-03-19 to 2024-04-14
 
 # Changelog
 
-## [0.2.0] - 2024-04-10
+## [0.2.0] - 2024-04-14
 
 ### Added
 
@@ -15,12 +15,15 @@ Chris Ahlstrom
   poparser and moparser.
 - Added storage of msgid\_plural to use in reconstituting a translation file.
 - Added support for nplurals=3 found in colord.mo (es domain).
+- Added the ability to dump a dictionary's translations in the format of
+  a .po file.
 
 ### Fixed
 
 - Errors in character-set handling.
 - Errors in plural forms handling, plus some efficiency work.
 - Fixed the mini-test tar-ball.
+- Many other fixes, an embarrassing number.
 
 ### Changed
 
