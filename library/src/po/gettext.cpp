@@ -31,7 +31,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-04-05
+ * \updates       2024-04-25
  * \license       See above.
  *
  *  https://www.gnu.org/software/gettext/manual/ provides a 300-page manual in
@@ -133,6 +133,17 @@
 #define ENV_HOME        "HOME"
 #define ENV_CONFIG      ".config"
 #endif
+
+/*
+ * Version information string. Note that it is not in the po namespace.
+ */
+
+std::string
+potext_version ()
+{
+    static std::string s_info = POTEXT_NAME "-" POTEXT_VERSION " " __DATE__ ;
+    return s_info;
+}
 
 namespace po
 {

@@ -6,13 +6,23 @@
 # \library     potext
 # \author      Chris Ahlstrom
 # \date        2024-02-07
-# \updates     2024-03-26
+# \updates     2024-04-25
 # \license     $XPC_SUITE_GPL_LICENSE$
 #
 #  This file is part of the potext library and tests. See the top-level
 #  meson.build file.
 #
 #-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# The *.pc file goes into $libdir/potext-0.2/pkgconfig instead of
+# $libdir/pkgconfig as the meson documentation asserts.  Not sure why, but
+# wiring the expected directory here works.
+#-----------------------------------------------------------------------------
+
+alt_pkgconfig_libdir = join_paths(
+   po_prefix, get_option('libdir'), 'pkgconfig'
+   )
 
 #-----------------------------------------------------------------------------
 # Dependencies and a small app to test them.  Symbols from/for the subprojects.
@@ -27,6 +37,37 @@ libpotext_sources = []
 build_args = []
 
 #-----------------------------------------------------------------------------
+# Dependencies on Linux
+#-----------------------------------------------------------------------------
+#
+# None, yet.
+#
+#-----------------------------------------------------------------------------
+
+empty_depends = [ ]
+
+#-----------------------------------------------------------------------------
+# Used by the potext_version() function.
+#-----------------------------------------------------------------------------
+
+build_args += [
+   '-DPOTEXT_NAME=' + '"' + meson.project_name() + '"',
+   '-DPOTEXT_VERSION=' + '"' + meson.project_version() + '"'
+   ]
+
+#-----------------------------------------------------------------------------
+# Only make public interfaces visible
+#-----------------------------------------------------------------------------
+
+'''
+if target_machine.system() == 'windows' or target_machine.system() == 'cygwin'
+   build_args += '-DLIBPUBLIC="__declspec(dllexport)"'
+else
+   build_args += '-DLIBPUBLIC=__attribute__((visibility("default")))'
+endif
+'''
+
+#-----------------------------------------------------------------------------
 # Build
 #-----------------------------------------------------------------------------
 #
@@ -37,7 +78,7 @@ build_args = []
 #-----------------------------------------------------------------------------
 
 po_includedirs = include_directories('include')
-po_install = not meson.is_subproject()
+po_install = not po_subproj
 
 #-----------------------------------------------------------------------------
 # If set above, libpotext_dep is not found. Linkage options:
@@ -70,6 +111,8 @@ po_library_build = library(
    libpotext_sources,
    install : po_install,
    install_dir : get_option('libdir') / po_project_base,
+   cpp_args : build_args,
+   dependencies : empty_depends,
    include_directories : po_includedirs
    )
 
@@ -101,28 +144,10 @@ libpotext_so_version = '@0@.@1@.@2@'.format(
 # Note the external dependencies meant for superprojects of potex.
 #-----------------------------------------------------------------------------
 
-if meson.is_subproject()
-
-   libpotext_include_dep = declare_dependency(
-      include_directories : po_includedirs
-      )
-
-   libpotext_library_dep = declare_dependency(
-      include_directories : po_includedirs,
-      link_with : po_library_build
-      )
-
-else
-
-   libpotext_dep = declare_dependency(
-      include_directories : po_includedirs,
-      link_with : po_library_build
-      )
-   if get_option('enable_tests')
-      subdir('tests')
-   endif
-
-endif
+libpotext_dep = declare_dependency(
+   include_directories : [ po_includedirs ],
+   link_with : [ po_library_build ]
+   )
 
 #-----------------------------------------------------------------------------
 # Future:
@@ -146,40 +171,17 @@ endif
 #
 #-----------------------------------------------------------------------------
 
-if not meson.is_subproject()
-
-   pkg = import('pkgconfig')
-   pkg.generate(
-      name : 'libpotext',
-      description : 'A small gettext replacement extending tinygettext.',
-      filebase : po_library_base,
-      libraries : po_library_build,
-      subdirs: po_project_base,
-      url : 'https://github.com/ahlstromcj/potext',
-      version : po_api_version
-      )
+if not po_subproj
 
    #----------------------------------------------------------
    # install_subdir(), install_data(): top-level meson.build
    # subdir('tests'): library/meson.build
    #----------------------------------------------------------
 
-endif
+   if get_option('enable_tests')
+      subdir('tests')
+   endif
 
-#-----------------------------------------------------------------------------
-# Dependencies on Linux
-#-----------------------------------------------------------------------------
-
-empty_depends = [ ]
-
-#-----------------------------------------------------------------------------
-# Only make public interfaces visible
-#-----------------------------------------------------------------------------
-
-if target_machine.system() == 'windows' or target_machine.system() == 'cygwin'
-   build_args += '-DLIBPUBLIC="__declspec(dllexport)"'
-else
-   build_args += '-DLIBPUBLIC=__attribute__((visibility("default")))'
 endif
 
 # po_exe_sources = files('potext_linkage.cpp')

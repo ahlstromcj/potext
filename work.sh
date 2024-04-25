@@ -8,7 +8,7 @@
 # \library        potext
 # \author         Chris Ahlstrom
 # \date           2024-02-06
-# \update         2024-04-14
+# \update         2024-04-25
 # \version        $Revision$
 # \license        $XPC_SUITE_GPL_LICENSE$
 #
@@ -30,7 +30,7 @@ LANG=C
 export LANG
 CYGWIN=binmode
 export CYGWIN
-export POTEXT_SCRIPT_EDIT_DATE="2024-04-14"
+export POTEXT_SCRIPT_EDIT_DATE="2024-04-25"
 export POTEXT_LIBRARY_API_VERSION="0.2"
 export POTEXT_LIBRARY_VERSION="$POTEXT_LIBRARY_API_VERSION.0"
 export POTEXT="potext"
@@ -356,16 +356,20 @@ fi
 
 # Check for root, then install. We could let meson prompt the user
 # to automatically become root.
+#
+#     -  /usr/local/lib/
+#     -  /usr/local/lib/x86_64-linux-gnu/
 
 if test "$DOINSTALL" = "yes" ; then
 
-   if test $UID = 0 ; then
+   USERID=$(id -u)
+   if test "$USERID" = 0 ; then
       cd build
       echo "Installing the potext library..."
       meson install
       cd ..
    else
-      echo "We need you to be root to install the potext library..."
+      echo "We want you to be root to install the potext library..."
    fi
 
 fi

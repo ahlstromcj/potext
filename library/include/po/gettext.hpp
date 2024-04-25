@@ -27,7 +27,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-02-16
- * \updates       2024-04-01
+ * \updates       2024-04-25
  * \license       See above.
  *
  *  gettext_noop()  pseudo function call that serves as a marker for the
@@ -101,6 +101,12 @@
 #endif          // defined POTEXT_ENABLE_LIBINTL
 
 #endif          // defined POTEXT_ENABLE_I18N
+
+/**
+ *  Free function for version information.
+ */
+
+extern std::string potext_version ();
 
 namespace po
 {

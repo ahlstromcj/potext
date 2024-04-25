@@ -25,7 +25,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-02-24
- * \updates       2024-04-12
+ * \updates       2024-04-25
  * \license       See above.
  *
  *  This program is meant to be a real-life usage of the potext library.
@@ -591,6 +591,7 @@ main (int argc, char * argv [])
     if (appname.length() >= 12)
         appname = "hellopotext";
 
+    std::cout << "Test of " << potext_version() << ":" << std::endl;
     try
     {
         if (argc == 1)

@@ -6,7 +6,7 @@
 # \library     potext
 # \author      Chris Ahlstrom
 # \date        2024-02-06
-# \updates     2024-03-31
+# \updates     2024-04-25
 # \license     $XPC_SUITE_GPL_LICENSE$
 #
 #  This file is part of the potext library and tests.
@@ -57,7 +57,7 @@
 #-----------------------------------------------------------------------------
 
 project('potext', 'cpp',
-   version: '0.2.0',
+   version: '0.2.1',
    license: 'GPLv2',
    meson_version: '>=1.1.0',
    default_options: [
@@ -86,20 +86,22 @@ extra_flags = [
 # Global information for all the libraries.
 #-----------------------------------------------------------------------------
 
-po_description = 'Builds the potext library and tests projects.'
-po_date = '2024-03-31'
-po_version = meson.project_version()
+po_pkg_description = 'A small gettext replacement extending tinygettext.'
+po_pkg_version = meson.project_version()
 po_api_version = '0.2'
-po_build_type = get_option('buildtype')
+po_info_date = '2024-04-25'
+po_info_build_type = get_option('buildtype')
+po_info_build_root = meson.project_build_root()
+po_info_lib_type = get_option('default_library')
+po_info_project_root = meson.project_source_root()
 po_debug = get_option('buildtype').contains('debug')
 po_project_base = 'potext-@0@'.format(po_api_version)
 po_library_base = 'libpotext-@0@'.format(po_api_version)
-po_project_root = meson.project_source_root()
-po_libtype = get_option('default_library')
-po_data_dir = get_option('datadir') / 'potext-@0@'.format(po_api_version)
+po_pkgconfig_name = 'libpotext'
+po_subproj = meson.is_subproject()
 
 if po_debug
-   if not meson.is_subproject()
+   if not po_subproj
       add_global_arguments('-DDEBUG', language : 'cpp')
    endif
 endif
@@ -110,6 +112,8 @@ endif
 # for example, /usr/local/include/potext-0.2, just as they appear in this
 # project, where the include subdirectory is 'po'.
 #-----------------------------------------------------------------------------
+# po_data_dir = get_option('datadir') / 'potext-@0@'.format(po_api_version)
+# libraries_root = 'library'
 
 po_dir = 'potext-@0@'.format(po_api_version)
 po_po_dir = join_paths(po_dir, 'po')
@@ -118,28 +122,25 @@ po_bindir = join_paths(po_prefix, get_option('bindir'))
 po_includedir = join_paths(po_prefix, get_option('includedir'), po_dir)
 po_libdir = join_paths(po_prefix, get_option('libdir'), po_dir)
 po_datadir = join_paths(po_prefix, get_option('datadir'), po_dir)
+po_docdir = join_paths(po_prefix, po_datadir, 'doc', po_dir)
 po_localedir = join_paths(po_prefix, get_option('localedir'))
 po_metainfodir = join_paths(po_datadir, 'metainfo')
-po_docdir = join_paths(po_prefix, po_datadir, 'doc', po_dir)
-po_project_root = meson.project_source_root()
-po_libtype = get_option('default_library')
-
-libraries_root = 'library'
-libraries_top = '.'
-libpotext_includetop = join_paths(libraries_top, 'include')
+libraries_top = meson.project_source_root()
+libpotext_include_top = join_paths(libraries_top, 'include')
 
 #-----------------------------------------------------------------------------
 # pkgconfig
 #-----------------------------------------------------------------------------
 #
-#     pkg.generate(): see library/meson.build
+#     pkg.generate():    resides in library/meson.build
 #     install_headers(): see library/include/meson.build
 #
 #-----------------------------------------------------------------------------
 
-if not meson.is_subproject()
+if not po_subproj
 
-# TODO: figure out where to put and install the potext logo
+# TODO: figure out where to put and install the logo
+#
 #  install_subdir(
 #     join_paths('doc'),
 #     install_dir : get_option('docdir'),
@@ -161,20 +162,53 @@ endif
 subdir('library')
 
 #-----------------------------------------------------------------------------
-# Dependencies on Linux
-#-----------------------------------------------------------------------------
-
-empty_depends = [ ]
-
-#-----------------------------------------------------------------------------
 # Only make public interfaces visible
 #-----------------------------------------------------------------------------
 
-# if target_machine.system() == 'windows' or target_machine.system() == 'cygwin'
-#    build_args += '-DLIBPUBLIC="__declspec(dllexport)"'
-# else
-#    build_args += '-DLIBPUBLIC=__attribute__((visibility("default")))'
-# endif
+'''
+if target_machine.system() == 'windows' or target_machine.system() == 'cygwin'
+   build_args += '-DLIBPUBLIC="__declspec(dllexport)"'
+else
+   build_args += '-DLIBPUBLIC=__attribute__((visibility("default")))'
+endif
+'''
+
+#-----------------------------------------------------------------------------
+# Package config
+#-----------------------------------------------------------------------------
+#  On Arch Linux, the .pc file is installed to /usr/local/lib/pkgconfig.
+#  On Ubuntu, the .pc file is installed to
+#     /usr/local/lib/x86_64-linux-gnu/pkgconfig.
+#-----------------------------------------------------------------------------
+
+if not po_subproj
+
+   pkg = import('pkgconfig')
+   pkg.generate(
+      po_library_build,
+      filebase : po_pkgconfig_name,
+      version : po_pkg_version,
+      name : po_project_base,
+      description : po_pkg_description,
+      install_dir : alt_pkgconfig_libdir,
+      subdirs : po_dir,
+      libraries : po_library_build,
+      url : 'https://github.com/ahlstromcj/potext',
+      )
+
+# TODO: figure out where to put and install the logo
+
+   install_data(
+      files(
+         'ChangeLog',
+         'LICENSE.md',
+         'README.md',
+         'doc/potext-developer-guide.pdf'
+         ),
+      install_dir : get_option('docdir')
+      )
+
+endif
 
 #-----------------------------------------------------------------------------
 # Info
@@ -182,17 +216,20 @@ empty_depends = [ ]
 
 summary(
    {
-      'Date' : po_date,
+      'Date' : po_info_date,
       'Filebase' : po_project_base,
-      'Version' : po_version,
+      'Version' : po_pkg_version,
       'Base' : po_project_base,
-      'Description' : po_description,
+      'Description' : po_pkg_description,
+      'Source Root' : po_info_project_root,
+      'Headers Root' : libpotext_include_top,
       'Sub Dir' : po_project_base,
-      'Build Type' : po_build_type,
-      'Library Type' : po_libtype,
-      'Root' : po_project_root
+      'Build Type' : po_info_build_type,
+      'Build Root' : po_info_project_root,
+      'Library Type' : po_info_lib_type,
+      'Subproject' : po_subproj
    },
-   section : 'Project'
+   section : 'Potext Project'
    )
 
 summary(
@@ -202,9 +239,9 @@ summary(
       'bindir' : po_bindir,
       'libdir' : po_libdir,
       'datadir' : po_datadir,
-      'appdatadir' : po_datadir
+      'docdir': po_docdir
    },
-   section : 'Install Directories'
+   section : 'Potext Install Directories'
    )
 
 #****************************************************************************
