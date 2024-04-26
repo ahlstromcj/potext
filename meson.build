@@ -56,7 +56,8 @@
 #
 #-----------------------------------------------------------------------------
 
-project('potext', 'cpp',
+project('potext',
+   [ 'cpp' ],
    version: '0.2.1',
    license: 'GPLv2',
    meson_version: '>=1.1.0',

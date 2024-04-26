@@ -6,7 +6,7 @@
 # \library     potext
 # \author      Chris Ahlstrom
 # \date        2024-02-06
-# \updates     2024-03-20
+# \updates     2024-04-25
 # \license     $XPC_SUITE_GPL_LICENSE$
 #
 #  This file is part of the "potext" library. Note that, as of version 1.1,
@@ -32,7 +32,7 @@ option('docdir',
 # This option is checked only if potext is not a subproject.
 #-----------------------------------------------------------------------------
 
-option('enable_tests',
+option('enable-tests',
    type : 'boolean',
    value : true,
    description : 'Build the test program(s)'
