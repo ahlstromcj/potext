@@ -178,7 +178,7 @@ if not po_subproj
    # subdir('tests'): library/meson.build
    #----------------------------------------------------------
 
-   if get_option('enable_tests')
+   if get_option('enable-tests')
       subdir('tests')
    endif
 

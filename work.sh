@@ -8,7 +8,7 @@
 # \library        potext
 # \author         Chris Ahlstrom
 # \date           2024-02-06
-# \update         2024-04-25
+# \update         2024-04-26
 # \version        $Revision$
 # \license        $XPC_SUITE_GPL_LICENSE$
 #
@@ -30,10 +30,15 @@ LANG=C
 export LANG
 CYGWIN=binmode
 export CYGWIN
-export POTEXT_SCRIPT_EDIT_DATE="2024-04-25"
+export POTEXT_SCRIPT_EDIT_DATE="2024-04-26"
 export POTEXT_LIBRARY_API_VERSION="0.2"
 export POTEXT_LIBRARY_VERSION="$POTEXT_LIBRARY_API_VERSION.0"
 export POTEXT="potext"
+export POTEXT_LIBRARY="$POTEXT-$POTEXT_LIBRARY_API_VERSION"
+
+PLATFORM="UNIX"
+INSTALL_PREFIX="/usr/local"
+INSTALL_LIBDIR="lib"                # "lib/x86_64-linux-gnu" on Debian
 
 DOCLANG="no"         # --clang. Default is the native compiler.
 DOGNU="no"           # --gnu. Default is the native compiler.
@@ -41,7 +46,8 @@ DOCLEAN="no"         # --clean
 DODEBUG="yes"        # --debug. This is the default Meson build.
 DODIST="no"          # --dist. Use Meson "dist" to create a package.
 DOHELP="no"          # --help. Duh!
-DOINSTALL="no"       # --install. Requires the build be done already.
+DOINSTALL="no"       # --install. Requires the release be built already.
+DOUNINSTALL="no"     # --uninstall. Like --install, requires sudo/root.
 DOMAKE="yes"         # Default action after creating the build directory.
 DOREMAKE="no"        # currently UNUSED
 DOMAKEPDF="no"       # --pdf. Make the manual, always as a separate step.
@@ -87,6 +93,11 @@ if test $# -ge 1 ; then
 
          --install)
             DOINSTALL="yes"
+            DOMAKE="no"
+            ;;
+
+         --uninstall)
+            DOUNINSTALL="yes"
             DOMAKE="no"
             ;;
 
@@ -170,6 +181,9 @@ be more to come.
  --release           Build release version (Meson defaults to a debug version).
                      Also builds the PDF documentation.
  --install           Run 'meson install' to install the library and PDF.
+ --uninstall         Run 'ninja uninstall' to uninstall the library.
+                     Some directories might remain; there is a error about
+                     one header file not being found... strange.
  --dist              Make a Meson dist package and exit.
  --clang             Rebuild the code using the Clang compilers.
  --pdf               Build just the PDF documentation and exit.
@@ -369,7 +383,37 @@ if test "$DOINSTALL" = "yes" ; then
       meson install
       cd ..
    else
-      echo "We want you to be root to install the potext library..."
+      echo "UID $USERID. We want you as root to install the potext library..."
+   fi
+
+fi
+
+# Uninstallation is odd with Meson. The following does not work. And
+# the call to ninja does not remove some directories.
+#
+#     cd build
+#     meson --internal uninstall
+#     cd ..
+#
+# Note that there are no man pages yet.
+#
+# We could 
+
+
+if test "$DOUNINSTALL" = "yes" ; then
+
+   USERID=$(id -u)
+   if test "$USERID" = 0 ; then
+      echo "Uninstalling the potext library..."
+      ninja -C build uninstall
+      if test "$PLATFORM" = "UNIX" ; then
+         rm -rf "$INSTALL_PREFIX/include/$POTEXT_LIBRARY"
+         rm -rf "$INSTALL_PREFIX/$INSTALL_LIBDIR/$POTEXT_LIBRARY"
+         rm -rf "$INSTALL_PREFIX/share/doc/$POTEXT"
+#        rm -rf "$INSTALL_PREFIX/man/man1/$POTEXT.1"
+      fi
+   else
+      echo "UID $USERID. We want you as root to uninstall the potext library..."
    fi
 
 fi

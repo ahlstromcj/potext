@@ -1,4 +1,4 @@
-# README for Potext 0.2.0 2024-04-14
+# README for Potext 0.2.1 2024-04-26
 
 __Potext__ is a partial replacement for the __GNU Gettext__ library and a
 refactoring of the __Tinygettext__ library, with some additional features. It
@@ -14,8 +14,7 @@ should needed.
 
 ##  Library Features
 
-    *   The build system is Meson, and sample wrap files are provided
-        for using Potext as a C++ subproject.
+    *   Can be built using GNU C++ or Clang C++.
     *   The important features of the old tinygettext library follow.
         *   Rather than requiring a .mo file, the library directly parses
             .po files, which are human readable.
@@ -27,6 +26,10 @@ should needed.
     *   Provides reimplementations for textdomain(), bindtextdomain(),
         provides gettext() and related functions, wrapped in the "po"
         namespace.
+    *   Basic dependencies: Meson 1.1 and above; C++17 and above.
+    *   The build system is Meson, and sample wrap files are provided
+        for using Potext as a C++ subproject.
+    *   PDF documentation built from LaTeX.
 
 ##  Usage
 
@@ -52,6 +55,7 @@ should needed.
         from non-present message contexts, as per the GNU documentation.
         This avoid unnecessary message translation collisions in the
         dictionary code.
+    *   Improved the work.sh, added an --uninstall option.
 
 ##  Documentation
 
