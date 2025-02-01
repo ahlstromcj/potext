@@ -1,4 +1,4 @@
-# README for Potext 0.2.1 2024-04-26
+# README for Potext 0.2.1 2025-02-01
 
 __Potext__ is a partial replacement for the __GNU Gettext__ library and a
 refactoring of the __Tinygettext__ library, with some additional features. It
@@ -71,6 +71,8 @@ should needed.
     *   Figure out how to deal with the "category" parameter. LC\_MESSAGES
         is by far the most common, but....
     *   Flesh out and test the Windows support; it still has problems.
+        For examnple, we have mingw's gcc v 8, not 9, so std::filesystem
+        is not supported.
     *   Tighten up the nlsbinding class and the dictionarymgr class.
     *   Add using a soft link for the *.so library file.
     *   Make sure uninstall works.

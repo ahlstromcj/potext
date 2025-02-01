@@ -30,26 +30,33 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-05
+ * \updates       2025-02-01
  * \license       See above.
  *
  *  This class useds the static function std::filesystem::directory_iterator().
  *
- *  Note: std::filesystem requires C++17.
+ *  Note: std::filesystem requires C++17, which needs gcc 9, but our
+ *  current Mingw framework on Windows 11 has only gcc 8.
  */
 
-#include <filesystem>                   /* std::filesystem v po::filesystem */
 #include <fstream>
 
 #include "platform_macros.h"            /* PLATFORM_WINDOWS (WIN32) macro   */
-#include "po/unixfilesystem.hpp"
 
+#if defined PLATFORM_WINDOWS
 #if defined PLATFORM_WINDOWS_32
 #include "po/dirent.h"
+#endif
+#error MINGW 8 does not support std::filesystem, we will fix later.
+#else
+#include <filesystem>                   /* std::filesystem v po::filesystem */
+#include "po/unixfilesystem.hpp"
 #endif
 
 namespace po
 {
+
+#if ! defined PLATFORM_WINDOWS
 
 unixfilesystem::unixfilesystem () : filesystem()
 {
@@ -72,6 +79,8 @@ unixfilesystem::open_file (const std::string & filename)
 {
     return uistream_ptr(new std::ifstream(filename));
 }
+
+#endif          // ! defined PLATFORM_WINDOWS
 
 }               // namespace po
 

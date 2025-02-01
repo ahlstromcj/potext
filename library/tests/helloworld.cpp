@@ -32,7 +32,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2024-03-18
+ * \updates       2025-02-01
  * \license       See above.
  *
  * gettext.h:
@@ -93,6 +93,11 @@
  */
 
 #include "platform_macros.h"            /* PLATFORM_UNIX macro              */
+
+#if defined PLATFORM_WINDOWS
+#define LC_MESSAGES     LC_ALL
+#endif
+
 #include "../../extras/code/gettext.h"  /* pgettext(), gettext(3), etc.     */
 
 #define _(x)    gettext(x)              /* GNU version of gettext()         */
