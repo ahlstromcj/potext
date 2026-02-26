@@ -1,12 +1,17 @@
 # .gitignore for Potex
 #
 # Chris Ahlstrom
-# Updates: 2024-03-21 to 2024-03-21
+# Updates: 2024-03-21 to 2026-02-25
 
 build/
+.cache
 core
-*.t
 tags
 TAGS
+*.t
 *.tmp
 tmp/
+/subprojects/*
+!/subprojects/*.wrap
+
+# vim: sw=4 ts=4 wm=4 et ft=gitignore
