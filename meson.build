@@ -58,7 +58,7 @@
 
 project('potext',
    [ 'cpp' ],
-   version: '0.2.1',
+   version: '0.3',
    license: 'GPLv2',
    meson_version: '>=1.4.0',
    default_options: [
@@ -128,6 +128,27 @@ po_localedir = join_paths(po_prefix, get_option('localedir'))
 po_metainfodir = join_paths(po_datadir, 'metainfo')
 libraries_top = meson.project_source_root()
 libpotext_include_top = join_paths(libraries_top, 'include')
+
+#-----------------------------------------------------------------------------
+# Sub-project(s)
+#-----------------------------------------------------------------------------
+
+liblib66_dep = subproject('liblib66').get_variable('liblib66_dep')
+liblib66_library_dep = dependency(
+   'liblib66', fallback : [ 'liblib66', 'liblib66_dep' ]
+   )
+
+#-----------------------------------------------------------------------------
+# While Linux and Mac provide iconv in libc, Mingw needs a separate install of
+# libiconv, cross-built; see the top of work.sh script for how to install
+# iconv. Meson cannot determine the version, however.
+#
+#     'iconv', version : '>=1.0.0', required : os_win32
+#
+#-----------------------------------------------------------------------------
+
+os_win32 = host_machine.system() == 'windows'
+iconv_depends = dependency('iconv', required : os_win32)
 
 #-----------------------------------------------------------------------------
 # pkgconfig

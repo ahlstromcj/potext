@@ -6,7 +6,7 @@
 # \library     potext
 # \author      Chris Ahlstrom
 # \date        2024-02-07
-# \updates     2024-04-25
+# \updates     2026-05-22
 # \license     $XPC_SUITE_GPL_LICENSE$
 #
 #  This file is part of the potext library and tests. See the top-level
@@ -44,7 +44,13 @@ build_args = []
 #
 #-----------------------------------------------------------------------------
 
-empty_depends = [ ]
+#if host_machine.system() == 'windows'
+#   iconv_depends = dependency(
+#      'libiconv', version : '>=1.0.0', required : true
+#   )
+#else
+#  iconv_depends = [ ]
+#endif
 
 #-----------------------------------------------------------------------------
 # Used by the potext_version() function.
@@ -112,7 +118,7 @@ po_library_build = library(
    install : po_install,
    install_dir : get_option('libdir') / po_project_base,
    cpp_args : build_args,
-   dependencies : empty_depends,
+   dependencies : [ iconv_depends, liblib66_library_dep ],
    include_directories : po_includedirs
    )
 

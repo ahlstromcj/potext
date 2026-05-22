@@ -42,6 +42,15 @@
 
 #include "po/wstrfunctions.hpp"         /* external wide-related functions  */
 
+/*
+ * The wstring_convert() template function is deprecated and will be
+ * removed in C++26.
+ */
+
+#if ! defined USE_DEPRECATED_WSTRING_CONVERT
+#include "utfcpp/utf8.h"                /* wstring_convert() replacement    */
+#endif
+
 /**
  *  For the most part, these limits are sanity checks.
  */
@@ -387,23 +396,41 @@ unpack_wide_string (const std::string & source)
 std::string
 wstring_to_utf8 (std::wstring const & wstr)
 {
+#if defined USE_DEPRECATED_WSTRING_CONVERT
     std::wstring_convert<std::conditional_t<
         sizeof(wchar_t) == 4,
         std::codecvt_utf8<wchar_t>,
         std::codecvt_utf8_utf16<wchar_t>>> converter;
 
     return converter.to_bytes(wstr);
+#else
+    std::string result;
+    (void) utf8::utf16to8
+    (
+        wstr.begin(), wstr.end(), std::back_inserter(result)
+    );
+    return result;
+#endif
 }
 
 std::wstring
 utf8_to_wstring (std::string const & str)
 {
+#if defined USE_DEPRECATED_WSTRING_CONVERT
     std::wstring_convert<std::conditional_t<
         sizeof(wchar_t) == 4,
         std::codecvt_utf8<wchar_t>,
         std::codecvt_utf8_utf16<wchar_t>>> converter;
 
     return converter.from_bytes(str);
+#else
+    std::wstring result;
+    (void) utf8::utf8to16
+    (
+        str.begin(), str.end(), std::back_inserter(result)
+    );
+    return result;
+#endif
 }
 
 #if defined PLATFORM_MSVC

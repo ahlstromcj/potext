@@ -6,7 +6,7 @@
 # \library     potext
 # \author      Chris Ahlstrom
 # \date        2024-02-06
-# \updates     2024-04-02
+# \updates     2026-05-22
 # \license     $XPC_SUITE_GPL_LICENSE$
 #
 #  This file is part of the "potext" library. See the top-level meson.build
@@ -17,31 +17,31 @@
 helloworld_exe = executable(
    'helloworld',
    sources : [ 'helloworld.cpp' ],
-   dependencies : [ libpotext_dep ]
+   dependencies : [ libpotext_dep, liblib66_library_dep ]
    )
 
 mo_parser_test_exe = executable(
    'mo_parser_test',
    sources : [ 'mo_parser_test.cpp' ],
-   dependencies : [ libpotext_dep ]
+   dependencies : [ libpotext_dep, liblib66_library_dep ]
    )
 
 po_parser_test_exe = executable(
    'po_parser_test',
    sources : [ 'po_parser_test.cpp' ],
-   dependencies : [ libpotext_dep ]
+   dependencies : [ libpotext_dep, liblib66_library_dep ]
    )
 
 potext_test_exe = executable(
    'potext_test',
    sources :  [ 'potext_test.cpp' ],
-   dependencies : [ libpotext_dep ]
+   dependencies : [ libpotext_dep, liblib66_library_dep ]
    )
 
 hellopotext_exe = executable(
    'hellopotext',
    sources : [ 'hellopotext.cpp' ],
-   dependencies : [ libpotext_dep ]
+   dependencies : [ libpotext_dep, liblib66_library_dep ]
    )
 
 test('Hello Potext', hellopotext_exe)
@@ -55,4 +55,3 @@ test('Potext Test', potext_test_exe)
 #----------------------------------------------------------------------------
 # vim: ts=3 sw=3 ft=meson
 #----------------------------------------------------------------------------
-

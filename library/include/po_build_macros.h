@@ -45,7 +45,7 @@
  *      These could also be provided in the meson.options configuration file.
  */
 
-#include "platform_macros.h"            /* generic detecting of OS platform */
+#include "platform_macros.h"            /* lib66 detection of OS platform   */
 
 /**
  *  Tentative. We need to have this set via a Meson option. These definitions

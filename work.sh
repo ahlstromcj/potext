@@ -8,7 +8,7 @@
 # \library        potext
 # \author         Chris Ahlstrom
 # \date           2025-01-30
-# \update         2026-05-21
+# \update         2026-05-22
 # \version        $Revision$
 # \license        $XPC_SUITE_GPL_LICENSE$
 #
@@ -27,14 +27,21 @@
 #     For the values needs for the "CROSS" "PATHS", see meson.mingw.cross.
 #     We're still working the issues for this.
 #
+# Mingw does not provide libiconv, so get the current official version
+# from GNU, and then ...
+#
+#     tar -xzvf libiconv-1.19.tar.gz
+#     cd libiconv-1.19
+#     ./configure --host=x86_64-w64-mingw32 --prefix=/usr/x86_64-w64-mingw32
+#
 #------------------------------------------------------------------------------
 
 LANG=C
 export LANG
 CYGWIN=binmode
 export CYGWIN
-export POTEXT_SCRIPT_EDIT_DATE="2026-05-21"
-export POTEXT_LIBRARY_API_VERSION="0.2"
+export POTEXT_SCRIPT_EDIT_DATE="2026-05-22"
+export POTEXT_LIBRARY_API_VERSION="0.3"
 export POTEXT_LIBRARY_VERSION="$POTEXT_LIBRARY_API_VERSION.0"
 export POTEXT="potext"
 export POTEXT_LIBRARY="$POTEXT-$POTEXT_LIBRARY_API_VERSION"
@@ -279,7 +286,7 @@ Many of these commands are best used when setting up the build
  --build [dir]       Same as --make, but if given, the build directory is
                      'build/dir'.
  --cross             Set up to build a Windows executable, and build it.
-                     Not workable yet; see mingw-qt-build.text.
+                     Not workable yet; see the top of this file.
  --setup             Run 'meson setup', and that's all.
  --update            Force an update of the subprojects.
  --release           Build release version (the default).
