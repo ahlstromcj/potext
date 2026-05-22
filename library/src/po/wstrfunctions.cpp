@@ -24,7 +24,7 @@
  * \library       potext
  * \author        Chris Ahlstrom
  * \date          2024-03-30
- * \updates       2024-04-03
+ * \updates       2026-05-22
  * \license       See above.
  *
  *      Functions to work around narrow versus wide strings. Not just for
@@ -371,6 +371,12 @@ unpack_wide_string (const std::string & source)
  *      codecvt_utf8_utf16: C++11; deprecated in C++17; removed in C++26
  *
  *  Note that this code, as stated above, is living on borrowed time.
+ *  std::wstring_convert() is deprecated in C++17 and will be removed
+ *  it C++26.
+ *
+ *  Look into: https://github.com/nemtrif/utfcpp. Actually, we already have,
+ *  and used it in the xml66 project. We'll do the same trick here, using
+ *  the code we already massaged.
  */
 
 #if defined PLATFORM_MSVC

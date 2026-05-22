@@ -6,7 +6,7 @@
 # \library     potext
 # \author      Chris Ahlstrom
 # \date        2024-02-06
-# \updates     2024-04-25
+# \updates     2026-05-22
 # \license     $XPC_SUITE_GPL_LICENSE$
 #
 #  This file is part of the potext library and tests.
@@ -60,7 +60,7 @@ project('potext',
    [ 'cpp' ],
    version: '0.2.1',
    license: 'GPLv2',
-   meson_version: '>=1.1.0',
+   meson_version: '>=1.4.0',
    default_options: [
       'cpp_std=c++17', 'warning_level=3',
       'default_library=both'          # 'static' for debug, 'both' otherwise
@@ -90,7 +90,7 @@ extra_flags = [
 po_pkg_description = 'A small gettext replacement extending tinygettext.'
 po_pkg_version = meson.project_version()
 po_api_version = '0.2'
-po_info_date = '2024-04-25'
+po_info_date = '2026-05-22'
 po_info_build_type = get_option('buildtype')
 po_info_build_root = meson.project_build_root()
 po_info_lib_type = get_option('default_library')

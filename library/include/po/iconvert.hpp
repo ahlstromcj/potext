@@ -36,6 +36,19 @@
  * \updates       2024-04-10
  * \license       See above.
  *
+ *  Mingw:
+ *
+ *      <iconv.h> requires the libiconv development headers, which are
+ *      not included in the standard MinGW installation.
+ *
+ *      MSYS: pacman -S mingw-w64-x86_64-libiconv or mingw-w64-i686-libiconv
+ *      Old Mingw: mingw-get install mingw32-libiconv
+ *
+ *      In Arch, have to install mingw-w64-x86_64-libiconv
+ *      mingw-w64-x86_64-configure.
+ *
+ *      Fix up the -I (if necessary) and add -liconv. Unfortunately,
+.*      #error MINGW 8 does not support std::filesystem, we will fix later.
  */
 
 #include <string>
