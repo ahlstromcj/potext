@@ -1,8 +1,32 @@
-NEWS for Potext 0.2.0
+NEWS for Potext 0.3.0
 Chris Ahlstrom
-2024-03-19 to 2024-04-14
+2024-03-19 to 2026-05-23
 
 # Changelog
+
+## [0.3.0] - 2026-05-23
+
+### Added
+
+- Copied the utf8cpp code from xml66 in order to replace the deprecated
+  wstring\_convert() template function.
+- Enabled lib66 as a Meson subproject.
+
+### Changed
+
+- Updated and enhanced work.sh and meson.build.
+
+### Fixed
+
+- Fixed the Mingw cross-build.
+- Had to download GNU's libiconv source code, cross-build it, and install
+  it so that iconv.h could be found.
+
+### Removed
+
+- Removed c\_macros.h and platform\_macros.h, replacing them with
+  the files existing in the lib66 subproject.
+- Removed dirent.h as it is not needed, even in the cross-build.
 
 ## [0.2.0] - 2024-04-14
 

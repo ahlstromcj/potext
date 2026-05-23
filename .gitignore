@@ -1,13 +1,14 @@
-# .gitignore for Potex
+# .gitignore for Potext
 #
 # Chris Ahlstrom
-# Updates: 2024-03-21 to 2026-02-25
+# Updates: 2024-03-21 to 2026-05-23
 
 build/
 .cache
 core
 tags
 TAGS
+*.log
 *.t
 *.tmp
 tmp/

@@ -1,0 +1,12 @@
+TODOs for the potext library
+Chris Ahlstrom
+2026-05-23 to 2026-05-23
+
+This file lists the high-priority features and fixes we need
+for Potext.
+
+    -   Investigate and fix errors in the test scripts.
+    -   Make sure the install and uninstall work.
+        Same for lib66 and cfg66..
+
+# vim: sw=4 ts=4 wm=8 et ft=sh

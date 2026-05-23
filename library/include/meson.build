@@ -6,7 +6,7 @@
 # \library     potext
 # \author      Chris Ahlstrom
 # \date        2024-02-06
-# \updates     2026-05-22
+# \updates     2026-05-23
 # \license     $XPC_SUITE_GPL_LICENSE$
 #
 #  This file is part of the "potext" library. See the top-level meson.build
@@ -36,7 +36,6 @@ libpotext_headers += files(
    'po/bfplurals.hpp',
    'po/dictionary.hpp',
    'po/dictionarymgr.hpp',
-   'po/dirent.h',
    'po/extractor.hpp',
    'po/filesystem.hpp',
    'po/gettext.hpp',

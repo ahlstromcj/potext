@@ -6,7 +6,7 @@
 % \library     Documents
 % \author      Chris Ahlstrom
 % \date        2024-02-08
-% \update      2024-04-14
+% \update      2026-05-23
 % \version     $Revision$
 % \license     $XPC_GPL_LICENSE$
 %
@@ -43,7 +43,7 @@
 
 \begin{document}
 
-\title{Potext Developer Guide 0.2.0}
+\title{Potext Developer Guide 0.3.0}
 \author{Chris Ahlstrom \\
    (\texttt{ahlstromcj@gmail.com})}
 \date{\today}
@@ -107,12 +107,13 @@
    \texttt{savannah.gnu.org} (\cite{gettextcode}).
 
    Note that \textsl{Potext} requires the usage of \texttt{C++17}
-   and above. It support builds using the \textsl{GNU} and \textsl{Clang}
-   compilers.
-   It also requires the use of \textsl{Meson 1.1} and above.
+   and above.
+   It support builds using the \textsl{GNU} and \textsl{Clang} compilers.
+   It support cross-builds using the \textsl{MingW} toolset.
+   It also requires the use of \textsl{Meson 1.4} and above.
    See the \texttt{INSTALL} file.
    \textsl{Windows} support (apart from \textsl{Mingw} and
-   \textsl{Cygwin} will be provided, but it is not ready yet.
+   \textsl{Cygwin}) will be provided, but it is not ready yet.
 
 \subsection{Additions to Tinygettext}
 \label{subsec:introduction_additions}

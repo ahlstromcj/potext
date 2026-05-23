@@ -30,7 +30,7 @@
  * \library       potext
  * \author        tinygettext; refactoring by Chris Ahlstrom
  * \date          2024-02-05
- * \updates       2025-05-22
+ * \updates       2025-05-23
  * \license       See above.
  *
  *  This class useds the static function std::filesystem::directory_iterator().
@@ -40,20 +40,9 @@
  */
 
 #include <fstream>
-
-#include "platform_macros.h"            /* PLATFORM_WINDOWS (WIN32) macro   */
-
-#if defined PLATFORM_WINDOWS
-
-#if defined PLATFORM_WINDOWS_32
-#include "po/dirent.h"
-#endif
-
-#else
-
 #include <filesystem>                   /* std::filesystem v po::filesystem */
+
 #include "po/unixfilesystem.hpp"
-#endif
 
 namespace po
 {

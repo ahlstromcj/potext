@@ -147,7 +147,7 @@ libpotext_so_version = '@0@.@1@.@2@'.format(
 
 #-----------------------------------------------------------------------------
 # Always build the tests unless potext is being used as a subproject.
-# Note the external dependencies meant for superprojects of potex.
+# Note the external dependencies meant for superprojects of potext.
 #-----------------------------------------------------------------------------
 
 libpotext_dep = declare_dependency(
